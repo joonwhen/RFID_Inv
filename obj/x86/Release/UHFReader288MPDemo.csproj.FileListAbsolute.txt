@@ -1,0 +1,13 @@
+C:\Users\P1332671\Desktop\RU6403\bin\x86\Release\UHFReader288MPDemo.exe
+C:\Users\P1332671\Desktop\RU6403\bin\x86\Release\UHFReader288MPDemo.pdb
+C:\Users\P1332671\Desktop\RU6403\bin\x86\Release\CustomControl.dll
+C:\Users\P1332671\Desktop\RU6403\obj\x86\Release\UHFReader288MPDemo.csprojAssemblyReference.cache
+C:\Users\P1332671\Desktop\RU6403\obj\x86\Release\UHFReader288MPDemo.ConfigForm.resources
+C:\Users\P1332671\Desktop\RU6403\obj\x86\Release\UHFReader288MPDemo.Form1.resources
+C:\Users\P1332671\Desktop\RU6403\obj\x86\Release\UHFReader288MPDemo.LoginForm.resources
+C:\Users\P1332671\Desktop\RU6403\obj\x86\Release\UHFReader288MPDemo.Properties.Resources.resources
+C:\Users\P1332671\Desktop\RU6403\obj\x86\Release\UHFReader288MPDemo.csproj.GenerateResource.cache
+C:\Users\P1332671\Desktop\RU6403\obj\x86\Release\UHFReader288MPDemo.csproj.CoreCompileInputs.cache
+C:\Users\P1332671\Desktop\RU6403\obj\x86\Release\UHFReader288MPDemo.csproj.CopyComplete
+C:\Users\P1332671\Desktop\RU6403\obj\x86\Release\UHFReader288MPDemo.exe
+C:\Users\P1332671\Desktop\RU6403\obj\x86\Release\UHFReader288MPDemo.pdb
