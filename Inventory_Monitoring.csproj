@@ -8,8 +8,8 @@
     <ProjectGuid>{6AFFE265-E5CA-4923-8119-4861750FB3AA}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>UHFReader288MPDemo</RootNamespace>
-    <AssemblyName>UHFReader288MPDemo</AssemblyName>
+    <RootNamespace>Inventory_Monitoring</RootNamespace>
+    <AssemblyName>Inventory_Monitoring</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ApplicationIcon>mainapp.ico</ApplicationIcon>

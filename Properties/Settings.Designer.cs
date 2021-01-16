@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace UHFReader288MPDemo.Properties {
+namespace Inventory_Monitoring.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]

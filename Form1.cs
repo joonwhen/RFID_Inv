@@ -4773,7 +4773,6 @@ namespace UHFReader288MPDemo
                         }
                         if (!isonlistview)
                         {
-                            Console.WriteLine("Test #1");
                             string[] arr = new string[6];
                             arr[0] = (dataGridView4.RowCount + 1).ToString();
                             arr[1] = EPCStr;
@@ -4784,7 +4783,6 @@ namespace UHFReader288MPDemo
 
                             //JW - Insert Raw Data Here and call the function to check if the EPC exists on the list.
                             List<string> Raw_EPC_List = new List<string>();
-                            Console.WriteLine("Test");
                             string time_now = DateTime.Now.ToString();
                             Raw_EPC_List.Add(EPCStr);
                             Raw_EPC_List.Add(RSSI);
@@ -5085,7 +5083,7 @@ namespace UHFReader288MPDemo
         public static void EPC_Checker(List<string> Raw_Entry_List)
         {
             bool inList = false;
-            Console.WriteLine("EPC Checker Called");
+
             for (int i = 0; i < (Form1.Full_list.Count - 2); i = i + 3)
             {
                 if (Form1.Full_list[i] == Raw_Entry_List[0])
@@ -5093,11 +5091,10 @@ namespace UHFReader288MPDemo
                     Form1.Full_list[i + 1] = Raw_Entry_List[1];
                     Form1.Full_list[i + 2] = Raw_Entry_List[2];
                     inList = true;
-                    Console.WriteLine("Match");
                 }
                 else
                 {
-                    Console.WriteLine("No Match");
+                    //no match
                 }
             }
 
@@ -5112,23 +5109,53 @@ namespace UHFReader288MPDemo
         //JW - Function which checks if item is available or not
         private void Periodic_Checker()
         {
-            Thread.Sleep(1000 * 30);
-            DateTime time_now = DateTime.Now;
-            int counter;
-
-            for (counter = 2; counter < Form1.Full_list.Count - 1; counter = counter + 3)
+            while (true)
             {
-                int time_diff = Convert.ToInt32(time_now.Subtract(Convert.ToDateTime(Form1.Full_list[counter])).TotalSeconds);
-                if (time_diff >= 1)
+
+                //empty the full_list if it is 12mn
+                DateTime time_now = DateTime.Now;
+                string time_check = time_now.ToString("HH:mm");
+                if (time_check == "12:00")
                 {
-                    Console.WriteLine("Item has been checked out.");
-                    /*Remove the item from the list
-                     * 
-                     * 
-                     */
+                    Form1.Full_list.Clear();
+                    Thread.Sleep(1000 * 60);
                 }
-            }
-            counter = 2;
+                //The sleep command below indicates how frequent the checker is activated.
+                else
+                {
+                    Thread.Sleep(1000 * 30);
+                }
+                int counter = 2;
+                bool shift_list = false;
+                List<string> managed_list = new List<string>();
+                managed_list = Form1.Full_list;
+
+                for (counter = 2; counter < managed_list.Count; counter = counter + 3)
+                {
+                    int time_diff = Convert.ToInt32(time_now.Subtract(Convert.ToDateTime(managed_list[counter])).TotalSeconds);
+                    
+                    if((shift_list == true) && (counter == managed_list.Count -1))
+                    {
+                        shift_list = false;
+                        managed_list.RemoveRange(counter - 2, 3);
+                    }
+                    
+                    //How long is the item missing to be considered checked out
+                    if (time_diff >= 1)
+                    {
+                        shift_list = true;
+                        Console.WriteLine("Item has been checked out.");
+                        //do things to the database
+                    }
+
+                    if(shift_list)
+                    {
+                        managed_list[counter - 2] = managed_list[counter + 1];
+                        managed_list[counter - 1] = managed_list[counter + 2];
+                        managed_list[counter] = managed_list[counter + 3];
+                    }
+                }
+            }    
         }
     }
 }

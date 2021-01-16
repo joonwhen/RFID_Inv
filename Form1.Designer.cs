@@ -458,6 +458,8 @@
             this.timer_Buff = new System.Windows.Forms.Timer(this.components);
             this.timer_RealTime = new System.Windows.Forms.Timer(this.components);
             this.ckClearOperationRec = new System.Windows.Forms.CheckBox();
+            this.DIS_InvList = new System.Windows.Forms.GroupBox();
+            this.View_InvList = new System.Windows.Forms.DataGridView();
             this.Maintab.SuspendLayout();
             this.Main_Page1.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -557,6 +559,8 @@
             this.groupBox24.SuspendLayout();
             this.tabPage9.SuspendLayout();
             this.groupBox26.SuspendLayout();
+            this.DIS_InvList.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.View_InvList)).BeginInit();
             this.SuspendLayout();
             // 
             // lrtxtLog
@@ -2437,6 +2441,7 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.DIS_InvList);
             this.panel1.Controls.Add(this.lxLedControl6);
             this.panel1.Controls.Add(this.label119);
             this.panel1.Controls.Add(this.gbp_MixRead);
@@ -2753,7 +2758,7 @@
             this.groupBox5.Controls.Add(this.dataGridView1);
             this.groupBox5.Location = new System.Drawing.Point(4, 86);
             this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(678, 482);
+            this.groupBox5.Size = new System.Drawing.Size(678, 261);
             this.groupBox5.TabIndex = 18;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Tag list(No Repeat)";
@@ -2769,7 +2774,7 @@
             this.dataGridView1.BackgroundColor = System.Drawing.SystemColors.ControlLightLight;
             this.dataGridView1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Location = new System.Drawing.Point(6, 22);
+            this.dataGridView1.Location = new System.Drawing.Point(7, 28);
             this.dataGridView1.MultiSelect = false;
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.ReadOnly = true;
@@ -2777,7 +2782,7 @@
             this.dataGridView1.RowTemplate.Height = 23;
             this.dataGridView1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.dataGridView1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridView1.Size = new System.Drawing.Size(664, 456);
+            this.dataGridView1.Size = new System.Drawing.Size(665, 225);
             this.dataGridView1.TabIndex = 1;
             // 
             // groupBox4
@@ -5395,6 +5400,27 @@
             this.ckClearOperationRec.Text = "Auto-Clear";
             this.ckClearOperationRec.UseVisualStyleBackColor = true;
             // 
+            // DIS_InvList
+            // 
+            this.DIS_InvList.Controls.Add(this.View_InvList);
+            this.DIS_InvList.Location = new System.Drawing.Point(4, 353);
+            this.DIS_InvList.Name = "DIS_InvList";
+            this.DIS_InvList.Size = new System.Drawing.Size(678, 223);
+            this.DIS_InvList.TabIndex = 34;
+            this.DIS_InvList.TabStop = false;
+            this.DIS_InvList.Text = "Inventory List";
+            // 
+            // View_InvList
+            // 
+            this.View_InvList.BackgroundColor = System.Drawing.SystemColors.ControlLightLight;
+            this.View_InvList.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.View_InvList.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.View_InvList.GridColor = System.Drawing.SystemColors.ActiveBorder;
+            this.View_InvList.Location = new System.Drawing.Point(7, 19);
+            this.View_InvList.Name = "View_InvList";
+            this.View_InvList.Size = new System.Drawing.Size(665, 190);
+            this.View_InvList.TabIndex = 32;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -5568,6 +5594,8 @@
             this.tabPage9.PerformLayout();
             this.groupBox26.ResumeLayout(false);
             this.groupBox26.PerformLayout();
+            this.DIS_InvList.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.View_InvList)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -6003,6 +6031,8 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn9;
         private System.Windows.Forms.DataGridViewTextBoxColumn Column7;
         private System.Windows.Forms.RadioButton radioButton_band12;
+        private System.Windows.Forms.GroupBox DIS_InvList;
+        private System.Windows.Forms.DataGridView View_InvList;
     }
 }
 
