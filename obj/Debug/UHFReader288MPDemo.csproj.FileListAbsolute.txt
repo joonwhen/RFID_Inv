@@ -1,0 +1,13 @@
+D:\JW\Work\Repository\RFID_Inv\bin\Debug\UHFReader288MPDemo.exe
+D:\JW\Work\Repository\RFID_Inv\bin\Debug\UHFReader288MPDemo.pdb
+D:\JW\Work\Repository\RFID_Inv\bin\Debug\CustomControl.dll
+D:\JW\Work\Repository\RFID_Inv\obj\Debug\UHFReader288MPDemo.csprojAssemblyReference.cache
+D:\JW\Work\Repository\RFID_Inv\obj\Debug\UHFReader288MPDemo.ConfigForm.resources
+D:\JW\Work\Repository\RFID_Inv\obj\Debug\UHFReader288MPDemo.Form1.resources
+D:\JW\Work\Repository\RFID_Inv\obj\Debug\UHFReader288MPDemo.LoginForm.resources
+D:\JW\Work\Repository\RFID_Inv\obj\Debug\UHFReader288MPDemo.Properties.Resources.resources
+D:\JW\Work\Repository\RFID_Inv\obj\Debug\UHFReader288MPDemo.csproj.GenerateResource.cache
+D:\JW\Work\Repository\RFID_Inv\obj\Debug\UHFReader288MPDemo.csproj.CoreCompileInputs.cache
+D:\JW\Work\Repository\RFID_Inv\obj\Debug\UHFReader288MPDemo.csproj.CopyComplete
+D:\JW\Work\Repository\RFID_Inv\obj\Debug\UHFReader288MPDemo.exe
+D:\JW\Work\Repository\RFID_Inv\obj\Debug\UHFReader288MPDemo.pdb

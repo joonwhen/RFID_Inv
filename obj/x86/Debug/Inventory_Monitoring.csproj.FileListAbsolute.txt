@@ -1,0 +1,12 @@
+D:\JW\Work\Repository\RFID_Inv\bin\x86\Debug\Inventory_Monitoring.exe
+D:\JW\Work\Repository\RFID_Inv\bin\x86\Debug\Inventory_Monitoring.pdb
+D:\JW\Work\Repository\RFID_Inv\bin\x86\Debug\CustomControl.dll
+D:\JW\Work\Repository\RFID_Inv\obj\x86\Debug\UHFReader288MPDemo.ConfigForm.resources
+D:\JW\Work\Repository\RFID_Inv\obj\x86\Debug\UHFReader288MPDemo.Form1.resources
+D:\JW\Work\Repository\RFID_Inv\obj\x86\Debug\UHFReader288MPDemo.LoginForm.resources
+D:\JW\Work\Repository\RFID_Inv\obj\x86\Debug\Inventory_Monitoring.Properties.Resources.resources
+D:\JW\Work\Repository\RFID_Inv\obj\x86\Debug\Inventory_Monitoring.csproj.GenerateResource.cache
+D:\JW\Work\Repository\RFID_Inv\obj\x86\Debug\Inventory_Monitoring.csproj.CoreCompileInputs.cache
+D:\JW\Work\Repository\RFID_Inv\obj\x86\Debug\Inventory_Monitoring.csproj.CopyComplete
+D:\JW\Work\Repository\RFID_Inv\obj\x86\Debug\Inventory_Monitoring.exe
+D:\JW\Work\Repository\RFID_Inv\obj\x86\Debug\Inventory_Monitoring.pdb
