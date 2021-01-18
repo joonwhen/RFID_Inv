@@ -193,6 +193,8 @@
             this.tabControl2 = new System.Windows.Forms.TabControl();
             this.tabPage_answer = new System.Windows.Forms.TabPage();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.DIS_InvList = new System.Windows.Forms.GroupBox();
+            this.View_InvList = new System.Windows.Forms.DataGridView();
             this.lxLedControl6 = new LxControl.LxLedControl();
             this.label119 = new System.Windows.Forms.Label();
             this.gbp_MixRead = new System.Windows.Forms.GroupBox();
@@ -458,8 +460,6 @@
             this.timer_Buff = new System.Windows.Forms.Timer(this.components);
             this.timer_RealTime = new System.Windows.Forms.Timer(this.components);
             this.ckClearOperationRec = new System.Windows.Forms.CheckBox();
-            this.DIS_InvList = new System.Windows.Forms.GroupBox();
-            this.View_InvList = new System.Windows.Forms.DataGridView();
             this.Maintab.SuspendLayout();
             this.Main_Page1.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -499,6 +499,8 @@
             this.tabControl2.SuspendLayout();
             this.tabPage_answer.SuspendLayout();
             this.panel1.SuspendLayout();
+            this.DIS_InvList.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.View_InvList)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.lxLedControl6)).BeginInit();
             this.gbp_MixRead.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.lxLedControl5)).BeginInit();
@@ -559,8 +561,6 @@
             this.groupBox24.SuspendLayout();
             this.tabPage9.SuspendLayout();
             this.groupBox26.SuspendLayout();
-            this.DIS_InvList.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.View_InvList)).BeginInit();
             this.SuspendLayout();
             // 
             // lrtxtLog
@@ -2464,6 +2464,27 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(1066, 574);
             this.panel1.TabIndex = 0;
+            // 
+            // DIS_InvList
+            // 
+            this.DIS_InvList.Controls.Add(this.View_InvList);
+            this.DIS_InvList.Location = new System.Drawing.Point(4, 353);
+            this.DIS_InvList.Name = "DIS_InvList";
+            this.DIS_InvList.Size = new System.Drawing.Size(678, 223);
+            this.DIS_InvList.TabIndex = 34;
+            this.DIS_InvList.TabStop = false;
+            this.DIS_InvList.Text = "Inventory List";
+            // 
+            // View_InvList
+            // 
+            this.View_InvList.BackgroundColor = System.Drawing.SystemColors.ControlLightLight;
+            this.View_InvList.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.View_InvList.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.View_InvList.GridColor = System.Drawing.SystemColors.ActiveBorder;
+            this.View_InvList.Location = new System.Drawing.Point(7, 19);
+            this.View_InvList.Name = "View_InvList";
+            this.View_InvList.Size = new System.Drawing.Size(665, 190);
+            this.View_InvList.TabIndex = 32;
             // 
             // lxLedControl6
             // 
@@ -5400,27 +5421,6 @@
             this.ckClearOperationRec.Text = "Auto-Clear";
             this.ckClearOperationRec.UseVisualStyleBackColor = true;
             // 
-            // DIS_InvList
-            // 
-            this.DIS_InvList.Controls.Add(this.View_InvList);
-            this.DIS_InvList.Location = new System.Drawing.Point(4, 353);
-            this.DIS_InvList.Name = "DIS_InvList";
-            this.DIS_InvList.Size = new System.Drawing.Size(678, 223);
-            this.DIS_InvList.TabIndex = 34;
-            this.DIS_InvList.TabStop = false;
-            this.DIS_InvList.Text = "Inventory List";
-            // 
-            // View_InvList
-            // 
-            this.View_InvList.BackgroundColor = System.Drawing.SystemColors.ControlLightLight;
-            this.View_InvList.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.View_InvList.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.View_InvList.GridColor = System.Drawing.SystemColors.ActiveBorder;
-            this.View_InvList.Location = new System.Drawing.Point(7, 19);
-            this.View_InvList.Name = "View_InvList";
-            this.View_InvList.Size = new System.Drawing.Size(665, 190);
-            this.View_InvList.TabIndex = 32;
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -5504,6 +5504,8 @@
             this.tabPage_answer.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            this.DIS_InvList.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.View_InvList)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.lxLedControl6)).EndInit();
             this.gbp_MixRead.ResumeLayout(false);
             this.gbp_MixRead.PerformLayout();
@@ -5594,8 +5596,6 @@
             this.tabPage9.PerformLayout();
             this.groupBox26.ResumeLayout(false);
             this.groupBox26.PerformLayout();
-            this.DIS_InvList.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.View_InvList)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 

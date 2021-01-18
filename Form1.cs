@@ -84,6 +84,8 @@ namespace UHFReader288MPDemo
 
         //JW - Global list to keep track of the EPCs 
         public static List<string> Full_list = new List<string>();
+        //JW - Condition to run epc checker
+        public static bool run_epc_checker = true;
 
         /// <summary>
         /// Device Search的回调函数;
@@ -232,6 +234,16 @@ namespace UHFReader288MPDemo
                     dr["Column4"] = RSSI;
                     dr["Column5"] = str_ant;
                     dt.Rows.Add(dr);
+
+                    //JW - Insert Raw Data Here and call the function to check if the EPC exists on the list.
+                    List<string> Raw_EPC_List = new List<string>();
+                    string time_now = DateTime.Now.ToString();
+                    Raw_EPC_List.Add(sEPC);
+                    Raw_EPC_List.Add(RSSI);
+                    Raw_EPC_List.Add(time_now);
+                    Console.WriteLine("Calling EPC Checker #1");
+                    EPC_Checker(Raw_EPC_List);
+
                     if (rb_fastid.Checked)
                     {
                         if ((epclen & 0x80) == 0)//只有EPC
@@ -284,6 +296,16 @@ namespace UHFReader288MPDemo
                         dr2["Column4"] = RSSI;
                         dr2["Column5"] = str_ant;
                         dt.Rows.Add(dr2);
+
+                        //JW - Insert Raw Data Here and call the function to check if the EPC exists on the list.
+                        List<string> Raw_EPC_List = new List<string>();
+                        string time_now = DateTime.Now.ToString();
+                        Raw_EPC_List.Add(sEPC);
+                        Raw_EPC_List.Add(RSSI);
+                        Raw_EPC_List.Add(time_now);
+                        Console.WriteLine("Calling EPC Checker #2");
+                        EPC_Checker(Raw_EPC_List);
+
                         if (rb_fastid.Checked)
                         {
                             if ((epclen & 0x80) == 0)//只有EPC
@@ -333,6 +355,14 @@ namespace UHFReader288MPDemo
                         int ant1 = Convert.ToInt32(dr[0]["Column5"].ToString(), 2);
                         int ant2 = Convert.ToInt32(str_ant, 2);
                         dt.Rows[dt.Rows.IndexOf(dr[0])]["Column5"] = Convert.ToString((ant1 | ant2), 2).PadLeft(4, '0');
+
+                        //JW - Insert Raw Data Here and call the function to check if the EPC exists on the list.
+                        List<string> Raw_EPC_List = new List<string>();
+                        string time_now = DateTime.Now.ToString();
+                        Raw_EPC_List.Add(sEPC);
+                        Raw_EPC_List.Add(RSSI);
+                        Raw_EPC_List.Add(time_now);
+                        EPC_Checker(Raw_EPC_List);
                     }
                 }
                 bool flagset = false;
@@ -390,6 +420,15 @@ namespace UHFReader288MPDemo
                     lxLedControl1.Text = dt.Rows.Count.ToString();
                     lxLedControl5.Text = dt.Rows.Count.ToString();
                     comboBox_EPC.Items.Add(sEPC);
+
+                    //JW - Insert Raw Data Here and call the function to check if the EPC exists on the list.
+                    List<string> Raw_EPC_List = new List<string>();
+                    string time_now = DateTime.Now.ToString();
+                    Raw_EPC_List.Add(sEPC);
+                    Raw_EPC_List.Add(RSSI);
+                    Raw_EPC_List.Add(time_now);
+                    Console.WriteLine("Calling EPC Checker #4");
+                    EPC_Checker(Raw_EPC_List);
                 }
                 else
                 {
@@ -405,6 +444,16 @@ namespace UHFReader288MPDemo
                         dr2["Column5"] = RSSI;
                         dr2["Column6"] = str_ant;
                         dt.Rows.Add(dr2);
+
+                        //JW - Insert Raw Data Here and call the function to check if the EPC exists on the list.
+                        List<string> Raw_EPC_List = new List<string>();
+                        string time_now = DateTime.Now.ToString();
+                        Raw_EPC_List.Add(sEPC);
+                        Raw_EPC_List.Add(RSSI);
+                        Raw_EPC_List.Add(time_now);
+                        Console.WriteLine("Calling EPC Checker #5");
+                        EPC_Checker(Raw_EPC_List);
+
                         lxLedControl1.Text = dt.Rows.Count.ToString();
                         lxLedControl5.Text = (System.Environment.TickCount - total_time).ToString();
                         comboBox_EPC.Items.Add(sEPC);
@@ -418,6 +467,15 @@ namespace UHFReader288MPDemo
                         int ant1 = Convert.ToInt32(dr[0]["Column6"].ToString(), 2);
                         int ant2 = Convert.ToInt32(str_ant, 2);
                         dt.Rows[dt.Rows.IndexOf(dr[0])]["Column6"] = Convert.ToString((ant1 | ant2), 2).PadLeft(4, '0');
+
+                        //JW - Insert Raw Data Here and call the function to check if the EPC exists on the list.
+                        List<string> Raw_EPC_List = new List<string>();
+                        string time_now = DateTime.Now.ToString();
+                        Raw_EPC_List.Add(sEPC);
+                        Raw_EPC_List.Add(RSSI);
+                        Raw_EPC_List.Add(time_now);
+                        Console.WriteLine("Calling EPC Checker #6");
+                        EPC_Checker(Raw_EPC_List);
                     }
                 }
                 bool flagset = false;
@@ -504,6 +562,16 @@ namespace UHFReader288MPDemo
                     dr["Column5"] = RSSI;
                     dr["Column6"] = str_ant;
                     dt.Rows.Add(dr);
+
+                    //JW - Insert Raw Data Here and call the function to check if the EPC exists on the list.
+                    List<string> Raw_EPC_List = new List<string>();
+                    string time_now = DateTime.Now.ToString();
+                    Raw_EPC_List.Add(sEPC);
+                    Raw_EPC_List.Add(RSSI);
+                    Raw_EPC_List.Add(time_now);
+                    Console.WriteLine("Calling EPC Checker #7");
+                    EPC_Checker(Raw_EPC_List);
+
                     //lxLedControl1.Text = dt.Rows.Count.ToString();
                     lxLedControl5.Text = dt.Rows.Count.ToString();
                     comboBox_EPC.Items.Add(sEPC);
@@ -522,6 +590,16 @@ namespace UHFReader288MPDemo
                         dr2["Column5"] = RSSI;
                         dr2["Column6"] = str_ant;
                         dt.Rows.Add(dr2);
+
+                        //JW - Insert Raw Data Here and call the function to check if the EPC exists on the list.
+                        List<string> Raw_EPC_List = new List<string>();
+                        string time_now = DateTime.Now.ToString();
+                        Raw_EPC_List.Add(sEPC);
+                        Raw_EPC_List.Add(RSSI);
+                        Raw_EPC_List.Add(time_now);
+                        Console.WriteLine("Calling EPC Checker #8");
+                        EPC_Checker(Raw_EPC_List);
+
                         //lxLedControl1.Text = dt.Rows.Count.ToString();
                         lxLedControl5.Text = (System.Environment.TickCount - total_time).ToString();
                         comboBox_EPC.Items.Add(sEPC);
@@ -535,6 +613,15 @@ namespace UHFReader288MPDemo
                         int ant1 = Convert.ToInt32(dr[0]["Column6"].ToString(), 2);
                         int ant2 = Convert.ToInt32(str_ant, 2);
                         dt.Rows[dt.Rows.IndexOf(dr[0])]["Column6"] = Convert.ToString((ant1 | ant2), 2).PadLeft(4, '0');
+
+                        //JW - Insert Raw Data Here and call the function to check if the EPC exists on the list.
+                        List<string> Raw_EPC_List = new List<string>();
+                        string time_now = DateTime.Now.ToString();
+                        Raw_EPC_List.Add(sEPC);
+                        Raw_EPC_List.Add(RSSI);
+                        Raw_EPC_List.Add(time_now);
+                        Console.WriteLine("Calling EPC Checker #9");
+                        EPC_Checker(Raw_EPC_List);
                     }
                 }
                 bool flagset = false;
@@ -4780,14 +4867,6 @@ namespace UHFReader288MPDemo
                             arr[3] = AntStr;
                             arr[4] = RSSI;
                             dataGridView4.Rows.Insert(dataGridView4.RowCount, arr);
-
-                            //JW - Insert Raw Data Here and call the function to check if the EPC exists on the list.
-                            List<string> Raw_EPC_List = new List<string>();
-                            string time_now = DateTime.Now.ToString();
-                            Raw_EPC_List.Add(EPCStr);
-                            Raw_EPC_List.Add(RSSI);
-                            Raw_EPC_List.Add(time_now);
-                            EPC_Checker(Raw_EPC_List);
                         }
                         lxLed_Mtime.Text = (System.Environment.TickCount - total_time).ToString();
                     }
@@ -5080,7 +5159,7 @@ namespace UHFReader288MPDemo
         }
 
         //JW - Function to check if EPC is already on the list
-        public static bool run_epc_checker = true;
+        
         public static void EPC_Checker(List<string> Raw_Entry_List)
         {
             if(Form1.run_epc_checker == true)
@@ -5114,17 +5193,33 @@ namespace UHFReader288MPDemo
         //JW - Function which checks if item is available or not
         private void Periodic_Checker()
         {
+            List<string> managed_list = new List<string>();
             while (true)
             {
                 DateTime time_now = DateTime.Now;
                 //The sleep command below indicates how frequent the checker is activated.
-                Thread.Sleep(1000 * 300);
+                Thread.Sleep(1000 * 30);
                 int counter = 2;
+                int i = 0;
+                int time_diff;
                 bool shift_list = false;
-                List<string> managed_list = new List<string>();
                 managed_list = Form1.Full_list;
 
-                for (counter = 2; counter < managed_list.Count; counter = counter + 3)
+                Console.WriteLine("Number of entries in Managed List before sorting is " + managed_list.Count);
+                Console.WriteLine("Number of entries in full List before sorting is " + Form1.Full_list.Count);
+
+                for (counter = 2; counter <= managed_list.Count - 1; counter = counter + 3)
+                {
+                    time_diff = Convert.ToInt32(time_now.Subtract(Convert.ToDateTime(managed_list[counter])).TotalSeconds);
+                    if (time_diff <= -20)
+                    {
+                        Console.WriteLine("Item with EPC " + managed_list[counter - 2] + " has been checked out.");
+                        managed_list.RemoveRange(counter - 2, 3);
+                        
+                    }
+                }
+
+                /*for (counter = 2; counter <= managed_list.Count - 1; counter = counter + 3)
                 {
                     int time_diff = Convert.ToInt32(time_now.Subtract(Convert.ToDateTime(managed_list[counter])).TotalSeconds);
                     
@@ -5132,10 +5227,11 @@ namespace UHFReader288MPDemo
                     {
                         shift_list = false;
                         managed_list.RemoveRange(counter - 2, 3);
+                        Console.WriteLine("shifting of list ended");
                     }
                     
                     //How long is the item missing to be considered checked out
-                    if (time_diff >= 1)
+                    if (time_diff <= -20)
                     {
                         shift_list = true;
                         Console.WriteLine("Item has been checked out.");
@@ -5144,17 +5240,24 @@ namespace UHFReader288MPDemo
 
                     if(shift_list)
                     {
+                        Console.WriteLine("Shifting List");
                         managed_list[counter - 2] = managed_list[counter + 1];
                         managed_list[counter - 1] = managed_list[counter + 2];
                         managed_list[counter] = managed_list[counter + 3];
+                        
                     }
-                }
+                }*/
 
                 //Checking Completed, Update the Full List
                 Form1.run_epc_checker = false;
                 Form1.Full_list.Clear();
                 Form1.Full_list = managed_list;
                 Form1.run_epc_checker = true;
+                Console.WriteLine("Number of entries in Managed List after sorting is " + managed_list.Count);
+                Console.WriteLine("Number of entries in full List after sorting is " + Form1.Full_list.Count);
+                Console.WriteLine("---");
+                managed_list.Clear();
+                Console.WriteLine("Thread is going to sleep.");
             }    
         }
     }
