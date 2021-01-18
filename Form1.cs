@@ -5080,30 +5080,35 @@ namespace UHFReader288MPDemo
         }
 
         //JW - Function to check if EPC is already on the list
+        public static bool run_epc_checker = true;
         public static void EPC_Checker(List<string> Raw_Entry_List)
         {
-            bool inList = false;
-
-            for (int i = 0; i < (Form1.Full_list.Count - 2); i = i + 3)
+            if(Form1.run_epc_checker == true)
             {
-                if (Form1.Full_list[i] == Raw_Entry_List[0])
+                bool inList = false;
+
+                for (int i = 0; i < (Form1.Full_list.Count - 2); i = i + 3)
                 {
-                    Form1.Full_list[i + 1] = Raw_Entry_List[1];
-                    Form1.Full_list[i + 2] = Raw_Entry_List[2];
-                    inList = true;
+                    if (Form1.Full_list[i] == Raw_Entry_List[0])
+                    {
+                        Form1.Full_list[i + 1] = Raw_Entry_List[1];
+                        Form1.Full_list[i + 2] = Raw_Entry_List[2];
+                        inList = true;
+                    }
+                    else
+                    {
+                        //no match
+                    }
                 }
-                else
+
+                if (!inList)
                 {
-                    //no match
+                    Form1.Full_list.Add(Raw_Entry_List[0]);
+                    Form1.Full_list.Add(Raw_Entry_List[1]);
+                    Form1.Full_list.Add(Raw_Entry_List[2]);
                 }
             }
-
-            if (!inList)
-            {
-                Form1.Full_list.Add(Raw_Entry_List[0]);
-                Form1.Full_list.Add(Raw_Entry_List[1]);
-                Form1.Full_list.Add(Raw_Entry_List[2]);
-            }
+            
         }
 
         //JW - Function which checks if item is available or not
@@ -5111,20 +5116,9 @@ namespace UHFReader288MPDemo
         {
             while (true)
             {
-
-                //empty the full_list if it is 12mn
                 DateTime time_now = DateTime.Now;
-                string time_check = time_now.ToString("HH:mm");
-                if (time_check == "12:00")
-                {
-                    Form1.Full_list.Clear();
-                    Thread.Sleep(1000 * 60);
-                }
                 //The sleep command below indicates how frequent the checker is activated.
-                else
-                {
-                    Thread.Sleep(1000 * 30);
-                }
+                Thread.Sleep(1000 * 300);
                 int counter = 2;
                 bool shift_list = false;
                 List<string> managed_list = new List<string>();
@@ -5155,6 +5149,12 @@ namespace UHFReader288MPDemo
                         managed_list[counter] = managed_list[counter + 3];
                     }
                 }
+
+                //Checking Completed, Update the Full List
+                Form1.run_epc_checker = false;
+                Form1.Full_list.Clear();
+                Form1.Full_list = managed_list;
+                Form1.run_epc_checker = true;
             }    
         }
     }
