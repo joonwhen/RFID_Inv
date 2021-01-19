@@ -5201,8 +5201,10 @@ namespace UHFReader288MPDemo
                 Thread.Sleep(1000 * 30);
                 int counter = 2;
                 int i = 0;
+                int u = 0;
+                int counter_total_item = 0;
                 int time_diff;
-                bool shift_list = false;
+                List<string> Remove_List = new List<string>();
                 managed_list = Form1.Full_list;
 
                 Console.WriteLine("Number of entries in Managed List before sorting is " + managed_list.Count);
@@ -5213,51 +5215,49 @@ namespace UHFReader288MPDemo
                     time_diff = Convert.ToInt32(time_now.Subtract(Convert.ToDateTime(managed_list[counter])).TotalSeconds);
                     if (time_diff <= -20)
                     {
-                        Console.WriteLine("Item with EPC " + managed_list[counter - 2] + " has been checked out.");
-                        managed_list.RemoveRange(counter - 2, 3);
-                        
+                        //get EPC, add EPC to remove_list
+                        Remove_List.Add(managed_list[counter - 2]);
                     }
                 }
 
-                /*for (counter = 2; counter <= managed_list.Count - 1; counter = counter + 3)
+                counter = Remove_List.Count;
+                counter_total_item = managed_list.Count;
+                
+                i = 0;
+                u = 0;
+                while (u < counter)
                 {
-                    int time_diff = Convert.ToInt32(time_now.Subtract(Convert.ToDateTime(managed_list[counter])).TotalSeconds);
-                    
-                    if((shift_list == true) && (counter == managed_list.Count -1))
+                    for(i = 0; i < counter_total_item; i = i + 3 )
                     {
-                        shift_list = false;
-                        managed_list.RemoveRange(counter - 2, 3);
-                        Console.WriteLine("shifting of list ended");
+                        if(managed_list[i] == Remove_List[u])
+                        {
+                            Console.WriteLine("Removing " + managed_list[i]);
+                            managed_list.RemoveRange(i, 3);
+                            break;
+                        }
                     }
-                    
-                    //How long is the item missing to be considered checked out
-                    if (time_diff <= -20)
-                    {
-                        shift_list = true;
-                        Console.WriteLine("Item has been checked out.");
-                        //do things to the database
-                    }
+                    u++;
+                }
 
-                    if(shift_list)
-                    {
-                        Console.WriteLine("Shifting List");
-                        managed_list[counter - 2] = managed_list[counter + 1];
-                        managed_list[counter - 1] = managed_list[counter + 2];
-                        managed_list[counter] = managed_list[counter + 3];
-                        
-                    }
-                }*/
+                Console.WriteLine("Printing Managed List");
+                for( i = 0; i < managed_list.Count; i = i+3)
+                {
+                    Console.WriteLine("EPC: " + managed_list[i] + ", RSSI: " + managed_list[i + 1] + " " + managed_list[i + 2]);
+                }
 
                 //Checking Completed, Update the Full List
                 Form1.run_epc_checker = false;
                 Form1.Full_list.Clear();
                 Form1.Full_list = managed_list;
                 Form1.run_epc_checker = true;
+
+
                 Console.WriteLine("Number of entries in Managed List after sorting is " + managed_list.Count);
                 Console.WriteLine("Number of entries in full List after sorting is " + Form1.Full_list.Count);
                 Console.WriteLine("---");
-                managed_list.Clear();
                 Console.WriteLine("Thread is going to sleep.");
+
+                managed_list.Clear();
             }    
         }
     }
