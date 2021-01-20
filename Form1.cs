@@ -362,6 +362,7 @@ namespace UHFReader288MPDemo
                         Raw_EPC_List.Add(sEPC);
                         Raw_EPC_List.Add(RSSI);
                         Raw_EPC_List.Add(time_now);
+                        //Console.WriteLine("EPC Checker #3");
                         EPC_Checker(Raw_EPC_List);
                     }
                 }
@@ -5187,6 +5188,10 @@ namespace UHFReader288MPDemo
                     Form1.Full_list.Add(Raw_Entry_List[2]);
                 }
             }
+            else
+            {
+
+            }
             
         }
 
@@ -5194,11 +5199,12 @@ namespace UHFReader288MPDemo
         private void Periodic_Checker()
         {
             List<string> managed_list = new List<string>();
+
             while (true)
             {
-                DateTime time_now = DateTime.Now;
                 //The sleep command below indicates how frequent the checker is activated.
                 Thread.Sleep(1000 * 30);
+                Console.WriteLine("Thread is awake");
                 int counter = 2;
                 int i = 0;
                 int u = 0;
@@ -5207,13 +5213,12 @@ namespace UHFReader288MPDemo
                 List<string> Remove_List = new List<string>();
                 managed_list = Form1.Full_list;
 
-                Console.WriteLine("Number of entries in Managed List before sorting is " + managed_list.Count);
-                Console.WriteLine("Number of entries in full List before sorting is " + Form1.Full_list.Count);
-
                 for (counter = 2; counter <= managed_list.Count - 1; counter = counter + 3)
                 {
+                    DateTime time_now = DateTime.Now;
                     time_diff = Convert.ToInt32(time_now.Subtract(Convert.ToDateTime(managed_list[counter])).TotalSeconds);
-                    if (time_diff <= -20)
+                    Console.WriteLine("Time Diff is: " + time_diff);
+                    if (time_diff >= 20)
                     {
                         //get EPC, add EPC to remove_list
                         Remove_List.Add(managed_list[counter - 2]);
@@ -5231,6 +5236,8 @@ namespace UHFReader288MPDemo
                     {
                         if(managed_list[i] == Remove_List[u])
                         {
+                            //Item no longer in range of antenna, assumed to have been checked out.
+                            //Call a different function to run checkout sequence
                             Console.WriteLine("Removing " + managed_list[i]);
                             managed_list.RemoveRange(i, 3);
                             break;
@@ -5247,16 +5254,10 @@ namespace UHFReader288MPDemo
 
                 //Checking Completed, Update the Full List
                 Form1.run_epc_checker = false;
-                Form1.Full_list.Clear();
                 Form1.Full_list = managed_list;
                 Form1.run_epc_checker = true;
 
-
-                Console.WriteLine("Number of entries in Managed List after sorting is " + managed_list.Count);
-                Console.WriteLine("Number of entries in full List after sorting is " + Form1.Full_list.Count);
-                Console.WriteLine("---");
                 Console.WriteLine("Thread is going to sleep.");
-
                 managed_list.Clear();
             }    
         }
