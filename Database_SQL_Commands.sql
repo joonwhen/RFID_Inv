@@ -15,5 +15,3 @@ INSERT INTO rfid_inventory(epc, tagname, tagloc, tagdesc, tagid, id, tagtime, it
 , ('E28011606000020DBC30981E', 'TAG4', 'tagloc', 'tagdesc', 'tagid', '5', '2004-10-19 10:23:54+02', 'available')
 , ('E2000020880101130660506C', 'CARD', 'tagloc', 'tagdesc', 'tagid', '5', '2004-10-19 10:23:54+02', 'available')
 ;
-
-INSERT INTO rfid_inventory(epc, tagname, tagloc, tagdesc, tagid, id, tagtime, item_status) VALUES('E28011606000020DBC31A25C', 'TAG1', 'tagloc', 'tagdesc', 'tagid', 'GBC1234', '2004-10-19 10:23:54+02', 'available');

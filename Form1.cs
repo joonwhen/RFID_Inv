@@ -16,6 +16,7 @@ using UHF;
 using System.IO;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using Npgsql;
 namespace UHFReader288MPDemo
 {
     public partial class Form1 : Form
@@ -84,6 +85,7 @@ namespace UHFReader288MPDemo
 
         //JW - Global list to keep track of the EPCs 
         public static List<string> Full_list = new List<string>();
+        public static List<string> inventory_list = new List<string>();
         //JW - Condition to run epc checker
         public static bool run_epc_checker = true;
 
@@ -5163,16 +5165,16 @@ namespace UHFReader288MPDemo
         
         public static void EPC_Checker(List<string> Raw_Entry_List)
         {
-            if(Form1.run_epc_checker == true)
+            if(run_epc_checker == true)
             {
                 bool inList = false;
 
-                for (int i = 0; i < (Form1.Full_list.Count - 2); i = i + 3)
+                for (int i = 0; i < (Full_list.Count - 2); i = i + 3)
                 {
-                    if (Form1.Full_list[i] == Raw_Entry_List[0])
+                    if (Full_list[i] == Raw_Entry_List[0])
                     {
-                        Form1.Full_list[i + 1] = Raw_Entry_List[1];
-                        Form1.Full_list[i + 2] = Raw_Entry_List[2];
+                        Full_list[i + 1] = Raw_Entry_List[1];
+                        Full_list[i + 2] = Raw_Entry_List[2];
                         inList = true;
                     }
                     else
@@ -5183,9 +5185,9 @@ namespace UHFReader288MPDemo
 
                 if (!inList)
                 {
-                    Form1.Full_list.Add(Raw_Entry_List[0]);
-                    Form1.Full_list.Add(Raw_Entry_List[1]);
-                    Form1.Full_list.Add(Raw_Entry_List[2]);
+                    Full_list.Add(Raw_Entry_List[0]);
+                    Full_list.Add(Raw_Entry_List[1]);
+                    Full_list.Add(Raw_Entry_List[2]);
                 }
             }
             else
@@ -5196,14 +5198,14 @@ namespace UHFReader288MPDemo
         }
 
         //JW - Function which checks if item is available or not
+
         private void Periodic_Checker()
         {
             List<string> managed_list = new List<string>();
-
             while (true)
             {
                 //The sleep command below indicates how frequent the checker is activated.
-                Thread.Sleep(1000 * 30);
+                Thread.Sleep(1000 * 30); //sleep time
                 Console.WriteLine("Thread is awake");
                 int counter = 2;
                 int i = 0;
@@ -5211,14 +5213,20 @@ namespace UHFReader288MPDemo
                 int counter_total_item = 0;
                 int time_diff;
                 List<string> Remove_List = new List<string>();
-                managed_list = Form1.Full_list;
+
+                run_epc_checker = false;
+                for (i = 0; i < Full_list.Count; i++)
+                {
+                    managed_list.Add(Full_list[i]);
+                }
+                run_epc_checker = true;
 
                 for (counter = 2; counter <= managed_list.Count - 1; counter = counter + 3)
                 {
                     DateTime time_now = DateTime.Now;
                     time_diff = Convert.ToInt32(time_now.Subtract(Convert.ToDateTime(managed_list[counter])).TotalSeconds);
                     Console.WriteLine("Time Diff is: " + time_diff);
-                    if (time_diff >= 20)
+                    if (time_diff >= 10) //time to be considered checked out
                     {
                         //get EPC, add EPC to remove_list
                         Remove_List.Add(managed_list[counter - 2]);
@@ -5227,9 +5235,7 @@ namespace UHFReader288MPDemo
 
                 counter = Remove_List.Count;
                 counter_total_item = managed_list.Count;
-                
-                i = 0;
-                u = 0;
+
                 while (u < counter)
                 {
                     for(i = 0; i < counter_total_item; i = i + 3 )
@@ -5237,8 +5243,9 @@ namespace UHFReader288MPDemo
                         if(managed_list[i] == Remove_List[u])
                         {
                             //Item no longer in range of antenna, assumed to have been checked out.
-                            //Call a different function to run checkout sequence
-                            Console.WriteLine("Removing " + managed_list[i]);
+                            //Check Out Sequence
+                            item_checked_out(managed_list[i], managed_list[i + 2]);
+                            Console.WriteLine("EPC " + managed_list[i] + " has been checked out.");
                             managed_list.RemoveRange(i, 3);
                             break;
                         }
@@ -5253,13 +5260,100 @@ namespace UHFReader288MPDemo
                 }
 
                 //Checking Completed, Update the Full List
-                Form1.run_epc_checker = false;
-                Form1.Full_list = managed_list;
-                Form1.run_epc_checker = true;
+                run_epc_checker = false;
+                Full_list.Clear();
+                for(i = 0; i < managed_list.Count; i++)
+                {
+                    Full_list.Add(managed_list[i]);
+                }
+                run_epc_checker = true;
 
                 Console.WriteLine("Thread is going to sleep.");
+                Console.WriteLine("---------------------------");
                 managed_list.Clear();
             }    
+        }
+
+        private void item_checked_out(string epc_checked_out, string datetime_checked_out)
+        {
+            int i = 0;
+            //Check if the EPC actually exists on the database, could be random EPC signals
+            string connstring = String.Format("Host=localhost;Port=5432;User Id=Admin;Password=password;Database=Inventory;");
+            NpgsqlConnection conn = new NpgsqlConnection(connstring);
+            NpgsqlDataReader reader;
+            conn.Open();
+            var cmd = new NpgsqlCommand("SELECT epc FROM public.rfid_inventory;", conn);
+            reader = cmd.ExecuteReader();
+            
+
+            while (reader.Read())
+            {
+                if (inventory_list.Contains(reader.GetString(0).Trim(' ')))
+                {
+
+                }
+
+                else
+                {
+                    inventory_list.Add(reader.GetString(0).Trim(' '));
+                }
+            }
+            reader.Close();
+            if(inventory_list.Contains(epc_checked_out))
+            {
+                cmd = new NpgsqlCommand("UPDATE public.rfid_inventory SET item_status='Checked Out' WHERE epc='" + epc_checked_out + "';", conn);
+                reader = cmd.ExecuteReader();
+                Console.WriteLine("Success");
+            }
+            
+
+            /*
+            try
+            {
+                Console.WriteLine("EPC is on the inventory list");
+                cmd = new NpgsqlCommand("UPDATE public.rfid_inventory SET item_status='Checked Out' WHERE epc=" + epc_checked_out + ";", conn);
+                reader = cmd.ExecuteReader();
+            }
+            catch
+            {
+                Console.WriteLine("EPC not in list");
+            }
+            */
+
+            /*
+            try
+            {
+                while (reader.Read())
+                {
+                    if (inventory_list.Contains(reader.GetString(0).Trim(' ')))
+                    {
+
+                    }
+
+                    else
+                    {
+                        inventory_list.Add(reader.GetString(0).Trim(' '));
+                    }
+                }
+            }
+            finally
+            {
+                reader.Close();
+            }
+            
+            
+            if (inventory_list.Contains(epc_checked_out))
+            {
+                string sql = "UPDATE public.rfid_inventory SET item_status='Checked Out' WHERE epc=" + epc_checked_out + ";";
+                cmd = new NpgsqlCommand(sql, conn);
+                db_query = cmd.ExecuteReader();
+            }
+            else
+            {
+
+            }
+            */
+            conn.Close();
         }
     }
 }
