@@ -508,7 +508,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.lxLedControl3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.lxLedControl2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.lxLedControl1)).BeginInit();
-            this.groupBox5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.groupBox4.SuspendLayout();
             this.group_ant1.SuspendLayout();
@@ -2441,6 +2440,7 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.dataGridView1);
             this.panel1.Controls.Add(this.DIS_InvList);
             this.panel1.Controls.Add(this.lxLedControl6);
             this.panel1.Controls.Add(this.label119);
@@ -2468,9 +2468,9 @@
             // DIS_InvList
             // 
             this.DIS_InvList.Controls.Add(this.View_InvList);
-            this.DIS_InvList.Location = new System.Drawing.Point(4, 353);
+            this.DIS_InvList.Location = new System.Drawing.Point(4, 188);
             this.DIS_InvList.Name = "DIS_InvList";
-            this.DIS_InvList.Size = new System.Drawing.Size(678, 223);
+            this.DIS_InvList.Size = new System.Drawing.Size(678, 388);
             this.DIS_InvList.TabIndex = 34;
             this.DIS_InvList.TabStop = false;
             this.DIS_InvList.Text = "Inventory List";
@@ -2481,9 +2481,9 @@
             this.View_InvList.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.View_InvList.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.View_InvList.GridColor = System.Drawing.SystemColors.ActiveBorder;
-            this.View_InvList.Location = new System.Drawing.Point(7, 19);
+            this.View_InvList.Location = new System.Drawing.Point(5, 19);
             this.View_InvList.Name = "View_InvList";
-            this.View_InvList.Size = new System.Drawing.Size(665, 190);
+            this.View_InvList.Size = new System.Drawing.Size(665, 147);
             this.View_InvList.TabIndex = 32;
             // 
             // lxLedControl6
@@ -2776,10 +2776,9 @@
             // 
             // groupBox5
             // 
-            this.groupBox5.Controls.Add(this.dataGridView1);
             this.groupBox5.Location = new System.Drawing.Point(4, 86);
             this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(678, 261);
+            this.groupBox5.Size = new System.Drawing.Size(678, 102);
             this.groupBox5.TabIndex = 18;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Tag list(No Repeat)";
@@ -2795,7 +2794,7 @@
             this.dataGridView1.BackgroundColor = System.Drawing.SystemColors.ControlLightLight;
             this.dataGridView1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Location = new System.Drawing.Point(7, 28);
+            this.dataGridView1.Location = new System.Drawing.Point(9, 99);
             this.dataGridView1.MultiSelect = false;
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.ReadOnly = true;
@@ -2803,7 +2802,7 @@
             this.dataGridView1.RowTemplate.Height = 23;
             this.dataGridView1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.dataGridView1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridView1.Size = new System.Drawing.Size(665, 225);
+            this.dataGridView1.Size = new System.Drawing.Size(665, 83);
             this.dataGridView1.TabIndex = 1;
             // 
             // groupBox4
@@ -5514,7 +5513,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.lxLedControl3)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.lxLedControl2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.lxLedControl1)).EndInit();
-            this.groupBox5.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();

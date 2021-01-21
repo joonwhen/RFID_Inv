@@ -243,6 +243,7 @@ namespace UHFReader288MPDemo
                     Raw_EPC_List.Add(sEPC);
                     Raw_EPC_List.Add(RSSI);
                     Raw_EPC_List.Add(time_now);
+                    Raw_EPC_List.Add(str_ant);
                     Console.WriteLine("Calling EPC Checker #1");
                     EPC_Checker(Raw_EPC_List);
 
@@ -305,6 +306,7 @@ namespace UHFReader288MPDemo
                         Raw_EPC_List.Add(sEPC);
                         Raw_EPC_List.Add(RSSI);
                         Raw_EPC_List.Add(time_now);
+                        Raw_EPC_List.Add(str_ant);
                         Console.WriteLine("Calling EPC Checker #2");
                         EPC_Checker(Raw_EPC_List);
 
@@ -364,6 +366,7 @@ namespace UHFReader288MPDemo
                         Raw_EPC_List.Add(sEPC);
                         Raw_EPC_List.Add(RSSI);
                         Raw_EPC_List.Add(time_now);
+                        Raw_EPC_List.Add(str_ant);
                         //Console.WriteLine("EPC Checker #3");
                         EPC_Checker(Raw_EPC_List);
                     }
@@ -430,6 +433,7 @@ namespace UHFReader288MPDemo
                     Raw_EPC_List.Add(sEPC);
                     Raw_EPC_List.Add(RSSI);
                     Raw_EPC_List.Add(time_now);
+                    Raw_EPC_List.Add(str_ant);
                     Console.WriteLine("Calling EPC Checker #4");
                     EPC_Checker(Raw_EPC_List);
                 }
@@ -454,6 +458,7 @@ namespace UHFReader288MPDemo
                         Raw_EPC_List.Add(sEPC);
                         Raw_EPC_List.Add(RSSI);
                         Raw_EPC_List.Add(time_now);
+                        Raw_EPC_List.Add(str_ant);
                         Console.WriteLine("Calling EPC Checker #5");
                         EPC_Checker(Raw_EPC_List);
 
@@ -477,6 +482,7 @@ namespace UHFReader288MPDemo
                         Raw_EPC_List.Add(sEPC);
                         Raw_EPC_List.Add(RSSI);
                         Raw_EPC_List.Add(time_now);
+                        Raw_EPC_List.Add(str_ant);
                         Console.WriteLine("Calling EPC Checker #6");
                         EPC_Checker(Raw_EPC_List);
                     }
@@ -572,6 +578,7 @@ namespace UHFReader288MPDemo
                     Raw_EPC_List.Add(sEPC);
                     Raw_EPC_List.Add(RSSI);
                     Raw_EPC_List.Add(time_now);
+                    Raw_EPC_List.Add(str_ant);
                     Console.WriteLine("Calling EPC Checker #7");
                     EPC_Checker(Raw_EPC_List);
 
@@ -600,6 +607,7 @@ namespace UHFReader288MPDemo
                         Raw_EPC_List.Add(sEPC);
                         Raw_EPC_List.Add(RSSI);
                         Raw_EPC_List.Add(time_now);
+                        Raw_EPC_List.Add(str_ant);
                         Console.WriteLine("Calling EPC Checker #8");
                         EPC_Checker(Raw_EPC_List);
 
@@ -5169,9 +5177,25 @@ namespace UHFReader288MPDemo
             {
                 bool inList = false;
 
-                for (int i = 0; i < (Full_list.Count - 2); i = i + 3)
+                switch (Raw_Entry_List[3])
                 {
-                    if (Full_list[i] == Raw_Entry_List[0])
+                    case "1000":
+                        Raw_Entry_List[3] = "4";
+                        break;
+                    case "0100":
+                        Raw_Entry_List[3] = "3";
+                        break;
+                    case "0010":
+                        Raw_Entry_List[3] = "2";
+                        break;
+                    case "0001":
+                        Raw_Entry_List[3] = "1";
+                        break;
+                }
+
+                for (int i = 0; i < (Full_list.Count); i = i + 4)
+                {
+                    if ((Full_list[i] == Raw_Entry_List[0]) && (Full_list[i+3] == Raw_Entry_List[3]))
                     {
                         Full_list[i + 1] = Raw_Entry_List[1];
                         Full_list[i + 2] = Raw_Entry_List[2];
@@ -5188,6 +5212,7 @@ namespace UHFReader288MPDemo
                     Full_list.Add(Raw_Entry_List[0]);
                     Full_list.Add(Raw_Entry_List[1]);
                     Full_list.Add(Raw_Entry_List[2]);
+                    Full_list.Add(Raw_Entry_List[3]);
                 }
             }
             else
@@ -5207,12 +5232,11 @@ namespace UHFReader288MPDemo
                 // Updating Inventory List
                 Console.WriteLine("Syncing with Database . . .");
                 string connstring = String.Format("Host=localhost;Port=5432;User Id=Admin;Password=password;Database=Inventory;");
-                NpgsqlConnection conn_db_update = new NpgsqlConnection(connstring);
+                NpgsqlConnection conn = new NpgsqlConnection(connstring);
                 NpgsqlDataReader reader;
-                conn_db_update.Open();
-                var cmd = new NpgsqlCommand("SELECT epc FROM public.rfid_inventory;", conn_db_update);
+                conn.Open();
+                var cmd = new NpgsqlCommand("SELECT epc FROM public.rfid_inventory;", conn);
                 reader = cmd.ExecuteReader();
-
 
                 while (reader.Read())
                 {
@@ -5227,37 +5251,79 @@ namespace UHFReader288MPDemo
                     }
                 }
                 reader.Close();
-                conn_db_update.Close();
+                conn.Close();
 
                 //The sleep command below indicates how frequent the checker is activated.
-                Thread.Sleep(1000 * 30); //sleep time
+                Thread.Sleep(1000 * 10); //sleep time
                 Console.WriteLine("DEBUG: Inventory list's count: " + inventory_list.Count);
                 Console.WriteLine("Thread is awake");
 
-                int i = 0;
-
+                //copy full list to managed list
                 run_epc_checker = false;
-                for (i = 0; i < Full_list.Count; i++)
+                int i;
+
+                for(i = 0; i < Full_list.Count; i++)
                 {
                     managed_list.Add(Full_list[i]);
                 }
-                run_epc_checker = true;
 
-                //JW - DEBUG, DELETE LATER
-                Console.WriteLine("Printing Managed List");
-                for(i = 0; i < managed_list.Count; i = i+3)
+                //DEBUG
+                for(i = 0; i < managed_list.Count; i = i + 4)
                 {
-                    Console.WriteLine("EPC: " + managed_list[i] + ", RSSI: " + managed_list[i + 1] + " " + managed_list[i + 2]);
+                    Console.WriteLine("EPC: " + managed_list[i] + " RSSI: " + managed_list[i+1] + " Date/Time: " + managed_list[i+2] + " Antenna: " + managed_list[i+3]);
                 }
 
-                //Checking Completed, Update the Full List
-                run_epc_checker = false;
-                Full_list.Clear();
-                for(i = 0; i < managed_list.Count; i++)
+                //Update Signals Received
+                conn.Open();
+                cmd = new NpgsqlCommand("select exists (select 1 from public.rfid_signals);", conn);
+                bool isFilled = bool.Parse(cmd.ExecuteScalar().ToString());
+                for (i = 0; i < managed_list.Count; i = i + 4)
                 {
-                    Full_list.Add(managed_list[i]);
+                    if (inventory_list.Contains(managed_list[i]))
+                    {
+                        if (isFilled)
+                        {
+                            //Table is not empty
+                            //Update the Signal Strengths
+                            //Obtain which antenna has picked up the signals
+                            cmd = new NpgsqlCommand("SELECT COUNT(*) FROM RFID_Signals WHERE epc = '"+managed_list[i]+"' AND antenna_no = '"+managed_list[i+3]+"';", conn);
+                            string query_result = cmd.ExecuteScalar().ToString();
+                            if(query_result == "1")
+                            {
+                                //Entry already exists
+                                Console.WriteLine("exists");
+                                cmd = new NpgsqlCommand("UPDATE rfid_signals SET rssi = '"+managed_list[i+1]+"', last_signal = '"+managed_list[i+2]+"' WHERE epc = '"+managed_list[i]+"' AND antenna_no = '"+managed_list[i+3]+"';", conn);
+                                cmd.ExecuteNonQuery();
+                            }
+                            if (query_result == "0")
+                            {
+                                //Entry does not exists
+                                Console.WriteLine("Don't exist");
+                                cmd = new NpgsqlCommand("INSERT INTO rfid_signals VALUES('"+managed_list[i]+"', '"+managed_list[i+3]+"', '"+managed_list[i+1]+"', '"+managed_list[i+2]+"');", conn);
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+                        else
+                        {
+                            //Table is empty
+                        }
+                        
+                    }
+                    else
+                    {
+                        //item is not in the inventory list, do not care about the stray signal
+                    }
                 }
-                run_epc_checker = true;
+                conn.Close();
+                //check if the signals belong to any items in the inventory list
+                /*if(inventory_list.Contains())
+
+                this.Invoke((MethodInvoker)delegate
+                {
+                   lbl_text1.Text = "Test";
+                });
+
+                */
 
                 Console.WriteLine("Thread is going to sleep.");
                 Console.WriteLine("---------------------------");
