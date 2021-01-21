@@ -5204,8 +5204,34 @@ namespace UHFReader288MPDemo
             List<string> managed_list = new List<string>();
             while (true)
             {
+                // Updating Inventory List
+                Console.WriteLine("Syncing with Database . . .");
+                string connstring = String.Format("Host=localhost;Port=5432;User Id=Admin;Password=password;Database=Inventory;");
+                NpgsqlConnection conn_db_update = new NpgsqlConnection(connstring);
+                NpgsqlDataReader reader;
+                conn_db_update.Open();
+                var cmd = new NpgsqlCommand("SELECT epc FROM public.rfid_inventory;", conn_db_update);
+                reader = cmd.ExecuteReader();
+
+
+                while (reader.Read())
+                {
+                    if (inventory_list.Contains(reader.GetString(0).Trim(' ')))
+                    {
+
+                    }
+
+                    else
+                    {
+                        inventory_list.Add(reader.GetString(0).Trim(' '));
+                    }
+                }
+                reader.Close();
+                conn_db_update.Close();
+
                 //The sleep command below indicates how frequent the checker is activated.
                 Thread.Sleep(1000 * 30); //sleep time
+                Console.WriteLine("DEBUG: Inventory list's count: " + inventory_list.Count);
                 Console.WriteLine("Thread is awake");
                 int counter = 2;
                 int i = 0;
@@ -5221,6 +5247,8 @@ namespace UHFReader288MPDemo
                 }
                 run_epc_checker = true;
 
+                //The code below is for the checkout sequence
+
                 for (counter = 2; counter <= managed_list.Count - 1; counter = counter + 3)
                 {
                     DateTime time_now = DateTime.Now;
@@ -5231,6 +5259,13 @@ namespace UHFReader288MPDemo
                         //get EPC, add EPC to remove_list
                         Remove_List.Add(managed_list[counter - 2]);
                     }
+                    
+                    // items which are on database, check their status
+                    else if(inventory_list.Contains(managed_list[counter-2]))
+                    {
+                        item_database_update(managed_list[counter], managed_list[counter - 2]);
+                    }
+                    
                 }
 
                 counter = Remove_List.Count;
@@ -5244,7 +5279,7 @@ namespace UHFReader288MPDemo
                         {
                             //Item no longer in range of antenna, assumed to have been checked out.
                             //Check Out Sequence
-                            item_checked_out(managed_list[i], managed_list[i + 2]);
+                            item_database_update(managed_list[i], managed_list[i + 2]);
                             Console.WriteLine("EPC " + managed_list[i] + " has been checked out.");
                             managed_list.RemoveRange(i, 3);
                             break;
@@ -5253,6 +5288,7 @@ namespace UHFReader288MPDemo
                     u++;
                 }
 
+                //JW - DEBUG, DELETE LATER
                 Console.WriteLine("Printing Managed List");
                 for( i = 0; i < managed_list.Count; i = i+3)
                 {
@@ -5274,10 +5310,11 @@ namespace UHFReader288MPDemo
             }    
         }
 
-        private void item_checked_out(string epc_checked_out, string datetime_checked_out)
+        private void item_database_update(string epc_of_choice, string datetime_checked_out)
         {
             int i = 0;
             //Check if the EPC actually exists on the database, could be random EPC signals
+            /*
             string connstring = String.Format("Host=localhost;Port=5432;User Id=Admin;Password=password;Database=Inventory;");
             NpgsqlConnection conn = new NpgsqlConnection(connstring);
             NpgsqlDataReader reader;
@@ -5299,61 +5336,25 @@ namespace UHFReader288MPDemo
                 }
             }
             reader.Close();
-            if(inventory_list.Contains(epc_checked_out))
-            {
-                cmd = new NpgsqlCommand("UPDATE public.rfid_inventory SET item_status='Checked Out' WHERE epc='" + epc_checked_out + "';", conn);
-                reader = cmd.ExecuteReader();
-                Console.WriteLine("Success");
-            }
-            
-
-            /*
-            try
-            {
-                Console.WriteLine("EPC is on the inventory list");
-                cmd = new NpgsqlCommand("UPDATE public.rfid_inventory SET item_status='Checked Out' WHERE epc=" + epc_checked_out + ";", conn);
-                reader = cmd.ExecuteReader();
-            }
-            catch
-            {
-                Console.WriteLine("EPC not in list");
-            }
             */
+            string connstring = String.Format("Host=localhost;Port=5432;User Id=Admin;Password=password;Database=Inventory;");
+            NpgsqlConnection conn_entry_update = new NpgsqlConnection(connstring);
+            conn_entry_update.Open();
+            string command = "SELECT item_status FROM rfid_inventory WHERE epc = '" + epc_of_choice + "';";
+            var cmd = new NpgsqlCommand();
+            cmd.Connection = conn_entry_update;
+            cmd.CommandText = command;
 
-            /*
-            try
+            string i_status = cmd.ExecuteScalar().ToString();
+            Console.WriteLine(i_status);
+
+            /*if (inventory_list.Contains(epc_of_choice))
             {
-                while (reader.Read())
-                {
-                    if (inventory_list.Contains(reader.GetString(0).Trim(' ')))
-                    {
-
-                    }
-
-                    else
-                    {
-                        inventory_list.Add(reader.GetString(0).Trim(' '));
-                    }
-                }
-            }
-            finally
-            {
+                var cmd = new NpgsqlCommand("UPDATE public.rfid_inventory SET item_status='Checked Out' WHERE epc='" + epc_of_choice + "';", conn);
+                reader = cmd.ExecuteReader();
                 reader.Close();
-            }
-            
-            
-            if (inventory_list.Contains(epc_checked_out))
-            {
-                string sql = "UPDATE public.rfid_inventory SET item_status='Checked Out' WHERE epc=" + epc_checked_out + ";";
-                cmd = new NpgsqlCommand(sql, conn);
-                db_query = cmd.ExecuteReader();
-            }
-            else
-            {
-
-            }
-            */
-            conn.Close();
+            }*/
+            conn_entry_update.Close();
         }
     }
 }
