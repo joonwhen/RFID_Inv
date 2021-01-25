@@ -3,17 +3,19 @@ CREATE TABLE rfid_inventory(
     tagname varchar(255),
     tagloc varchar(255),
     tagdesc varchar(255),
-    tagid varchar(255),
-    id integer NOT NULL,
+    item_sn varchar(255),
     tagtime timestamp with time zone,
-    item_status varchar(255)
+    item_status_automated varchar(255),
+    item_status_manual varchar(255),
+    personnel_checked_out varchar(255)
 );
 
-INSERT INTO rfid_inventory(epc, tagname, tagloc, tagdesc, tagid, id, tagtime, item_status) VALUES('E28011606000020DBC31A25C', 'TAG1', 'tagloc', 'tagdesc', 'tagid', '5', '2004-10-19 10:23:54+02', 'available')
-, ('E28011606000020DBC32484C', 'TAG2', 'tagloc', 'tagdesc', 'tagid', '5', '2004-10-19 10:23:54+02', 'available')
-, ('E28011606000020DBC305A7E', 'TAG3', 'tagloc', 'tagdesc', 'tagid', '5', '2004-10-19 10:23:54+02', 'available')
-, ('E28011606000020DBC30981E', 'TAG4', 'tagloc', 'tagdesc', 'tagid', '5', '2004-10-19 10:23:54+02', 'available')
-, ('E2000020880101130660506C', 'CARD', 'tagloc', 'tagdesc', 'tagid', '5', '2004-10-19 10:23:54+02', 'available')
+INSERT INTO rfid_inventory(epc, tagname, tagloc, tagdesc, item_sn, tagtime, item_status_automated, item_status_manual, personnel_checked_out) VALUES
+('E28011606000020DBC31A25C', 'TAG1', 'tagloc', 'tagdesc', 'item s/n', '2004-10-19 10:23:54+02', 'available', 'available', 'JW')
+, ('E28011606000020DBC32484C', 'TAG2', 'tagloc', 'tagdesc', 'item s/n', '2004-10-19 10:23:54+02', 'available', 'available', 'JW')
+, ('E28011606000020DBC305A7E', 'TAG3', 'tagloc', 'tagdesc', 'item s/n', '2004-10-19 10:23:54+02', 'available', 'available', 'JW')
+, ('E28011606000020DBC30981E', 'TAG4', 'tagloc', 'tagdesc', 'item s/n', '2004-10-19 10:23:54+02', 'available', 'available', 'JW')
+, ('E2000020880101130660506C', 'CARD', 'tagloc', 'tagdesc', 'item s/n', '2004-10-19 10:23:54+02', 'available', 'available', 'JW')
 ;
 
 CREATE TABLE rfid_signals(

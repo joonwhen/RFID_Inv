@@ -5275,9 +5275,9 @@ namespace UHFReader288MPDemo
 
                 //Update Signals Received
                 conn.Open();
-                cmd = new NpgsqlCommand("select exists (select 1 from public.rfid_signals);", conn);
+                cmd = new NpgsqlCommand("SELECT EXISTS (SELECT 1 FROM public.rfid_signals);", conn);
                 bool isFilled = bool.Parse(cmd.ExecuteScalar().ToString());
-                for (i = 0; i < managed_list.Count; i = i + 4)
+                for(i = 0; i < managed_list.Count; i = i + 4)
                 {
                     if (inventory_list.Contains(managed_list[i]))
                     {
@@ -5306,6 +5306,8 @@ namespace UHFReader288MPDemo
                         else
                         {
                             //Table is empty
+                            cmd = new NpgsqlCommand("INSERT INTO rfid_signals VALUES('" + managed_list[i] + "', '" + managed_list[i + 3] + "', '" + managed_list[i + 1] + "', '" + managed_list[i + 2] + "');", conn);
+                            cmd.ExecuteNonQuery();
                         }
                         
                     }
@@ -5315,18 +5317,74 @@ namespace UHFReader288MPDemo
                     }
                 }
                 conn.Close();
-                //check if the signals belong to any items in the inventory list
-                /*if(inventory_list.Contains())
 
+                //Check automatically if item is checked out
+                int time_diff;
+                int minimum_idle_time = 30; //Time before an item is considered checked out
+                List<string> Remove_List = new List<string>();
+                for(i = 2; i < managed_list.Count; i = i + 4)
+                {
+                    DateTime time_now = DateTime.Now;
+                    time_diff = Convert.ToInt32(time_now.Subtract(Convert.ToDateTime(managed_list[i])).TotalSeconds);
+                    Console.WriteLine("DEBUG: Time diff is " + time_diff);
+                    if(time_diff >= minimum_idle_time)
+                    {
+                        //Get the EPC of interest
+                        Remove_List.Add(managed_list[i - 2]);
+                    }
+                    else if (inventory_list.Contains(managed_list[i-2]))
+                    {
+                        //Get item status of mentioned EPC. 
+                        //If Available, then do nothing
+                        //If Unavailable/Checked out, but the signal is read, it means the item is back in the storeroom
+                        conn.Open();
+                        cmd = new NpgsqlCommand("SELECT item_status_automated FROM rfid_inventory WHERE epc = '" + managed_list[i - 2] + "';", conn);
+                        string item_status = cmd.ExecuteScalar().ToString();
+                        if(item_status == "Available")
+                        {
+                            // do nothing, as item is available
+                        }
+                        else if (item_status == "Checked Out")
+                        {
+                            // set the column to be available
+                            cmd = new NpgsqlCommand("UPDATE rfid_inventory SET item_status_automated = 'Available' WHERE epc = '" + managed_list[i - 2] + "';", conn);
+                            cmd.ExecuteNonQuery();
+                        }
+                        conn.Close();
+                    }
+                }
+
+                //Check out the items which signals have not been read for awhile
+                int u = 0;
+                conn.Open();
+                while (u < Remove_List.Count)
+                {
+                    for(i = 0; i < managed_list.Count; i = i + 4)
+                    {
+                        if(managed_list[i] == Remove_List[u])
+                        {
+                            Console.WriteLine("EPC " + managed_list[i] + " has been checked out automatically.");
+                            cmd = new NpgsqlCommand("UPDATE rfid_inventory SET item_status_automated = 'Checked Out' WHERE epc = '" + managed_list[i] + "';", conn);
+                            cmd.ExecuteNonQuery();
+                            managed_list.RemoveRange(i, 4);
+                            break;
+                        }
+                    }
+                    u++;
+                }
+                conn.Close();
+
+                /*
                 this.Invoke((MethodInvoker)delegate
                 {
                    lbl_text1.Text = "Test";
                 });
 
                 */
-
+                run_epc_checker = true;
                 Console.WriteLine("Thread is going to sleep.");
                 Console.WriteLine("---------------------------");
+                Remove_List.Clear();
                 managed_list.Clear();
             }    
         }
