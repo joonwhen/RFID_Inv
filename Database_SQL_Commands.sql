@@ -11,11 +11,11 @@ CREATE TABLE rfid_inventory(
 );
 
 INSERT INTO rfid_inventory(epc, tagname, tagloc, tagdesc, item_sn, tagtime, item_status_automated, item_status_manual, personnel_checked_out) VALUES
-('E28011606000020DBC31A25C', 'TAG1', 'tagloc', 'tagdesc', 'item s/n', '2004-10-19 10:23:54+02', 'available', 'available', 'JW')
-, ('E28011606000020DBC32484C', 'TAG2', 'tagloc', 'tagdesc', 'item s/n', '2004-10-19 10:23:54+02', 'available', 'available', 'JW')
-, ('E28011606000020DBC305A7E', 'TAG3', 'tagloc', 'tagdesc', 'item s/n', '2004-10-19 10:23:54+02', 'available', 'available', 'JW')
-, ('E28011606000020DBC30981E', 'TAG4', 'tagloc', 'tagdesc', 'item s/n', '2004-10-19 10:23:54+02', 'available', 'available', 'JW')
-, ('E2000020880101130660506C', 'CARD', 'tagloc', 'tagdesc', 'item s/n', '2004-10-19 10:23:54+02', 'available', 'available', 'JW')
+('E28011606000020DBC31A25C', 'TAG1', 'tagloc', 'tagdesc', 'item s/n', '2004-10-19 10:23:54+02', 'Available', 'Available', 'JW')
+, ('E28011606000020DBC32484C', 'TAG2', 'tagloc', 'tagdesc', 'item s/n', '2004-10-19 10:23:54+02', 'Available', 'Available', 'JW')
+, ('E28011606000020DBC305A7E', 'TAG3', 'tagloc', 'tagdesc', 'item s/n', '2004-10-19 10:23:54+02', 'Available', 'Available', 'JW')
+, ('E28011606000020DBC30981E', 'TAG4', 'tagloc', 'tagdesc', 'item s/n', '2004-10-19 10:23:54+02', 'Available', 'Available', 'JW')
+, ('E2000020880101130660506C', 'CARD', 'tagloc', 'tagdesc', 'item s/n', '2004-10-19 10:23:54+02', 'Available', 'Available', 'JW')
 ;
 
 CREATE TABLE rfid_signals(

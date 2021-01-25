@@ -5388,5 +5388,24 @@ namespace UHFReader288MPDemo
                 managed_list.Clear();
             }    
         }
+
+        private DataSet dataset_query = new DataSet();
+        private DataTable datatable_query = new DataTable();
+
+        private void BN_Open_FullDB_Click(object sender, EventArgs e)
+        {
+            /*
+            string connstring = String.Format("Host=localhost;Port=5432;User Id=Admin;Password=password;Database=Inventory;");
+            NpgsqlConnection conn = new NpgsqlConnection(connstring);
+            conn.Open();
+            string command = "SELECT * FROM rfid_inventory;";
+            NpgsqlDataAdapter dataadapter_query = new NpgsqlDataAdapter(command, conn);
+            dataset_query.Reset();
+            dataadapter_query.Fill(dataset_query);
+            datatable_query = dataset_query.Tables[0];
+            View_InvList.DataSource = datatable_query;
+            conn.Close();
+            */
+        }
     }
 }
