@@ -5223,6 +5223,7 @@ namespace UHFReader288MPDemo
 
         private void Periodic_Checker()
         {
+            bool connected = false;
             while(true)
             {
                 //Initiate Connection with Database and obtain all EPC on the database
@@ -5230,78 +5231,131 @@ namespace UHFReader288MPDemo
                 string connstring = String.Format("Host=localhost;Port=5432;User Id=Admin;Password=password;Database=Inventory;");
                 NpgsqlConnection conn = new NpgsqlConnection(connstring);
                 NpgsqlDataReader reader;
-                conn.Open();
-                var cmd = new NpgsqlCommand("SELECT epc FROM RFID_inventory;", conn);
-                reader = cmd.ExecuteReader();
-                while (reader.Read())
+                try
                 {
-                    if (inventory_list.Contains(reader.GetString(0).Trim(' ')))
+                    conn.Open();
+                    if (conn.State == ConnectionState.Open)
                     {
-                    }
-
-                    else
-                    {
-                        inventory_list.Add(reader.GetString(0).Trim(' '));
+                        connected = true;
                     }
                 }
-                reader.Close();
-                conn.Close();
-
-                //Put thread to sleep, in milliseconds
-                Thread.Sleep(10 * 1000);
-                //disable epc_checker, check if the items have been checked out
-                run_epc_checker = false;
-                int i = 0;
-                int time_diff, minimum_idle_time = 30;
-                for (i = 0; i < Full_list.Count; i = i + 4)
+                catch(Exception e)
                 {
-                    bool status_error = false;
-                    DateTime time_now = DateTime.Now;
-                    time_diff = Convert.ToInt32(time_now.Subtract(Convert.ToDateTime(Full_list[i + 2])).TotalSeconds);
-                    Console.WriteLine(Full_list[i] + " has a time difference of: " + time_diff);
-                    if (time_diff > minimum_idle_time)
+                    MessageBox.Show("Error: Unable to connect to Database.");
+                }
+                
+                if(connected)
+                {
+                    var cmd = new NpgsqlCommand("SELECT epc FROM RFID_inventory;", conn);
+                    reader = cmd.ExecuteReader();
+                    while (reader.Read())
                     {
-                        //item is considered to be checked out, check the manual entry
-                        conn.Open();
-                        cmd = new NpgsqlCommand("SELECT * FROM rfid_inventory where epc = '" + Full_list[i] + "';", conn);
-                        reader = cmd.ExecuteReader();
-                        while (reader.Read())
+                        if (inventory_list.Contains(reader.GetString(0).Trim(' ')))
                         {
-                            if (reader["item_status_manual"].ToString() == "Available")
-                            {
-                                //manual entry indicates that it is available, then there is an error as the antenna is not able to pick up the signal
-                                //it could only mean the item is checked out or hidden in the room and the signal cannot be picked up
-                                status_error = true;
-                                cmd.Cancel();
-                            }
                         }
-                        conn.Close();
 
-                        conn.Open();
-                        if (status_error)
+                        else
                         {
-                            cmd = new NpgsqlCommand("UPDATE rfid_inventory SET item_status_automated = 'Error: status do not tally.', tagtime = '"+Full_list[i+2]+"' WHERE epc = '" + Full_list[i] + "';", conn);
-                            cmd.ExecuteNonQuery();
+                            inventory_list.Add(reader.GetString(0).Trim(' '));
+                        }
+                    }
+                    reader.Close();
+                    conn.Close();
+
+                    //Put thread to sleep, in milliseconds
+                    Thread.Sleep(10 * 1000);
+                    //disable epc_checker, check if the items have been checked out
+                    run_epc_checker = false;
+                    int i = 0, u = 0;
+                    int time_diff, minimum_idle_time = 30;
+                    bool remove_epc = false;
+                    for (i = 0; i < Full_list.Count; i = i + 4)
+                    {
+                        bool status_error = false;
+                        DateTime time_now = DateTime.Now;
+                        time_diff = Convert.ToInt32(time_now.Subtract(Convert.ToDateTime(Full_list[i + 2])).TotalSeconds);
+                        Console.WriteLine(Full_list[i] + " has a time difference of: " + time_diff);
+                        if (time_diff > minimum_idle_time)
+                        {
+                            //item is considered to be checked out, check the manual entry
+                            conn.Open();
+                            cmd = new NpgsqlCommand("SELECT * FROM rfid_inventory where epc = '" + Full_list[i] + "';", conn);
+                            reader = cmd.ExecuteReader();
+                            while (reader.Read())
+                            {
+                                if (reader["item_status_manual"].ToString() == "Available")
+                                {
+                                    //manual entry indicates that it is available, then there is an error as the antenna is not able to pick up the signal
+                                    //it could only mean the item is checked out or hidden in the room and the signal cannot be picked up
+                                    status_error = true;
+                                    cmd.Cancel();
+                                }
+                            }
+                            conn.Close();
+
+                            conn.Open();
+                            if (status_error)
+                            {
+                                cmd = new NpgsqlCommand("UPDATE rfid_inventory SET item_status_automated = 'Error: status do not tally.', tagtime = '" + Full_list[i + 2] + "' WHERE epc = '" + Full_list[i] + "';", conn);
+                                cmd.ExecuteNonQuery();
+                                remove_epc = true;
+                                remove_list.Add(Full_list[i]);
+                            }
+                            else
+                            {
+                                cmd = new NpgsqlCommand("UPDATE rfid_inventory SET item_status_automated = 'Checked Out', tagtime = '" + Full_list[i + 2] + "' WHERE epc = '" + Full_list[i] + "';", conn);
+                                cmd.ExecuteNonQuery();
+                                remove_epc = true;
+                                remove_list.Add(Full_list[i]);
+                            }
+                            conn.Close();
                         }
                         else
                         {
-                            cmd = new NpgsqlCommand("UPDATE rfid_inventory SET item_status_automated = 'Checked Out', tagtime = '" + Full_list[i + 2] + "' WHERE epc = '" + Full_list[i] + "';", conn);
+                            //item is available
+                            conn.Open();
+                            cmd = new NpgsqlCommand("UPDATE RFID_Inventory SET item_status_automated = 'Available', tagtime = '" + Full_list[i + 2] + "' WHERE epc = '" + Full_list[i] + "';", conn);
                             cmd.ExecuteNonQuery();
-                            Full_list.RemoveRange(i, 4); //questionable
+                            Console.WriteLine(Full_list[i] + " is available");
+                            conn.Close();
                         }
-                        conn.Close();
                     }
-                    else
+
+                    if (remove_epc)
                     {
-                        //item is available
-                        conn.Open();
-                        cmd = new NpgsqlCommand("UPDATE RFID_Inventory SET item_status_automated = 'Available', tagtime = '" + Full_list[i + 2] + "' WHERE epc = '" + Full_list[i] + "';", conn);
-                        cmd.ExecuteNonQuery();
-                        Console.WriteLine(Full_list[i] + " is available");
-                        conn.Close();
+                        List<string> temp_list= new List<string>();
+                        for(i = 0; i < remove_list.Count; i++)
+                        {
+                            for(u = 0; u < Full_list.Count; u += 4)
+                            {
+                                if(remove_list[i] == Full_list[u])
+                                {
+
+                                }
+                                else
+                                {
+                                    temp_list.Add(Full_list[u]);
+                                    temp_list.Add(Full_list[u+1]);
+                                    temp_list.Add(Full_list[u+2]);
+                                    temp_list.Add(Full_list[u+3]);
+                                }
+                            }
+                        }
+
+                        Full_list.Clear();
+                        for(i=0; i < temp_list.Count; i += 4)
+                        {
+                            Full_list.Add(temp_list[i]);
+                            Full_list.Add(temp_list[i+1]);
+                            Full_list.Add(temp_list[i+2]);
+                            Full_list.Add(temp_list[i+3]);
+                        }
+                        temp_list.Clear();
+                        remove_list.Clear();
                     }
+                    run_epc_checker = true;
                 }
-                run_epc_checker = true;
+                
             }
         }
 
