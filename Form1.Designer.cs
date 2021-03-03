@@ -376,48 +376,10 @@
             this.label16 = new System.Windows.Forms.Label();
             this.text_epc = new System.Windows.Forms.TextBox();
             this.check_selecttag = new System.Windows.Forms.CheckBox();
-            this.Main_Page3 = new System.Windows.Forms.TabPage();
-            this.panel5 = new System.Windows.Forms.Panel();
-            this.groupBox23 = new System.Windows.Forms.GroupBox();
-            this.text_Statu6B = new System.Windows.Forms.TextBox();
-            this.btCheckLock6B = new System.Windows.Forms.Button();
-            this.btLock6B = new System.Windows.Forms.Button();
-            this.text_checkaddr = new System.Windows.Forms.TextBox();
-            this.label52 = new System.Windows.Forms.Label();
-            this.text_lock6b = new System.Windows.Forms.TextBox();
-            this.label51 = new System.Windows.Forms.Label();
-            this.groupBox22 = new System.Windows.Forms.GroupBox();
-            this.text_W6B = new System.Windows.Forms.TextBox();
-            this.label48 = new System.Windows.Forms.Label();
-            this.btWrite6B = new System.Windows.Forms.Button();
-            this.text_W6BLen = new System.Windows.Forms.TextBox();
-            this.label49 = new System.Windows.Forms.Label();
-            this.text_W6BAddr = new System.Windows.Forms.TextBox();
-            this.label50 = new System.Windows.Forms.Label();
-            this.text_R6B = new System.Windows.Forms.TextBox();
-            this.label36 = new System.Windows.Forms.Label();
-            this.btRead6B = new System.Windows.Forms.Button();
-            this.text_R6BLen = new System.Windows.Forms.TextBox();
-            this.label35 = new System.Windows.Forms.Label();
-            this.text_R6BAddr = new System.Windows.Forms.TextBox();
-            this.label30 = new System.Windows.Forms.Label();
-            this.text_6BUID = new System.Windows.Forms.TextBox();
-            this.label29 = new System.Windows.Forms.Label();
-            this.ListView_ID_6B = new System.Windows.Forms.ListView();
-            this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader6 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader7 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.groupBox19 = new System.Windows.Forms.GroupBox();
-            this.rb_mutiple = new System.Windows.Forms.RadioButton();
-            this.rb_single = new System.Windows.Forms.RadioButton();
-            this.btInventory6B = new System.Windows.Forms.Button();
             this.btFlashCl = new System.Windows.Forms.Button();
             this.timer_answer = new System.Windows.Forms.Timer(this.components);
             this.timer_runmode = new System.Windows.Forms.Timer(this.components);
             this.timer_EAS = new System.Windows.Forms.Timer(this.components);
-            this.Timer_Test_6B = new System.Windows.Forms.Timer(this.components);
             this.timer_Buff = new System.Windows.Forms.Timer(this.components);
             this.timer_RealTime = new System.Windows.Forms.Timer(this.components);
             this.ckClearOperationRec = new System.Windows.Forms.CheckBox();
@@ -507,11 +469,6 @@
             this.groupBox31.SuspendLayout();
             this.groupBox40.SuspendLayout();
             this.groupBox10.SuspendLayout();
-            this.Main_Page3.SuspendLayout();
-            this.panel5.SuspendLayout();
-            this.groupBox23.SuspendLayout();
-            this.groupBox22.SuspendLayout();
-            this.groupBox19.SuspendLayout();
             this.SuspendLayout();
             // 
             // lrtxtLog
@@ -537,7 +494,6 @@
             // 
             this.Maintab.Controls.Add(this.Main_Page1);
             this.Maintab.Controls.Add(this.Main_Page2);
-            this.Maintab.Controls.Add(this.Main_Page3);
             this.Maintab.Dock = System.Windows.Forms.DockStyle.Top;
             this.Maintab.ItemSize = new System.Drawing.Size(72, 23);
             this.Maintab.Location = new System.Drawing.Point(0, 0);
@@ -4582,383 +4538,6 @@
             this.check_selecttag.Text = "Selected tag:";
             this.check_selecttag.UseVisualStyleBackColor = true;
             // 
-            // Main_Page3
-            // 
-            this.Main_Page3.Controls.Add(this.panel5);
-            this.Main_Page3.Location = new System.Drawing.Point(4, 27);
-            this.Main_Page3.Name = "Main_Page3";
-            this.Main_Page3.Padding = new System.Windows.Forms.Padding(3);
-            this.Main_Page3.Size = new System.Drawing.Size(1071, 621);
-            this.Main_Page3.TabIndex = 2;
-            this.Main_Page3.Text = "18000-6B Test";
-            this.Main_Page3.UseVisualStyleBackColor = true;
-            // 
-            // panel5
-            // 
-            this.panel5.Controls.Add(this.groupBox23);
-            this.panel5.Controls.Add(this.groupBox22);
-            this.panel5.Controls.Add(this.text_6BUID);
-            this.panel5.Controls.Add(this.label29);
-            this.panel5.Controls.Add(this.ListView_ID_6B);
-            this.panel5.Controls.Add(this.groupBox19);
-            this.panel5.Location = new System.Drawing.Point(-1, -1);
-            this.panel5.Name = "panel5";
-            this.panel5.Size = new System.Drawing.Size(1069, 616);
-            this.panel5.TabIndex = 0;
-            // 
-            // groupBox23
-            // 
-            this.groupBox23.Controls.Add(this.text_Statu6B);
-            this.groupBox23.Controls.Add(this.btCheckLock6B);
-            this.groupBox23.Controls.Add(this.btLock6B);
-            this.groupBox23.Controls.Add(this.text_checkaddr);
-            this.groupBox23.Controls.Add(this.label52);
-            this.groupBox23.Controls.Add(this.text_lock6b);
-            this.groupBox23.Controls.Add(this.label51);
-            this.groupBox23.Location = new System.Drawing.Point(561, 465);
-            this.groupBox23.Name = "groupBox23";
-            this.groupBox23.Size = new System.Drawing.Size(495, 119);
-            this.groupBox23.TabIndex = 21;
-            this.groupBox23.TabStop = false;
-            // 
-            // text_Statu6B
-            // 
-            this.text_Statu6B.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
-            this.text_Statu6B.ForeColor = System.Drawing.Color.Red;
-            this.text_Statu6B.Location = new System.Drawing.Point(252, 81);
-            this.text_Statu6B.MaxLength = 2;
-            this.text_Statu6B.Name = "text_Statu6B";
-            this.text_Statu6B.ReadOnly = true;
-            this.text_Statu6B.Size = new System.Drawing.Size(111, 20);
-            this.text_Statu6B.TabIndex = 19;
-            // 
-            // btCheckLock6B
-            // 
-            this.btCheckLock6B.Location = new System.Drawing.Point(383, 72);
-            this.btCheckLock6B.Name = "btCheckLock6B";
-            this.btCheckLock6B.Size = new System.Drawing.Size(100, 33);
-            this.btCheckLock6B.TabIndex = 18;
-            this.btCheckLock6B.Text = "Check lock";
-            this.btCheckLock6B.UseVisualStyleBackColor = true;
-            this.btCheckLock6B.Click += new System.EventHandler(this.btCheckLock6B_Click);
-            // 
-            // btLock6B
-            // 
-            this.btLock6B.Location = new System.Drawing.Point(383, 22);
-            this.btLock6B.Name = "btLock6B";
-            this.btLock6B.Size = new System.Drawing.Size(100, 33);
-            this.btLock6B.TabIndex = 17;
-            this.btLock6B.Text = "Lock";
-            this.btLock6B.UseVisualStyleBackColor = true;
-            this.btLock6B.Click += new System.EventHandler(this.btLock6B_Click);
-            // 
-            // text_checkaddr
-            // 
-            this.text_checkaddr.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
-            this.text_checkaddr.Location = new System.Drawing.Point(202, 81);
-            this.text_checkaddr.MaxLength = 2;
-            this.text_checkaddr.Name = "text_checkaddr";
-            this.text_checkaddr.Size = new System.Drawing.Size(44, 20);
-            this.text_checkaddr.TabIndex = 16;
-            this.text_checkaddr.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.text_address_KeyPress);
-            // 
-            // label52
-            // 
-            this.label52.AutoSize = true;
-            this.label52.Location = new System.Drawing.Point(47, 85);
-            this.label52.Name = "label52";
-            this.label52.Size = new System.Drawing.Size(129, 13);
-            this.label52.TabIndex = 15;
-            this.label52.Text = "Check lock address(Hex):";
-            // 
-            // text_lock6b
-            // 
-            this.text_lock6b.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
-            this.text_lock6b.Location = new System.Drawing.Point(202, 31);
-            this.text_lock6b.MaxLength = 2;
-            this.text_lock6b.Name = "text_lock6b";
-            this.text_lock6b.Size = new System.Drawing.Size(44, 20);
-            this.text_lock6b.TabIndex = 14;
-            this.text_lock6b.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.text_address_KeyPress);
-            // 
-            // label51
-            // 
-            this.label51.AutoSize = true;
-            this.label51.Location = new System.Drawing.Point(71, 35);
-            this.label51.Name = "label51";
-            this.label51.Size = new System.Drawing.Size(99, 13);
-            this.label51.TabIndex = 0;
-            this.label51.Text = "Lock address(Hex):";
-            // 
-            // groupBox22
-            // 
-            this.groupBox22.Controls.Add(this.text_W6B);
-            this.groupBox22.Controls.Add(this.label48);
-            this.groupBox22.Controls.Add(this.btWrite6B);
-            this.groupBox22.Controls.Add(this.text_W6BLen);
-            this.groupBox22.Controls.Add(this.label49);
-            this.groupBox22.Controls.Add(this.text_W6BAddr);
-            this.groupBox22.Controls.Add(this.label50);
-            this.groupBox22.Controls.Add(this.text_R6B);
-            this.groupBox22.Controls.Add(this.label36);
-            this.groupBox22.Controls.Add(this.btRead6B);
-            this.groupBox22.Controls.Add(this.text_R6BLen);
-            this.groupBox22.Controls.Add(this.label35);
-            this.groupBox22.Controls.Add(this.text_R6BAddr);
-            this.groupBox22.Controls.Add(this.label30);
-            this.groupBox22.Location = new System.Drawing.Point(563, 76);
-            this.groupBox22.Name = "groupBox22";
-            this.groupBox22.Size = new System.Drawing.Size(495, 389);
-            this.groupBox22.TabIndex = 20;
-            this.groupBox22.TabStop = false;
-            this.groupBox22.Text = "Read/Write Data";
-            // 
-            // text_W6B
-            // 
-            this.text_W6B.Location = new System.Drawing.Point(122, 254);
-            this.text_W6B.Multiline = true;
-            this.text_W6B.Name = "text_W6B";
-            this.text_W6B.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.text_W6B.Size = new System.Drawing.Size(359, 128);
-            this.text_W6B.TabIndex = 18;
-            this.text_W6B.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.text_address_KeyPress);
-            // 
-            // label48
-            // 
-            this.label48.AutoSize = true;
-            this.label48.Location = new System.Drawing.Point(18, 254);
-            this.label48.Name = "label48";
-            this.label48.Size = new System.Drawing.Size(93, 13);
-            this.label48.TabIndex = 17;
-            this.label48.Text = "Write data(Hex):   ";
-            // 
-            // btWrite6B
-            // 
-            this.btWrite6B.Location = new System.Drawing.Point(381, 210);
-            this.btWrite6B.Name = "btWrite6B";
-            this.btWrite6B.Size = new System.Drawing.Size(100, 33);
-            this.btWrite6B.TabIndex = 16;
-            this.btWrite6B.Text = "Write";
-            this.btWrite6B.UseVisualStyleBackColor = true;
-            this.btWrite6B.Click += new System.EventHandler(this.btWrite6B_Click);
-            // 
-            // text_W6BLen
-            // 
-            this.text_W6BLen.Location = new System.Drawing.Point(294, 216);
-            this.text_W6BLen.MaxLength = 2;
-            this.text_W6BLen.Name = "text_W6BLen";
-            this.text_W6BLen.Size = new System.Drawing.Size(44, 20);
-            this.text_W6BLen.TabIndex = 15;
-            this.text_W6BLen.TextChanged += new System.EventHandler(this.text_W6BLen_TextChanged);
-            this.text_W6BLen.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.text_address_KeyPress);
-            // 
-            // label49
-            // 
-            this.label49.AutoSize = true;
-            this.label49.Location = new System.Drawing.Point(187, 220);
-            this.label49.Name = "label49";
-            this.label49.Size = new System.Drawing.Size(92, 13);
-            this.label49.TabIndex = 14;
-            this.label49.Text = "Write length(Hex):";
-            // 
-            // text_W6BAddr
-            // 
-            this.text_W6BAddr.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
-            this.text_W6BAddr.Location = new System.Drawing.Point(133, 217);
-            this.text_W6BAddr.MaxLength = 2;
-            this.text_W6BAddr.Name = "text_W6BAddr";
-            this.text_W6BAddr.Size = new System.Drawing.Size(44, 20);
-            this.text_W6BAddr.TabIndex = 13;
-            this.text_W6BAddr.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.text_address_KeyPress);
-            // 
-            // label50
-            // 
-            this.label50.AutoSize = true;
-            this.label50.Location = new System.Drawing.Point(18, 220);
-            this.label50.Name = "label50";
-            this.label50.Size = new System.Drawing.Size(106, 13);
-            this.label50.TabIndex = 12;
-            this.label50.Text = "Start address(Hex):   ";
-            // 
-            // text_R6B
-            // 
-            this.text_R6B.Location = new System.Drawing.Point(122, 67);
-            this.text_R6B.Multiline = true;
-            this.text_R6B.Name = "text_R6B";
-            this.text_R6B.ReadOnly = true;
-            this.text_R6B.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.text_R6B.Size = new System.Drawing.Size(359, 128);
-            this.text_R6B.TabIndex = 11;
-            // 
-            // label36
-            // 
-            this.label36.AutoSize = true;
-            this.label36.Location = new System.Drawing.Point(18, 67);
-            this.label36.Name = "label36";
-            this.label36.Size = new System.Drawing.Size(94, 13);
-            this.label36.TabIndex = 10;
-            this.label36.Text = "Read data(Hex):   ";
-            // 
-            // btRead6B
-            // 
-            this.btRead6B.Location = new System.Drawing.Point(381, 22);
-            this.btRead6B.Name = "btRead6B";
-            this.btRead6B.Size = new System.Drawing.Size(100, 33);
-            this.btRead6B.TabIndex = 9;
-            this.btRead6B.Text = "read";
-            this.btRead6B.UseVisualStyleBackColor = true;
-            this.btRead6B.Click += new System.EventHandler(this.btRead6B_Click);
-            // 
-            // text_R6BLen
-            // 
-            this.text_R6BLen.Location = new System.Drawing.Point(294, 27);
-            this.text_R6BLen.MaxLength = 2;
-            this.text_R6BLen.Name = "text_R6BLen";
-            this.text_R6BLen.Size = new System.Drawing.Size(44, 20);
-            this.text_R6BLen.TabIndex = 8;
-            this.text_R6BLen.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.text_address_KeyPress);
-            // 
-            // label35
-            // 
-            this.label35.AutoSize = true;
-            this.label35.Location = new System.Drawing.Point(193, 31);
-            this.label35.Name = "label35";
-            this.label35.Size = new System.Drawing.Size(93, 13);
-            this.label35.TabIndex = 7;
-            this.label35.Text = "Read length(Hex):";
-            // 
-            // text_R6BAddr
-            // 
-            this.text_R6BAddr.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
-            this.text_R6BAddr.Location = new System.Drawing.Point(133, 27);
-            this.text_R6BAddr.MaxLength = 2;
-            this.text_R6BAddr.Name = "text_R6BAddr";
-            this.text_R6BAddr.Size = new System.Drawing.Size(44, 20);
-            this.text_R6BAddr.TabIndex = 6;
-            this.text_R6BAddr.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.text_address_KeyPress);
-            // 
-            // label30
-            // 
-            this.label30.AutoSize = true;
-            this.label30.Location = new System.Drawing.Point(18, 31);
-            this.label30.Name = "label30";
-            this.label30.Size = new System.Drawing.Size(106, 13);
-            this.label30.TabIndex = 5;
-            this.label30.Text = "Start address(Hex):   ";
-            // 
-            // text_6BUID
-            // 
-            this.text_6BUID.Location = new System.Drawing.Point(696, 42);
-            this.text_6BUID.Name = "text_6BUID";
-            this.text_6BUID.ReadOnly = true;
-            this.text_6BUID.Size = new System.Drawing.Size(214, 20);
-            this.text_6BUID.TabIndex = 19;
-            // 
-            // label29
-            // 
-            this.label29.AutoSize = true;
-            this.label29.Location = new System.Drawing.Point(559, 48);
-            this.label29.Name = "label29";
-            this.label29.Size = new System.Drawing.Size(111, 13);
-            this.label29.TabIndex = 18;
-            this.label29.Text = "Current Selected UID:";
-            // 
-            // ListView_ID_6B
-            // 
-            this.ListView_ID_6B.Activation = System.Windows.Forms.ItemActivation.OneClick;
-            this.ListView_ID_6B.AllowDrop = true;
-            this.ListView_ID_6B.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader5,
-            this.columnHeader6,
-            this.columnHeader7,
-            this.columnHeader2,
-            this.columnHeader3});
-            this.ListView_ID_6B.FullRowSelect = true;
-            this.ListView_ID_6B.GridLines = true;
-            this.ListView_ID_6B.HideSelection = false;
-            this.ListView_ID_6B.HotTracking = true;
-            this.ListView_ID_6B.HoverSelection = true;
-            this.ListView_ID_6B.Location = new System.Drawing.Point(10, 89);
-            this.ListView_ID_6B.Name = "ListView_ID_6B";
-            this.ListView_ID_6B.Size = new System.Drawing.Size(524, 522);
-            this.ListView_ID_6B.TabIndex = 17;
-            this.ListView_ID_6B.UseCompatibleStateImageBehavior = false;
-            this.ListView_ID_6B.View = System.Windows.Forms.View.Details;
-            this.ListView_ID_6B.DoubleClick += new System.EventHandler(this.ListView_ID_6B_DoubleClick);
-            // 
-            // columnHeader5
-            // 
-            this.columnHeader5.Text = "No.";
-            this.columnHeader5.Width = 50;
-            // 
-            // columnHeader6
-            // 
-            this.columnHeader6.Text = "ID";
-            this.columnHeader6.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.columnHeader6.Width = 230;
-            // 
-            // columnHeader7
-            // 
-            this.columnHeader7.Text = "Ant(4,3,2,1)";
-            this.columnHeader7.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.columnHeader7.Width = 120;
-            // 
-            // columnHeader2
-            // 
-            this.columnHeader2.Text = "Times";
-            this.columnHeader2.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // columnHeader3
-            // 
-            this.columnHeader3.Text = "RSSI";
-            this.columnHeader3.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // groupBox19
-            // 
-            this.groupBox19.Controls.Add(this.rb_mutiple);
-            this.groupBox19.Controls.Add(this.rb_single);
-            this.groupBox19.Controls.Add(this.btInventory6B);
-            this.groupBox19.Location = new System.Drawing.Point(10, 5);
-            this.groupBox19.Name = "groupBox19";
-            this.groupBox19.Size = new System.Drawing.Size(524, 77);
-            this.groupBox19.TabIndex = 16;
-            this.groupBox19.TabStop = false;
-            // 
-            // rb_mutiple
-            // 
-            this.rb_mutiple.AutoSize = true;
-            this.rb_mutiple.Location = new System.Drawing.Point(377, 38);
-            this.rb_mutiple.Name = "rb_mutiple";
-            this.rb_mutiple.Size = new System.Drawing.Size(59, 17);
-            this.rb_mutiple.TabIndex = 2;
-            this.rb_mutiple.Text = "Mutiple";
-            this.rb_mutiple.UseVisualStyleBackColor = true;
-            // 
-            // rb_single
-            // 
-            this.rb_single.AutoSize = true;
-            this.rb_single.Checked = true;
-            this.rb_single.Location = new System.Drawing.Point(246, 38);
-            this.rb_single.Name = "rb_single";
-            this.rb_single.Size = new System.Drawing.Size(54, 17);
-            this.rb_single.TabIndex = 1;
-            this.rb_single.TabStop = true;
-            this.rb_single.Text = "Single";
-            this.rb_single.UseVisualStyleBackColor = true;
-            // 
-            // btInventory6B
-            // 
-            this.btInventory6B.BackColor = System.Drawing.Color.Transparent;
-            this.btInventory6B.Font = new System.Drawing.Font("SimSun", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.btInventory6B.ForeColor = System.Drawing.Color.DarkBlue;
-            this.btInventory6B.Location = new System.Drawing.Point(18, 22);
-            this.btInventory6B.Name = "btInventory6B";
-            this.btInventory6B.Size = new System.Drawing.Size(171, 43);
-            this.btInventory6B.TabIndex = 0;
-            this.btInventory6B.Text = "Start";
-            this.btInventory6B.UseVisualStyleBackColor = false;
-            this.btInventory6B.Click += new System.EventHandler(this.btInventory6B_Click);
-            // 
             // btFlashCl
             // 
             this.btFlashCl.Location = new System.Drawing.Point(939, 653);
@@ -4982,10 +4561,6 @@
             // timer_EAS
             // 
             this.timer_EAS.Tick += new System.EventHandler(this.timer_EAS_Tick);
-            // 
-            // Timer_Test_6B
-            // 
-            this.Timer_Test_6B.Tick += new System.EventHandler(this.Timer_Test_6B_Tick);
             // 
             // timer_Buff
             // 
@@ -5160,15 +4735,6 @@
             this.groupBox40.PerformLayout();
             this.groupBox10.ResumeLayout(false);
             this.groupBox10.PerformLayout();
-            this.Main_Page3.ResumeLayout(false);
-            this.panel5.ResumeLayout(false);
-            this.panel5.PerformLayout();
-            this.groupBox23.ResumeLayout(false);
-            this.groupBox23.PerformLayout();
-            this.groupBox22.ResumeLayout(false);
-            this.groupBox22.PerformLayout();
-            this.groupBox19.ResumeLayout(false);
-            this.groupBox19.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -5181,7 +4747,6 @@
         private System.Windows.Forms.TabControl Maintab;
         private System.Windows.Forms.TabPage Main_Page1;
         private System.Windows.Forms.TabPage Main_Page2;
-        private System.Windows.Forms.TabPage Main_Page3;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage_Basic;
         private System.Windows.Forms.GroupBox gpb_rs232;
@@ -5366,43 +4931,6 @@
         private System.Windows.Forms.TextBox text_DestroyCode;
         private System.Windows.Forms.Label label26;
         private System.Windows.Forms.Timer timer_EAS;
-        private System.Windows.Forms.Panel panel5;
-        private System.Windows.Forms.ListView ListView_ID_6B;
-        private System.Windows.Forms.ColumnHeader columnHeader5;
-        private System.Windows.Forms.ColumnHeader columnHeader6;
-        private System.Windows.Forms.ColumnHeader columnHeader7;
-        private System.Windows.Forms.ColumnHeader columnHeader2;
-        private System.Windows.Forms.ColumnHeader columnHeader3;
-        private System.Windows.Forms.GroupBox groupBox19;
-        private System.Windows.Forms.RadioButton rb_mutiple;
-        private System.Windows.Forms.RadioButton rb_single;
-        private System.Windows.Forms.Button btInventory6B;
-        private System.Windows.Forms.Timer Timer_Test_6B;
-        private System.Windows.Forms.TextBox text_6BUID;
-        private System.Windows.Forms.Label label29;
-        private System.Windows.Forms.GroupBox groupBox22;
-        private System.Windows.Forms.GroupBox groupBox23;
-        private System.Windows.Forms.TextBox text_R6BLen;
-        private System.Windows.Forms.Label label35;
-        private System.Windows.Forms.TextBox text_R6BAddr;
-        private System.Windows.Forms.Label label30;
-        private System.Windows.Forms.TextBox text_R6B;
-        private System.Windows.Forms.Label label36;
-        private System.Windows.Forms.Button btRead6B;
-        private System.Windows.Forms.TextBox text_W6B;
-        private System.Windows.Forms.Label label48;
-        private System.Windows.Forms.Button btWrite6B;
-        private System.Windows.Forms.TextBox text_W6BLen;
-        private System.Windows.Forms.Label label49;
-        private System.Windows.Forms.TextBox text_W6BAddr;
-        private System.Windows.Forms.Label label50;
-        private System.Windows.Forms.TextBox text_lock6b;
-        private System.Windows.Forms.Label label51;
-        private System.Windows.Forms.TextBox text_Statu6B;
-        private System.Windows.Forms.Button btCheckLock6B;
-        private System.Windows.Forms.Button btLock6B;
-        private System.Windows.Forms.TextBox text_checkaddr;
-        private System.Windows.Forms.Label label52;
         private System.Windows.Forms.TextBox text_target;
         private System.Windows.Forms.CheckBox check_num;
         private System.Windows.Forms.ComboBox com_Target;

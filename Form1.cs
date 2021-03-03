@@ -900,7 +900,6 @@ namespace UHFReader288MPDemo
             btIventoryG2.Text = "Start";
             panel1.Enabled = false;
             panel4.Enabled = false;
-            panel5.Enabled = false;
             panel8.Enabled = false;
             panel9.Enabled = false;
             panel10.Enabled = false;
@@ -931,7 +930,6 @@ namespace UHFReader288MPDemo
         {
             panel1.Enabled = true;
             panel4.Enabled = true;
-            panel5.Enabled = true;
             panel8.Enabled = true;
             panel9.Enabled = true;
             panel10.Enabled = true;
@@ -1283,13 +1281,6 @@ namespace UHFReader288MPDemo
                 total_time = System.Environment.TickCount;
                 dataGridView4.Rows.Clear();
 
-            }
-            ////6B标签刷屏
-            if (Maintab.SelectedTab == Main_Page3)
-            {
-                text_R6B.Text = "";
-                text_6BUID.Text = "";
-                text_Statu6B.Text = "";
             }
             total_tagnum = 0;
             total_time = System.Environment.TickCount;
@@ -1817,7 +1808,6 @@ namespace UHFReader288MPDemo
             timer_runmode.Enabled = false;
             timer_answer.Enabled = false;
             timer_EAS.Enabled = false;
-            Timer_Test_6B.Enabled = false;
             timer_Buff.Enabled = false;
             timer_RealTime.Enabled = false;
             btIventoryG2.Text = "Start";
@@ -1829,8 +1819,6 @@ namespace UHFReader288MPDemo
             btStartBuff.BackColor = Color.Transparent;
             btStartMactive.BackColor = Color.Transparent;
             btCheckEASAlarm.BackColor = Color.Transparent;
-            btInventory6B.Text = "Start";
-            btInventory6B.BackColor = Color.Transparent;
 
 
             if (comboBox_EPC.Text == "" && comboBox_EPC.Items.Count > 0)
@@ -3325,330 +3313,6 @@ namespace UHFReader288MPDemo
             fIsInventoryScan = false;
         }
 
-        private void btInventory6B_Click(object sender, EventArgs e)
-        {
-            Timer_Test_6B.Enabled = !Timer_Test_6B.Enabled;
-            if (!Timer_Test_6B.Enabled)
-            {
-                btInventory6B.Text = "Start";
-                btInventory6B.BackColor = Color.Transparent;
-            }
-            else
-            {
-                fisinventoryscan_6B = false;
-                ListView_ID_6B.Items.Clear();
-                btInventory6B.BackColor = Color.Indigo;
-                btInventory6B.Text = "Stop";
-            }
-        }
-        public void ChangeSubItem1(ListViewItem ListItem, int subItemIndex, string ItemText, string ant, string RSSI)
-        {
-            if (subItemIndex == 1)
-            {
-                if (ListItem.SubItems[subItemIndex].Text != ItemText)
-                {
-                    ListItem.SubItems[subItemIndex].Text = ItemText;
-                    ListItem.SubItems[subItemIndex + 2].Text = "1";
-                    ListItem.SubItems[subItemIndex + 1].Text = ant;
-                }
-                else
-                {
-                    ListItem.SubItems[subItemIndex + 2].Text = Convert.ToString(Convert.ToUInt32(ListItem.SubItems[subItemIndex + 2].Text) + 1);
-                    if ((Convert.ToUInt32(ListItem.SubItems[subItemIndex + 2].Text) > 9999))
-                        ListItem.SubItems[subItemIndex + 2].Text = "1";
-                    ListItem.SubItems[subItemIndex + 1].Text = Convert.ToString(Convert.ToInt32(ListItem.SubItems[subItemIndex + 1].Text, 2) | Convert.ToInt32(ant, 2), 2).PadLeft(4, '0');
-
-                }
-                ListItem.SubItems[subItemIndex + 3].Text = RSSI;
-            }
-        }
-        private void Inventory_6B()
-        {
-            int CardNum = 0;
-            byte[] ID_6B = new byte[2000];
-            byte[] ID2_6B = new byte[5000];
-            bool isonlistview;
-            string temps;
-            string s, ss, sID;
-            ListViewItem aListItem = new ListViewItem();
-            int i, j;
-            byte Condition = 0;
-            byte StartAddress;
-            byte mask = 0;
-            byte[] ConditionContent = new byte[300];
-            byte ant = 0;
-            if (rb_single.Checked)
-            {
-                fCmdRet = RWDev.InventorySingle_6B(ref fComAdr, ref ant, ID_6B, frmcomportindex);
-                if (fCmdRet == 0)
-                {
-                    byte[] daw = new byte[10];
-                    Array.Copy(ID_6B, daw, 10);
-                    temps = ByteArrayToHexString(daw);
-                    string RSSI = daw[9].ToString();
-                    temps = temps.Substring(2, 16);
-
-                    if (!list.Contains(temps))
-                    {
-                        CardNum1 = CardNum1 + 1;
-                        list.Add(temps);
-                    }
-                    string sant = Convert.ToString(ant, 2).PadLeft(4, '0');
-                    isonlistview = false;
-                    for (i = 0; i < ListView_ID_6B.Items.Count; i++)     //判断是否在ListView列表内
-                    {
-                        if (temps == ListView_ID_6B.Items[i].SubItems[1].Text)
-                        {
-                            aListItem = ListView_ID_6B.Items[i];
-                            ChangeSubItem1(aListItem, 1, temps, sant, RSSI);
-                            isonlistview = true;
-                            break;
-                        }
-                    }
-                    if (!isonlistview)
-                    {
-                        aListItem = ListView_ID_6B.Items.Add((ListView_ID_6B.Items.Count + 1).ToString());
-                        aListItem.SubItems.Add("");
-                        aListItem.SubItems.Add("");
-                        aListItem.SubItems.Add("");
-                        aListItem.SubItems.Add("");
-                        aListItem.SubItems.Add("");
-                        s = temps;
-                        ChangeSubItem1(aListItem, 1, s, sant, RSSI);
-                    }
-                }
-            }
-            if (rb_mutiple.Checked)
-            {
-                Condition = 1;
-                ss = "0000000000000000";//4种条件这里选择的是非全0的标签
-                byte[] daw = HexStringToByteArray(ss);
-                mask = 0xFF;
-                StartAddress = 0;
-                CardNum = 0;
-                fCmdRet = RWDev.InventoryMultiple_6B(ref fComAdr, Condition, StartAddress, mask, daw, ref ant, ID2_6B, ref CardNum, frmcomportindex);
-                if ((fCmdRet == 0x15) | (fCmdRet == 0x16) | (fCmdRet == 0x17) | (fCmdRet == 0x18) | (fCmdRet == 0xFB))
-                {
-                    byte[] daw1 = new byte[CardNum * 10];
-                    Array.Copy(ID2_6B, daw1, CardNum * 10);
-                    temps = ByteArrayToHexString(daw1);
-                    string sant = Convert.ToString(ant, 2).PadLeft(4, '0');
-                    for (i = 0; i < CardNum; i++)
-                    {
-                        sID = temps.Substring(20 * i + 2, 16);
-                        string RSSI = temps.Substring(20 * i + 18, 2);
-                        RSSI = Convert.ToByte(RSSI, 16).ToString();
-                        if ((sID.Length) != 16)
-                            return;
-                        if (CardNum == 0)
-                            return;
-                        isonlistview = false;
-                        for (j = 0; j < ListView_ID_6B.Items.Count; j++)     //判断是否在Listview列表内
-                        {
-                            if (sID == ListView_ID_6B.Items[j].SubItems[1].Text)
-                            {
-                                aListItem = ListView_ID_6B.Items[j];
-                                ChangeSubItem1(aListItem, 1, sID, sant, RSSI);
-                                isonlistview = true;
-                                break;
-                            }
-                        }
-                        if (!isonlistview)
-                        {
-                            aListItem = ListView_ID_6B.Items.Add((ListView_ID_6B.Items.Count + 1).ToString());
-                            aListItem.SubItems.Add("");
-                            aListItem.SubItems.Add("");
-                            aListItem.SubItems.Add("");
-                            aListItem.SubItems.Add("");
-                            aListItem.SubItems.Add("");
-                            s = sID;
-                            ChangeSubItem1(aListItem, 1, s, sant, RSSI);
-                        }
-                    }
-                }
-            }
-            WriteLog(lrtxtLog, "18000-6B Query", 0);
-        }
-        private void Timer_Test_6B_Tick(object sender, EventArgs e)
-        {
-            if (fisinventoryscan_6B)
-                return;
-            fisinventoryscan_6B = true;
-            Inventory_6B();
-            fisinventoryscan_6B = false;
-        }
-
-        private void ListView_ID_6B_DoubleClick(object sender, EventArgs e)
-        {
-            if (this.ListView_ID_6B.SelectedIndices.Count > 0 && this.ListView_ID_6B.SelectedIndices[0] != -1)
-            {
-                text_6BUID.Text = ListView_ID_6B.SelectedItems[0].SubItems[1].Text;
-            }
-        }
-        //E004000085D94502
-        private void btRead6B_Click(object sender, EventArgs e)
-        {
-            string temp, temps;
-            byte[] CardData = new byte[320];
-            byte[] ID_6B = new byte[8];
-            byte Num, StartAddress;
-            if (text_6BUID.Text == "")
-            {
-                MessageBox.Show("Select one tag in the list");
-                return;
-            }
-            temp = text_6BUID.Text;
-            ID_6B = HexStringToByteArray(temp);
-            if (text_R6BAddr.Text == "")
-                return;
-            StartAddress = Convert.ToByte(text_R6BAddr.Text, 16);
-            if (text_R6BLen.Text == "")
-                return;
-            Num = Convert.ToByte(text_R6BLen.Text, 16);
-            fCmdRet = RWDev.ReadData_6B(ref fComAdr, ID_6B, StartAddress, Num, CardData, ref ferrorcode, frmcomportindex);
-            if (fCmdRet != 0)
-            {
-                string strLog = "";
-                if (fCmdRet == 0xFC)
-                    strLog = "Read data failed: " + "tag return error=0x" + Convert.ToString(ferrorcode, 16) + "(" + GetErrorCodeDesc(ferrorcode) + ")";
-                else
-                    strLog = "Read data failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
-            }
-            else
-            {
-                byte[] data = new byte[Num];
-                Array.Copy(CardData, data, Num);
-                temps = ByteArrayToHexString(data);
-                text_R6B.Text = temps;
-                string strLog = "Read data success ";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-        }
-
-        private void btWrite6B_Click(object sender, EventArgs e)
-        {
-            string temp;
-            byte[] CardData = new byte[320];
-            byte[] ID_6B = new byte[8];
-            byte StartAddress;
-            byte Writedatalen;
-            int writtenbyte = 0;
-            if (text_6BUID.Text == "")
-            {
-                MessageBox.Show("Select one tag in the list");
-                return;
-            }
-            // text_6BUID.Text = "E004000085D94502";
-            temp = text_6BUID.Text;
-            ID_6B = HexStringToByteArray(temp);
-            if (text_W6BAddr.Text == "")
-                return;
-            StartAddress = Convert.ToByte(text_W6BAddr.Text, 16);
-            if (text_W6BLen.Text == "")
-                return;
-            Writedatalen = Convert.ToByte(text_W6BLen.Text, 16);
-
-            if ((text_W6B.Text == "") | ((text_W6B.Text.Length / 2) != Writedatalen) | ((text_W6B.Text.Length % 2) != 0))
-                return;
-            byte[] Writedata = new byte[Writedatalen];
-            Writedata = HexStringToByteArray(text_W6B.Text);
-            fCmdRet = RWDev.WriteData_6B(ref fComAdr, ID_6B, StartAddress, Writedata, Writedatalen, ref writtenbyte, ref ferrorcode, frmcomportindex);
-            if (fCmdRet != 0)
-            {
-                string strLog = "";
-                if (fCmdRet == 0xFC)
-                    strLog = "Write data failed: " + "tag return error=0x" + Convert.ToString(ferrorcode, 16) + "(" + GetErrorCodeDesc(ferrorcode) + ")";
-                else
-                    strLog = "Write data failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
-            }
-            else
-            {
-                string strLog = "Write data success ";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-
-        }
-
-        private void text_W6BLen_TextChanged(object sender, EventArgs e)
-        {
-            text_W6B.MaxLength = Convert.ToInt32(text_W6BLen.Text, 16) * 2;
-        }
-
-        private void btLock6B_Click(object sender, EventArgs e)
-        {
-            byte Address;
-            string temps;
-            byte[] ID_6B = new byte[8];
-            if (text_6BUID.Text == "")
-            {
-                MessageBox.Show("请在列表选择一张标签");
-                return;
-            }
-            temps = text_6BUID.Text;
-            ID_6B = HexStringToByteArray(temps);
-            if (text_lock6b.Text == "")
-                return;
-            Address = Convert.ToByte(text_lock6b.Text, 16);
-            if (MessageBox.Show(this, "Lock forever?", "information", MessageBoxButtons.OKCancel) == DialogResult.Cancel)
-                return;
-            fCmdRet = RWDev.Lock_6B(ref fComAdr, ID_6B, Address, ref ferrorcode, frmcomportindex);
-            if (fCmdRet != 0)
-            {
-                string strLog = "";
-                if (fCmdRet == 0xFC)
-                    strLog = "Lock failed: " + "tag return error=0x" + Convert.ToString(ferrorcode, 16) + "(" + GetErrorCodeDesc(ferrorcode) + ")";
-                else
-                    strLog = "Lock failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
-            }
-            else
-            {
-                string strLog = "Lock success ";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-
-        }
-
-        private void btCheckLock6B_Click(object sender, EventArgs e)
-        {
-            byte Address, ReLockState = 2;
-            string temps;
-            byte[] ID_6B = new byte[8];
-            if (text_6BUID.Text == "")
-            {
-                MessageBox.Show("Select one tag in the list");
-                return;
-            }
-            temps = text_6BUID.Text;
-            ID_6B = HexStringToByteArray(temps);
-            if (text_checkaddr.Text == "")
-                return;
-            Address = Convert.ToByte(text_checkaddr.Text, 16);
-            fCmdRet = RWDev.CheckLock_6B(ref fComAdr, ID_6B, Address, ref ReLockState, ref ferrorcode, frmcomportindex);
-            if (fCmdRet != 0)
-            {
-                string strLog = "";
-                if (fCmdRet == 0xFC)
-                    strLog = "Detect lock failed: " + "tag return error=0x" + Convert.ToString(ferrorcode, 16) + "(" + GetErrorCodeDesc(ferrorcode) + ")";
-                else
-                    strLog = "Detect lock failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
-            }
-            else
-            {
-                string strLog = "";
-                if (ReLockState == 0)
-                    text_Statu6B.Text = "Unlocked";
-                if (ReLockState == 1)
-                    text_Statu6B.Text = "Locked";
-                strLog = "Detect lock success ";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-
-        }
-
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
             DevControl.tagErrorCode eCode = DevControl.DM_DeInit();
@@ -3657,29 +3321,6 @@ namespace UHFReader288MPDemo
                 ErrorHandling.HandleError(eCode);
             }
         }
-
-        public class ctcplist//存储100客户端信息.
-        {
-            public Socket[] tempSocket = new Socket[100];
-            public string[] ip = new string[100];
-            public int[] port = new int[100];
-        }
-
-        ctcplist tcplist = new ctcplist();
-        Thread listenThread = null;//监听进程
-        Socket newsock = null;
-
-        public static string ByteArrayToHexString2(byte[] data)
-        {
-            StringBuilder sb = new StringBuilder(data.Length * 3);
-            foreach (byte b in data)
-                sb.Append(Convert.ToString(b, 16).PadLeft(2, '0').PadLeft(3, ' '));
-            return sb.ToString().ToUpper();
-
-        }
-
-        Socket m_client;
-        Thread clientThread = null;//接收数据线程
 
         private void com_S_SelectedIndexChanged(object sender, EventArgs e)
         {
