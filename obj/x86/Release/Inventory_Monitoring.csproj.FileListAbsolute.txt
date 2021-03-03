@@ -24,3 +24,26 @@ E:\Project Repo\RFID_Inv\obj\x86\Release\Inventory_Monitoring.csproj.CoreCompile
 E:\Project Repo\RFID_Inv\obj\x86\Release\Inventory_Monitoring.csproj.CopyComplete
 E:\Project Repo\RFID_Inv\obj\x86\Release\Inventory_Monitoring.exe
 E:\Project Repo\RFID_Inv\obj\x86\Release\Inventory_Monitoring.pdb
+D:\JW\Work\Repository\RFID_Inv\bin\x86\Release\Inventory_Monitoring.exe.config
+D:\JW\Work\Repository\RFID_Inv\bin\x86\Release\Microsoft.Bcl.AsyncInterfaces.dll
+D:\JW\Work\Repository\RFID_Inv\bin\x86\Release\Npgsql.dll
+D:\JW\Work\Repository\RFID_Inv\bin\x86\Release\System.Buffers.dll
+D:\JW\Work\Repository\RFID_Inv\bin\x86\Release\System.Memory.dll
+D:\JW\Work\Repository\RFID_Inv\bin\x86\Release\System.Numerics.Vectors.dll
+D:\JW\Work\Repository\RFID_Inv\bin\x86\Release\System.Runtime.CompilerServices.Unsafe.dll
+D:\JW\Work\Repository\RFID_Inv\bin\x86\Release\System.Text.Encodings.Web.dll
+D:\JW\Work\Repository\RFID_Inv\bin\x86\Release\System.Text.Json.dll
+D:\JW\Work\Repository\RFID_Inv\bin\x86\Release\System.Threading.Channels.dll
+D:\JW\Work\Repository\RFID_Inv\bin\x86\Release\System.Threading.Tasks.Extensions.dll
+D:\JW\Work\Repository\RFID_Inv\bin\x86\Release\System.ValueTuple.dll
+D:\JW\Work\Repository\RFID_Inv\bin\x86\Release\Microsoft.Bcl.AsyncInterfaces.xml
+D:\JW\Work\Repository\RFID_Inv\bin\x86\Release\Npgsql.xml
+D:\JW\Work\Repository\RFID_Inv\bin\x86\Release\System.Buffers.xml
+D:\JW\Work\Repository\RFID_Inv\bin\x86\Release\System.Memory.xml
+D:\JW\Work\Repository\RFID_Inv\bin\x86\Release\System.Numerics.Vectors.xml
+D:\JW\Work\Repository\RFID_Inv\bin\x86\Release\System.Runtime.CompilerServices.Unsafe.xml
+D:\JW\Work\Repository\RFID_Inv\bin\x86\Release\System.Text.Encodings.Web.xml
+D:\JW\Work\Repository\RFID_Inv\bin\x86\Release\System.Text.Json.xml
+D:\JW\Work\Repository\RFID_Inv\bin\x86\Release\System.Threading.Channels.xml
+D:\JW\Work\Repository\RFID_Inv\bin\x86\Release\System.Threading.Tasks.Extensions.xml
+D:\JW\Work\Repository\RFID_Inv\bin\x86\Release\System.ValueTuple.xml

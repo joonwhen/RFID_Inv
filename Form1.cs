@@ -16,6 +16,7 @@ using UHF;
 using System.IO;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using Npgsql;
 namespace UHFReader288MPDemo
 {
     public partial class Form1 : Form
@@ -84,6 +85,10 @@ namespace UHFReader288MPDemo
 
         //JW - Global list to keep track of the EPCs 
         public static List<string> Full_list = new List<string>();
+        public static List<string> inventory_list = new List<string>();
+        public static List<string> remove_list = new List<string>();
+        //JW - Condition to run epc checker
+        public static bool run_epc_checker = true;
 
         /// <summary>
         /// Device Search的回调函数;
@@ -232,6 +237,17 @@ namespace UHFReader288MPDemo
                     dr["Column4"] = RSSI;
                     dr["Column5"] = str_ant;
                     dt.Rows.Add(dr);
+
+                    //JW - Insert Raw Data Here and call the function to check if the EPC exists on the list.
+                    List<string> Raw_EPC_List = new List<string>();
+                    string time_now = DateTime.Now.ToString();
+                    Raw_EPC_List.Add(sEPC);
+                    Raw_EPC_List.Add(RSSI);
+                    Raw_EPC_List.Add(time_now);
+                    Raw_EPC_List.Add(str_ant);
+                    Console.WriteLine("Calling EPC Checker #1");
+                    EPC_Checker(Raw_EPC_List);
+
                     if (rb_fastid.Checked)
                     {
                         if ((epclen & 0x80) == 0)//只有EPC
@@ -284,6 +300,17 @@ namespace UHFReader288MPDemo
                         dr2["Column4"] = RSSI;
                         dr2["Column5"] = str_ant;
                         dt.Rows.Add(dr2);
+
+                        //JW - Insert Raw Data Here and call the function to check if the EPC exists on the list.
+                        List<string> Raw_EPC_List = new List<string>();
+                        string time_now = DateTime.Now.ToString();
+                        Raw_EPC_List.Add(sEPC);
+                        Raw_EPC_List.Add(RSSI);
+                        Raw_EPC_List.Add(time_now);
+                        Raw_EPC_List.Add(str_ant);
+                        Console.WriteLine("Calling EPC Checker #2");
+                        EPC_Checker(Raw_EPC_List);
+
                         if (rb_fastid.Checked)
                         {
                             if ((epclen & 0x80) == 0)//只有EPC
@@ -333,6 +360,16 @@ namespace UHFReader288MPDemo
                         int ant1 = Convert.ToInt32(dr[0]["Column5"].ToString(), 2);
                         int ant2 = Convert.ToInt32(str_ant, 2);
                         dt.Rows[dt.Rows.IndexOf(dr[0])]["Column5"] = Convert.ToString((ant1 | ant2), 2).PadLeft(4, '0');
+
+                        //JW - Insert Raw Data Here and call the function to check if the EPC exists on the list.
+                        List<string> Raw_EPC_List = new List<string>();
+                        string time_now = DateTime.Now.ToString();
+                        Raw_EPC_List.Add(sEPC);
+                        Raw_EPC_List.Add(RSSI);
+                        Raw_EPC_List.Add(time_now);
+                        Raw_EPC_List.Add(str_ant);
+                        //Console.WriteLine("EPC Checker #3");
+                        EPC_Checker(Raw_EPC_List);
                     }
                 }
                 bool flagset = false;
@@ -390,6 +427,16 @@ namespace UHFReader288MPDemo
                     lxLedControl1.Text = dt.Rows.Count.ToString();
                     lxLedControl5.Text = dt.Rows.Count.ToString();
                     comboBox_EPC.Items.Add(sEPC);
+
+                    //JW - Insert Raw Data Here and call the function to check if the EPC exists on the list.
+                    List<string> Raw_EPC_List = new List<string>();
+                    string time_now = DateTime.Now.ToString();
+                    Raw_EPC_List.Add(sEPC);
+                    Raw_EPC_List.Add(RSSI);
+                    Raw_EPC_List.Add(time_now);
+                    Raw_EPC_List.Add(str_ant);
+                    Console.WriteLine("Calling EPC Checker #4");
+                    EPC_Checker(Raw_EPC_List);
                 }
                 else
                 {
@@ -405,6 +452,17 @@ namespace UHFReader288MPDemo
                         dr2["Column5"] = RSSI;
                         dr2["Column6"] = str_ant;
                         dt.Rows.Add(dr2);
+
+                        //JW - Insert Raw Data Here and call the function to check if the EPC exists on the list.
+                        List<string> Raw_EPC_List = new List<string>();
+                        string time_now = DateTime.Now.ToString();
+                        Raw_EPC_List.Add(sEPC);
+                        Raw_EPC_List.Add(RSSI);
+                        Raw_EPC_List.Add(time_now);
+                        Raw_EPC_List.Add(str_ant);
+                        Console.WriteLine("Calling EPC Checker #5");
+                        EPC_Checker(Raw_EPC_List);
+
                         lxLedControl1.Text = dt.Rows.Count.ToString();
                         lxLedControl5.Text = (System.Environment.TickCount - total_time).ToString();
                         comboBox_EPC.Items.Add(sEPC);
@@ -418,6 +476,16 @@ namespace UHFReader288MPDemo
                         int ant1 = Convert.ToInt32(dr[0]["Column6"].ToString(), 2);
                         int ant2 = Convert.ToInt32(str_ant, 2);
                         dt.Rows[dt.Rows.IndexOf(dr[0])]["Column6"] = Convert.ToString((ant1 | ant2), 2).PadLeft(4, '0');
+
+                        //JW - Insert Raw Data Here and call the function to check if the EPC exists on the list.
+                        List<string> Raw_EPC_List = new List<string>();
+                        string time_now = DateTime.Now.ToString();
+                        Raw_EPC_List.Add(sEPC);
+                        Raw_EPC_List.Add(RSSI);
+                        Raw_EPC_List.Add(time_now);
+                        Raw_EPC_List.Add(str_ant);
+                        Console.WriteLine("Calling EPC Checker #6");
+                        EPC_Checker(Raw_EPC_List);
                     }
                 }
                 bool flagset = false;
@@ -504,6 +572,17 @@ namespace UHFReader288MPDemo
                     dr["Column5"] = RSSI;
                     dr["Column6"] = str_ant;
                     dt.Rows.Add(dr);
+
+                    //JW - Insert Raw Data Here and call the function to check if the EPC exists on the list.
+                    List<string> Raw_EPC_List = new List<string>();
+                    string time_now = DateTime.Now.ToString();
+                    Raw_EPC_List.Add(sEPC);
+                    Raw_EPC_List.Add(RSSI);
+                    Raw_EPC_List.Add(time_now);
+                    Raw_EPC_List.Add(str_ant);
+                    Console.WriteLine("Calling EPC Checker #7");
+                    EPC_Checker(Raw_EPC_List);
+
                     //lxLedControl1.Text = dt.Rows.Count.ToString();
                     lxLedControl5.Text = dt.Rows.Count.ToString();
                     comboBox_EPC.Items.Add(sEPC);
@@ -522,6 +601,17 @@ namespace UHFReader288MPDemo
                         dr2["Column5"] = RSSI;
                         dr2["Column6"] = str_ant;
                         dt.Rows.Add(dr2);
+
+                        //JW - Insert Raw Data Here and call the function to check if the EPC exists on the list.
+                        List<string> Raw_EPC_List = new List<string>();
+                        string time_now = DateTime.Now.ToString();
+                        Raw_EPC_List.Add(sEPC);
+                        Raw_EPC_List.Add(RSSI);
+                        Raw_EPC_List.Add(time_now);
+                        Raw_EPC_List.Add(str_ant);
+                        Console.WriteLine("Calling EPC Checker #8");
+                        EPC_Checker(Raw_EPC_List);
+
                         //lxLedControl1.Text = dt.Rows.Count.ToString();
                         lxLedControl5.Text = (System.Environment.TickCount - total_time).ToString();
                         comboBox_EPC.Items.Add(sEPC);
@@ -535,6 +625,15 @@ namespace UHFReader288MPDemo
                         int ant1 = Convert.ToInt32(dr[0]["Column6"].ToString(), 2);
                         int ant2 = Convert.ToInt32(str_ant, 2);
                         dt.Rows[dt.Rows.IndexOf(dr[0])]["Column6"] = Convert.ToString((ant1 | ant2), 2).PadLeft(4, '0');
+
+                        //JW - Insert Raw Data Here and call the function to check if the EPC exists on the list.
+                        List<string> Raw_EPC_List = new List<string>();
+                        string time_now = DateTime.Now.ToString();
+                        Raw_EPC_List.Add(sEPC);
+                        Raw_EPC_List.Add(RSSI);
+                        Raw_EPC_List.Add(time_now);
+                        Console.WriteLine("Calling EPC Checker #9");
+                        EPC_Checker(Raw_EPC_List);
                     }
                 }
                 bool flagset = false;
@@ -4780,14 +4879,6 @@ namespace UHFReader288MPDemo
                             arr[3] = AntStr;
                             arr[4] = RSSI;
                             dataGridView4.Rows.Insert(dataGridView4.RowCount, arr);
-
-                            //JW - Insert Raw Data Here and call the function to check if the EPC exists on the list.
-                            List<string> Raw_EPC_List = new List<string>();
-                            string time_now = DateTime.Now.ToString();
-                            Raw_EPC_List.Add(EPCStr);
-                            Raw_EPC_List.Add(RSSI);
-                            Raw_EPC_List.Add(time_now);
-                            EPC_Checker(Raw_EPC_List);
                         }
                         lxLed_Mtime.Text = (System.Environment.TickCount - total_time).ToString();
                     }
@@ -5080,19 +5171,224 @@ namespace UHFReader288MPDemo
         }
 
         //JW - Function to check if EPC is already on the list
-        public static bool run_epc_checker = true;
+
         public static void EPC_Checker(List<string> Raw_Entry_List)
         {
-            if(Form1.run_epc_checker == true)
+            if(run_epc_checker == true)
+            {
+                if (inventory_list.Contains(Raw_Entry_List[0]))
+                {
+                    //wanted signal
+                    switch (Raw_Entry_List[3])
+                    {
+                        case "1000":
+                            Raw_Entry_List[3] = "4";
+                            break;
+                        case "0100":
+                            Raw_Entry_List[3] = "3";
+                            break;
+                        case "0010":
+                            Raw_Entry_List[3] = "2";
+                            break;
+                        case "0001":
+                            Raw_Entry_List[3] = "1";
+                            break;
+                    }
+                    if (Full_list.Contains(Raw_Entry_List[0]))
+                    {
+                        //epc is on the full list
+                        int epc_index = Full_list.IndexOf(Raw_Entry_List[0]);
+                        Full_list[epc_index + 1] = Raw_Entry_List[1];
+                        Full_list[epc_index + 2] = Raw_Entry_List[2];
+                        Full_list[epc_index + 3] = Raw_Entry_List[3];
+                    }
+                    else
+                    {
+                        //epc is not on the full list
+                        Full_list.Add(Raw_Entry_List[0]);
+                        Full_list.Add(Raw_Entry_List[1]);
+                        Full_list.Add(Raw_Entry_List[2]);
+                        Full_list.Add(Raw_Entry_List[3]);
+                    }
+                }
+                else
+                {
+                    //unwanted signal
+                }
+            }
+        }
+
+
+        //JW - Periodic Checker on a separate thread
+
+        private void Periodic_Checker()
+        {
+            bool connected = false;
+            while(true)
+            {
+                //Initiate Connection with Database and obtain all EPC on the database
+                Console.WriteLine("Syncing with Database . . . ");
+                string connstring = String.Format("Host=localhost;Port=5432;User Id=Admin;Password=password;Database=Inventory;");
+                NpgsqlConnection conn = new NpgsqlConnection(connstring);
+                NpgsqlDataReader reader;
+                try
+                {
+                    conn.Open();
+                    if (conn.State == ConnectionState.Open)
+                    {
+                        connected = true;
+                    }
+                }
+                catch(Exception e)
+                {
+                    MessageBox.Show("Error: Unable to connect to Database.");
+                }
+                
+                if(connected)
+                {
+                    var cmd = new NpgsqlCommand("SELECT epc FROM RFID_inventory;", conn);
+                    reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        if (inventory_list.Contains(reader.GetString(0).Trim(' ')))
+                        {
+                        }
+
+                        else
+                        {
+                            inventory_list.Add(reader.GetString(0).Trim(' '));
+                        }
+                    }
+                    reader.Close();
+                    conn.Close();
+
+                    //Put thread to sleep, in milliseconds
+                    Thread.Sleep(10 * 1000);
+                    //disable epc_checker, check if the items have been checked out
+                    run_epc_checker = false;
+                    int i = 0, u = 0;
+                    int time_diff, minimum_idle_time = 30;
+                    bool remove_epc = false;
+                    for (i = 0; i < Full_list.Count; i = i + 4)
+                    {
+                        bool status_error = false;
+                        DateTime time_now = DateTime.Now;
+                        time_diff = Convert.ToInt32(time_now.Subtract(Convert.ToDateTime(Full_list[i + 2])).TotalSeconds);
+                        Console.WriteLine(Full_list[i] + " has a time difference of: " + time_diff);
+                        if (time_diff > minimum_idle_time)
+                        {
+                            //item is considered to be checked out, check the manual entry
+                            conn.Open();
+                            cmd = new NpgsqlCommand("SELECT * FROM rfid_inventory where epc = '" + Full_list[i] + "';", conn);
+                            reader = cmd.ExecuteReader();
+                            while (reader.Read())
+                            {
+                                if (reader["item_status_manual"].ToString() == "Available")
+                                {
+                                    //manual entry indicates that it is available, then there is an error as the antenna is not able to pick up the signal
+                                    //it could only mean the item is checked out or hidden in the room and the signal cannot be picked up
+                                    status_error = true;
+                                    cmd.Cancel();
+                                }
+                            }
+                            conn.Close();
+
+                            conn.Open();
+                            if (status_error)
+                            {
+                                cmd = new NpgsqlCommand("UPDATE rfid_inventory SET item_status_automated = 'Error: status do not tally.', tagtime = '" + Full_list[i + 2] + "' WHERE epc = '" + Full_list[i] + "';", conn);
+                                cmd.ExecuteNonQuery();
+                                remove_epc = true;
+                                remove_list.Add(Full_list[i]);
+                            }
+                            else
+                            {
+                                cmd = new NpgsqlCommand("UPDATE rfid_inventory SET item_status_automated = 'Checked Out', tagtime = '" + Full_list[i + 2] + "' WHERE epc = '" + Full_list[i] + "';", conn);
+                                cmd.ExecuteNonQuery();
+                                remove_epc = true;
+                                remove_list.Add(Full_list[i]);
+                            }
+                            conn.Close();
+                        }
+                        else
+                        {
+                            //item is available
+                            conn.Open();
+                            cmd = new NpgsqlCommand("UPDATE RFID_Inventory SET item_status_automated = 'Available', tagtime = '" + Full_list[i + 2] + "' WHERE epc = '" + Full_list[i] + "';", conn);
+                            cmd.ExecuteNonQuery();
+                            Console.WriteLine(Full_list[i] + " is available");
+                            conn.Close();
+                        }
+                    }
+
+                    if (remove_epc)
+                    {
+                        List<string> temp_list= new List<string>();
+                        for(i = 0; i < remove_list.Count; i++)
+                        {
+                            for(u = 0; u < Full_list.Count; u += 4)
+                            {
+                                if(remove_list[i] == Full_list[u])
+                                {
+
+                                }
+                                else
+                                {
+                                    temp_list.Add(Full_list[u]);
+                                    temp_list.Add(Full_list[u+1]);
+                                    temp_list.Add(Full_list[u+2]);
+                                    temp_list.Add(Full_list[u+3]);
+                                }
+                            }
+                        }
+
+                        Full_list.Clear();
+                        for(i=0; i < temp_list.Count; i += 4)
+                        {
+                            Full_list.Add(temp_list[i]);
+                            Full_list.Add(temp_list[i+1]);
+                            Full_list.Add(temp_list[i+2]);
+                            Full_list.Add(temp_list[i+3]);
+                        }
+                        temp_list.Clear();
+                        remove_list.Clear();
+                    }
+                    run_epc_checker = true;
+                }
+                
+            }
+        }
+
+        /***
+         
+        public static void EPC_Checker(List<string> Raw_Entry_List)
+        {
+            if(run_epc_checker == true)
             {
                 bool inList = false;
 
-                for (int i = 0; i < (Form1.Full_list.Count - 2); i = i + 3)
+                switch (Raw_Entry_List[3])
                 {
-                    if (Form1.Full_list[i] == Raw_Entry_List[0])
+                    case "1000":
+                        Raw_Entry_List[3] = "4";
+                        break;
+                    case "0100":
+                        Raw_Entry_List[3] = "3";
+                        break;
+                    case "0010":
+                        Raw_Entry_List[3] = "2";
+                        break;
+                    case "0001":
+                        Raw_Entry_List[3] = "1";
+                        break;
+                }
+
+                for (int i = 0; i < (Full_list.Count); i = i + 4)
+                {
+                    if ((Full_list[i] == Raw_Entry_List[0]) && (Full_list[i+3] == Raw_Entry_List[3]))
                     {
-                        Form1.Full_list[i + 1] = Raw_Entry_List[1];
-                        Form1.Full_list[i + 2] = Raw_Entry_List[2];
+                        Full_list[i + 1] = Raw_Entry_List[1];
+                        Full_list[i + 2] = Raw_Entry_List[2];
                         inList = true;
                     }
                     else
@@ -5103,59 +5399,239 @@ namespace UHFReader288MPDemo
 
                 if (!inList)
                 {
-                    Form1.Full_list.Add(Raw_Entry_List[0]);
-                    Form1.Full_list.Add(Raw_Entry_List[1]);
-                    Form1.Full_list.Add(Raw_Entry_List[2]);
+                    Full_list.Add(Raw_Entry_List[0]);
+                    Full_list.Add(Raw_Entry_List[1]);
+                    Full_list.Add(Raw_Entry_List[2]);
+                    Full_list.Add(Raw_Entry_List[3]);
                 }
+            }
+            else
+            {
+
             }
             
         }
 
         //JW - Function which checks if item is available or not
+
         private void Periodic_Checker()
         {
+            List<string> managed_list = new List<string>();
             while (true)
             {
-                DateTime time_now = DateTime.Now;
-                //The sleep command below indicates how frequent the checker is activated.
-                Thread.Sleep(1000 * 300);
-                int counter = 2;
-                bool shift_list = false;
-                List<string> managed_list = new List<string>();
-                managed_list = Form1.Full_list;
+                // Updating Inventory List
+                Console.WriteLine("Syncing with Database . . .");
+                string connstring = String.Format("Host=localhost;Port=5432;User Id=Admin;Password=password;Database=Inventory;");
+                NpgsqlConnection conn = new NpgsqlConnection(connstring);
+                NpgsqlDataReader reader;
+                conn.Open();
+                var cmd = new NpgsqlCommand("SELECT epc FROM public.rfid_inventory;", conn);
+                reader = cmd.ExecuteReader();
 
-                for (counter = 2; counter < managed_list.Count; counter = counter + 3)
+                while (reader.Read())
                 {
-                    int time_diff = Convert.ToInt32(time_now.Subtract(Convert.ToDateTime(managed_list[counter])).TotalSeconds);
-                    
-                    if((shift_list == true) && (counter == managed_list.Count -1))
+                    if (inventory_list.Contains(reader.GetString(0).Trim(' ')))
                     {
-                        shift_list = false;
-                        managed_list.RemoveRange(counter - 2, 3);
-                    }
-                    
-                    //How long is the item missing to be considered checked out
-                    if (time_diff >= 1)
-                    {
-                        shift_list = true;
-                        Console.WriteLine("Item has been checked out.");
-                        //do things to the database
+
                     }
 
-                    if(shift_list)
+                    else
                     {
-                        managed_list[counter - 2] = managed_list[counter + 1];
-                        managed_list[counter - 1] = managed_list[counter + 2];
-                        managed_list[counter] = managed_list[counter + 3];
+                        inventory_list.Add(reader.GetString(0).Trim(' '));
+                    }
+                }
+                reader.Close();
+                conn.Close();
+
+                //The sleep command below indicates how frequent the checker is activated.
+                Thread.Sleep(1000 * 10); //sleep time
+                Console.WriteLine("DEBUG: Inventory list's count: " + inventory_list.Count);
+                Console.WriteLine("Thread is awake");
+
+                //copy full list to managed list
+                run_epc_checker = false;
+                int i;
+
+                for(i = 0; i < Full_list.Count; i++)
+                {
+                    managed_list.Add(Full_list[i]);
+                }
+
+                //DEBUG
+                for(i = 0; i < managed_list.Count; i = i + 4)
+                {
+                    Console.WriteLine("EPC: " + managed_list[i] + " RSSI: " + managed_list[i+1] + " Date/Time: " + managed_list[i+2] + " Antenna: " + managed_list[i+3]);
+                }
+
+                //Update Signals Received
+                conn.Open();
+                cmd = new NpgsqlCommand("SELECT EXISTS (SELECT 1 FROM public.rfid_signals);", conn);
+                bool isFilled = bool.Parse(cmd.ExecuteScalar().ToString());
+                for(i = 0; i < managed_list.Count; i = i + 4)
+                {
+                    if (inventory_list.Contains(managed_list[i]))
+                    {
+                        if (isFilled)
+                        {
+                            //Table is not empty
+                            //Update the Signal Strengths
+                            //Obtain which antenna has picked up the signals
+                            cmd = new NpgsqlCommand("SELECT COUNT(*) FROM RFID_Signals WHERE epc = '"+managed_list[i]+"' AND antenna_no = '"+managed_list[i+3]+"';", conn);
+                            string query_result = cmd.ExecuteScalar().ToString();
+                            if(query_result == "1")
+                            {
+                                //Entry already exists
+                                Console.WriteLine("exists");
+                                cmd = new NpgsqlCommand("UPDATE rfid_signals SET rssi = '"+managed_list[i+1]+"', last_signal = '"+managed_list[i+2]+"' WHERE epc = '"+managed_list[i]+"' AND antenna_no = '"+managed_list[i+3]+"';", conn);
+                                cmd.ExecuteNonQuery();
+                            }
+                            if (query_result == "0")
+                            {
+                                //Entry does not exists
+                                Console.WriteLine("Don't exist");
+                                cmd = new NpgsqlCommand("INSERT INTO rfid_signals VALUES('"+managed_list[i]+"', '"+managed_list[i+3]+"', '"+managed_list[i+1]+"', '"+managed_list[i+2]+"');", conn);
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+                        else
+                        {
+                            //Table is empty
+                            cmd = new NpgsqlCommand("INSERT INTO rfid_signals VALUES('" + managed_list[i] + "', '" + managed_list[i + 3] + "', '" + managed_list[i + 1] + "', '" + managed_list[i + 2] + "');", conn);
+                            cmd.ExecuteNonQuery();
+                        }
+                        
+                    }
+                    else
+                    {
+                        //item is not in the inventory list, do not care about the stray signal
+                    }
+                }
+                conn.Close();
+
+                //Check automatically if item is checked out
+                int time_diff;
+                int minimum_idle_time = 30; //Time before an item is considered checked out
+                List<string> Remove_List = new List<string>();
+                for(i = 2; i < managed_list.Count; i = i + 4)
+                {
+                    DateTime time_now = DateTime.Now;
+                    time_diff = Convert.ToInt32(time_now.Subtract(Convert.ToDateTime(managed_list[i])).TotalSeconds);
+                    Console.WriteLine("DEBUG: Time diff is " + time_diff);
+                    if(time_diff >= minimum_idle_time)
+                    {
+                        //Get the EPC of interest
+                        Remove_List.Add(managed_list[i - 2]);
+                    }
+                    else if (inventory_list.Contains(managed_list[i-2]))
+                    {
+                        //Get item status of mentioned EPC. 
+                        //If Available, then do nothing
+                        //If Unavailable/Checked out, but the signal is read, it means the item is back in the storeroom
+                        conn.Open();
+                        cmd = new NpgsqlCommand("SELECT item_status_automated FROM rfid_inventory WHERE epc = '" + managed_list[i - 2] + "';", conn);
+                        string item_status = cmd.ExecuteScalar().ToString();
+                        if(item_status == "Available")
+                        {
+                            // do nothing, as item is available
+                        }
+                        else if (item_status == "Checked Out")
+                        {
+                            // set the column to be available
+                            cmd = new NpgsqlCommand("UPDATE rfid_inventory SET item_status_automated = 'Available' WHERE epc = '" + managed_list[i - 2] + "';", conn);
+                            cmd.ExecuteNonQuery();
+                        }
+                        conn.Close();
                     }
                 }
 
-                //Checking Completed, Update the Full List
-                Form1.run_epc_checker = false;
-                Form1.Full_list.Clear();
-                Form1.Full_list = managed_list;
-                Form1.run_epc_checker = true;
+                //Check out the items which signals have not been read for awhile
+                int u = 0;
+                conn.Open();
+                while (u < Remove_List.Count)
+                {
+                    for(i = 0; i < managed_list.Count; i = i + 4)
+                    {
+                        if(managed_list[i] == Remove_List[u])
+                        {
+                            Console.WriteLine("EPC " + managed_list[i] + " has been checked out automatically.");
+                            cmd = new NpgsqlCommand("UPDATE rfid_inventory SET item_status_automated = 'Checked Out' WHERE epc = '" + managed_list[i] + "';", conn);
+                            cmd.ExecuteNonQuery();
+                            managed_list.RemoveRange(i, 4);
+                            break;
+                        }
+                    }
+                    u++;
+                }
+                conn.Close();
+
+                run_epc_checker = true;
+                Console.WriteLine("Thread is going to sleep.");
+                Console.WriteLine("---------------------------");
+                Remove_List.Clear();
+                managed_list.Clear();
             }    
+        }
+        ***/
+
+        private DataSet dataset_query = new DataSet();
+        private DataTable datatable_query = new DataTable();
+
+        private void BN_Open_FullDB_Click(object sender, EventArgs e)
+        {
+            
+            string connstring = String.Format("Host=localhost;Port=5432;User Id=Admin;Password=password;Database=Inventory;");
+            NpgsqlConnection conn = new NpgsqlConnection(connstring);
+            conn.Open();
+            string command = "SELECT * FROM rfid_inventory;";
+            NpgsqlDataAdapter dataadapter_query = new NpgsqlDataAdapter(command, conn);
+            dataset_query.Reset();
+            dataadapter_query.Fill(dataset_query);
+            datatable_query = dataset_query.Tables[0];
+            View_InvList.DataSource = datatable_query;
+            conn.Close();
+            
+        }
+
+        private void BN_Search_Click(object sender, EventArgs e)
+        {
+            string epc_search = textBox1.Text;
+            string sn_search = textBox2.Text;
+            string connstring = String.Format("Host=localhost;Port=5432;User Id=Admin;Password=password;Database=Inventory;");
+            NpgsqlConnection conn = new NpgsqlConnection(connstring);
+            conn.Open();
+
+            if (epc_search == null)
+            {
+                string command = "SELECT * FROM rfid_inventory WHERE item_sn = '" + sn_search + "';";
+                NpgsqlDataAdapter dataadapter_query = new NpgsqlDataAdapter(command, conn);
+                dataset_query.Reset();
+                dataadapter_query.Fill(dataset_query);
+                datatable_query = dataset_query.Tables[0];
+                View_InvList.DataSource = datatable_query;
+                conn.Close();
+            }
+
+            else if(sn_search == null)
+            {
+                string command = "SELECT * FROM rfid_inventory WHERE epc = '" + epc_search + "';";
+                NpgsqlDataAdapter dataadapter_query = new NpgsqlDataAdapter(command, conn);
+                dataset_query.Reset();
+                dataadapter_query.Fill(dataset_query);
+                datatable_query = dataset_query.Tables[0];
+                View_InvList.DataSource = datatable_query;
+                conn.Close();
+            }
+
+            else
+            {
+                string command = "SELECT * FROM rfid_inventory WHERE item_sn = '" + sn_search + "' AND epc = '" + epc_search + "';";
+                NpgsqlDataAdapter dataadapter_query = new NpgsqlDataAdapter(command, conn);
+                dataset_query.Reset();
+                dataadapter_query.Fill(dataset_query);
+                datatable_query = dataset_query.Tables[0];
+                View_InvList.DataSource = datatable_query;
+                conn.Close();
+            }
         }
     }
 }
