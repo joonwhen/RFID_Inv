@@ -698,10 +698,6 @@ namespace UHFReader288MPDemo
                 str = str.Substring(index);
                 string total_tagnum = str;
 
-                lxLed_BNum.Text = tagNum;
-                lxLed_Bcmdsud.Text = tagRate;
-                lxLed_cmdTime.Text = cmdTime;
-                lxLed_Btoltag.Text = total_tagnum;
                 WriteLog(lrtxtLog, "Buffer-Inventiry:Operation success", 1);
             }
             else if (m.Msg == WM_SHOWNUM)
@@ -892,9 +888,7 @@ namespace UHFReader288MPDemo
             timer_answer.Enabled = false;
             btIventoryG2.Text = "Start";
             panel1.Enabled = false;
-            panel8.Enabled = false;
             panel9.Enabled = false;
-            panel10.Enabled = false;
             gpb_address.Enabled = false;
             gpb_antconfig.Enabled = false;
             gpb_baud.Enabled = false;
@@ -921,9 +915,7 @@ namespace UHFReader288MPDemo
         private void EnabledForm()
         {
             panel1.Enabled = true;
-            panel8.Enabled = true;
             panel9.Enabled = true;
-            panel10.Enabled = true;
             gpb_address.Enabled = true;
             gpb_antconfig.Enabled = true;
             gpb_baud.Enabled = true;
@@ -1254,25 +1246,7 @@ namespace UHFReader288MPDemo
                 dataGridView1.DataSource = null;
             }
 
-            ////缓存模式下刷屏
-            if (tabControl2.SelectedTab == tabPage_Buff)
-            {
-                lxLed_BNum.Text = "0";
-                lxLed_Bcmdsud.Text = "0";
-                lxLed_Btoltag.Text = "0";
-                lxLed_Btoltime.Text = "0";
-                lxLed_cmdTime.Text = "0";
-                dataGridView3.Rows.Clear();
-            }
-            ////实时查询刷屏
-            if (tabControl2.SelectedTab == tabPage_Realtime)
-            {
-                lxLed_Mtag.Text = "0";
-                lxLed_Mtime.Text = "0";
-                total_time = System.Environment.TickCount;
-                dataGridView4.Rows.Clear();
-
-            }
+            
             total_tagnum = 0;
             total_time = System.Environment.TickCount;
             lrtxtLog.Clear();
@@ -1766,19 +1740,13 @@ namespace UHFReader288MPDemo
             {
                 toStopThread = true;//标志，接收数据线程判断stop为true，正常情况下会自动退出线程                                
                 ReadThread.Abort();//若线程无法退出，强制结束
-                timer_Buff.Enabled = false;
                 fIsInventoryScan = false;
             }
             timer_runmode.Enabled = false;
             timer_answer.Enabled = false;
-            timer_Buff.Enabled = false;
             timer_RealTime.Enabled = false;
             btIventoryG2.Text = "Start";
-            btStartBuff.Text = "Start";
-            btStartMactive.Text = "Start";
             btIventoryG2.BackColor = Color.Transparent;
-            btStartBuff.BackColor = Color.Transparent;
-            btStartMactive.BackColor = Color.Transparent;
 
             if ((ReadTypes == "16") || (ReadTypes == "21"))//单口
             {
@@ -1874,13 +1842,8 @@ namespace UHFReader288MPDemo
                             if (tabControl1.TabPages.IndexOf(tabPage_Module) == -1)
                                 tabControl1.TabPages.Add(tabPage_Module);
 
-                            //主动询查显示
-                            if (tabControl2.TabPages.IndexOf(tabPage_Realtime) == -1)
-                                tabControl2.TabPages.Add(tabPage_Realtime);
                             //缓存显示
                             gbp_buff.Enabled = true;
-                            if (tabControl2.TabPages.IndexOf(tabPage_Buff) == -1)
-                                tabControl2.TabPages.Add(tabPage_Buff);
                             text_RDVersion.Text = "UHFReader288MP--" + Convert.ToString(VersionInfo[0], 10).PadLeft(2, '0') + "." + Convert.ToString(VersionInfo[1], 10).PadLeft(2, '0');
                         }
                         break;
@@ -1895,11 +1858,8 @@ namespace UHFReader288MPDemo
                             gpb_antconfig.Enabled = false;
                             //主动模式显示
                             tabControl1.TabPages.Remove(tabPage_Module);
-                            //主动询查显示
-                            tabControl2.TabPages.Remove(tabPage_Realtime);
                             //缓存显示
                             gbp_buff.Enabled = false;
-                            tabControl2.TabPages.Remove(tabPage_Buff);
                             text_RDVersion.Text = "UHFReader82--" + Convert.ToString(VersionInfo[0], 10).PadLeft(2, '0') + "." + Convert.ToString(VersionInfo[1], 10).PadLeft(2, '0');
                         }
                         break;
@@ -2495,132 +2455,9 @@ namespace UHFReader288MPDemo
             }
         }
 
-        private void btReadBuff_Click(object sender, EventArgs e)
-        {
-            int Totallen = 0;
-            int CardNum = 0;
-            byte[] pEPCList = new byte[30000];
-            //lxLed_BNum.Text = "0";
-            //lxLed_Bcmdsud.Text = "0";
-            //lxLed_Btoltag.Text = "0";
-            //lxLed_Btoltime.Text = "0";
-            //lxLed_cmdTime.Text = "0";
-            dataGridView3.Rows.Clear();
-            string temp = "";
-            fCmdRet = RWDev.ReadBuffer_G2(ref fComAdr, ref Totallen, ref CardNum, pEPCList, frmcomportindex);
-            if (fCmdRet == 1)
-            {
-                int m = 0;
-                byte[] daw = new byte[Totallen];
-                Array.Copy(pEPCList, daw, Totallen);
-                for (int i = 0; i < CardNum; i++)
-                {
-                    string ant = Convert.ToString(daw[m], 2).PadLeft(4, '0');
-                    int len = daw[m + 1];
-                    byte[] EPC = new byte[len];
-                    Array.Copy(daw, m + 2, EPC, 0, len);
-                    string sEPC = ByteArrayToHexString(EPC);
-                    string RSSI = daw[m + 2 + len].ToString();
-                    string sCount = daw[m + 3 + len].ToString();
-                    m = m + 4 + len;
-                    string[] arr = new string[6];
-                    arr[0] = (dataGridView3.RowCount + 1).ToString();
-                    arr[1] = sEPC;
-                    arr[2] = len.ToString();
-                    arr[3] = ant;
-                    arr[4] = RSSI;
-                    arr[5] = sCount;
-                    dataGridView3.Rows.Insert(dataGridView3.RowCount, arr);
-                }
-                lxLed_BNum.Text = dataGridView3.RowCount.ToString();
-                string strLog = "Read buffer success ";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-            else
-            {
-                lxLed_BNum.Text = "0";
-                string strLog = "Read buffer failed! ";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-        }
-
-        private void btClearBuff_Click(object sender, EventArgs e)
-        {
-            fCmdRet = RWDev.ClearBuffer_G2(ref fComAdr, frmcomportindex);
-            if (fCmdRet == 0)
-            {
-                string strLog = "Clear buffer success ";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-            else
-            {
-                string strLog = "Clear buffer failed";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-        }
-
-        private void btRandCbuff_Click(object sender, EventArgs e)
-        {
-            btReadBuff_Click(null, null);
-            btClearBuff_Click(null, null);
-        }
-
-        private void btQueryBuffNum_Click(object sender, EventArgs e)
-        {
-            int Count = 0;
-            //lxLed_Bcmdsud.Text = "0";
-            //lxLed_cmdTime.Text = "0";
-            lxLed_BNum.Text = "0";
-            //lxLed_Btoltag.Text = "0";
-            //lxLed_Btoltime.Text = "0";
-            fCmdRet = RWDev.GetBufferCnt_G2(ref fComAdr, ref Count, frmcomportindex);
-            if (fCmdRet == 0)
-            {
-                lxLed_BNum.Text = Count.ToString();
-                string strLog = "Get buffer tag number success ";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-            else
-            {
-                string strLog = "Get buffer tag number failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-        }
         private Thread ReadThread = null;
         private volatile bool fIsBuffScan = false;
-        private void btStartBuff_Click(object sender, EventArgs e)
-        {
-            if (btStartBuff.Text == "Start")
-            {
-                if (rb_bepc.Checked)
-                    TIDFlag = 0;
-                else
-                    TIDFlag = 1;
-                total_time = System.Environment.TickCount;
-                total_tagnum = 0;
-                btStartBuff.BackColor = Color.Indigo;
-                btStartBuff.Text = "Stop";
-                toStopThread = false;
-                if (fIsBuffScan == false)
-                {
-                    ReadThread = new Thread(new ThreadStart(ReadProcess));
-                    ReadThread.Start();
-                }
-                timer_Buff.Enabled = true;
-            }
-            else
-            {
-                btStartBuff.BackColor = Color.Transparent;
-                btStartBuff.Text = "Start";
-                if (fIsBuffScan)
-                {
-                    toStopThread = true;//标志，接收数据线程判断stop为true，正常情况下会自动退出线程            
-                    ReadThread.Abort();
-                    fIsBuffScan = false;
-                }
-                timer_Buff.Enabled = false;
-            }
-        }
+
         private void GetBuffData()
         {
             int TagNum = 0;
@@ -2673,10 +2510,6 @@ namespace UHFReader288MPDemo
                 GetBuffData();
             }
             fIsBuffScan = false;
-        }
-        private void timer_Buff_Tick(object sender, EventArgs e)
-        {
-            lxLed_Btoltime.Text = (System.Environment.TickCount - total_time).ToString();
         }
 
         private void btSetMaxtime_Click(object sender, EventArgs e)
@@ -2858,31 +2691,6 @@ namespace UHFReader288MPDemo
             }
         }
 
-        private void btStartMactive_Click(object sender, EventArgs e)
-        {
-            //total_time = System.Environment.TickCount;
-            //lxLed_Mtag.Text = "0";
-            //lxLed_Mtime.Text = "0";
-
-            timer_RealTime.Enabled = !timer_RealTime.Enabled;
-            if (!timer_RealTime.Enabled)
-            {
-                btStartMactive.Text = "Start";
-                btStartMactive.BackColor = Color.Transparent;
-            }
-            else
-            {
-                fInventory_EPC_List = "";
-                total_time = System.Environment.TickCount;
-                lxLed_Mtag.Text = "0";
-                lxLed_Mtime.Text = "0";
-                dataGridView4.Rows.Clear();
-                btStartMactive.BackColor = Color.Indigo;
-                fIsInventoryScan = false;
-                btStartMactive.Text = "Stop";
-            }
-        }
-
         private void GetRealtiemeData()
         {
             byte[] ScanModeData = new byte[40960];
@@ -2932,29 +2740,7 @@ namespace UHFReader288MPDemo
                         lenstr = Convert.ToString(Convert.ToInt32(temp1.Substring(10, 2), 16), 10);
                         EPCStr = temp1.Substring(12, temp1.Length - 18);
                         RSSI = temp1.Substring(temp1.Length - 6, 2);
-                        bool isonlistview = false;
-                        for (int i = 0; i < dataGridView4.RowCount; i++)
-                        {
-                            if ((dataGridView4.Rows[i].Cells[1].Value != null) && (EPCStr == dataGridView4.Rows[i].Cells[1].Value.ToString()))
-                            {
-                                rows = dataGridView4.Rows[i];
-                                rows.Cells[3].Value = AntStr;
-                                rows.Cells[4].Value = RSSI;
-                                isonlistview = true;
-                                break;
-                            }
-                        }
-                        if (!isonlistview)
-                        {
-                            string[] arr = new string[6];
-                            arr[0] = (dataGridView4.RowCount + 1).ToString();
-                            arr[1] = EPCStr;
-                            arr[2] = lenstr;
-                            arr[3] = AntStr;
-                            arr[4] = RSSI;
-                            dataGridView4.Rows.Insert(dataGridView4.RowCount, arr);
-                        }
-                        lxLed_Mtime.Text = (System.Environment.TickCount - total_time).ToString();
+                        
                     }
                 }
                 catch (System.Exception ex)
@@ -2962,7 +2748,7 @@ namespace UHFReader288MPDemo
                     ex.ToString();
                 }
             }
-            lxLed_Mtag.Text = dataGridView4.RowCount.ToString();
+            
         }
         private void timer_RealTime_Tick(object sender, EventArgs e)
         {
