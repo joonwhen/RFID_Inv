@@ -30,8 +30,6 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
-            this.lrtxtLog = new CustomControl.LogRichTextBox();
-            this.label1 = new System.Windows.Forms.Label();
             this.Maintab = new System.Windows.Forms.TabControl();
             this.Main_Page1 = new System.Windows.Forms.TabPage();
             this.tabControl1 = new System.Windows.Forms.TabControl();
@@ -193,7 +191,11 @@
             this.tabControl2 = new System.Windows.Forms.TabControl();
             this.tabPage_answer = new System.Windows.Forms.TabPage();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.check_ant1 = new System.Windows.Forms.CheckBox();
+            this.check_ant2 = new System.Windows.Forms.CheckBox();
+            this.check_ant4 = new System.Windows.Forms.CheckBox();
+            this.btIventoryG2 = new System.Windows.Forms.Button();
+            this.check_ant3 = new System.Windows.Forms.CheckBox();
             this.DIS_InvList = new System.Windows.Forms.GroupBox();
             this.BN_Search = new System.Windows.Forms.Button();
             this.label12 = new System.Windows.Forms.Label();
@@ -202,57 +204,10 @@
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.BN_Open_FullDB = new System.Windows.Forms.Button();
             this.View_InvList = new System.Windows.Forms.DataGridView();
-            this.lxLedControl6 = new LxControl.LxLedControl();
-            this.label119 = new System.Windows.Forms.Label();
-            this.gbp_MixRead = new System.Windows.Forms.GroupBox();
-            this.text_readpsd = new System.Windows.Forms.TextBox();
-            this.label118 = new System.Windows.Forms.Label();
-            this.text_readLen = new System.Windows.Forms.TextBox();
-            this.label117 = new System.Windows.Forms.Label();
-            this.text_readadr = new System.Windows.Forms.TextBox();
-            this.label115 = new System.Windows.Forms.Label();
-            this.com_MixMem = new System.Windows.Forms.ComboBox();
-            this.label114 = new System.Windows.Forms.Label();
-            this.lxLedControl5 = new LxControl.LxLedControl();
-            this.label9 = new System.Windows.Forms.Label();
-            this.lxLedControl4 = new LxControl.LxLedControl();
-            this.label8 = new System.Windows.Forms.Label();
-            this.lxLedControl3 = new LxControl.LxLedControl();
-            this.label7 = new System.Windows.Forms.Label();
-            this.lxLedControl2 = new LxControl.LxLedControl();
-            this.label6 = new System.Windows.Forms.Label();
-            this.lxLedControl1 = new LxControl.LxLedControl();
-            this.label5 = new System.Windows.Forms.Label();
-            this.groupBox5 = new System.Windows.Forms.GroupBox();
-            this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.checkBox_rate = new System.Windows.Forms.CheckBox();
-            this.label80 = new System.Windows.Forms.Label();
-            this.text_target = new System.Windows.Forms.TextBox();
-            this.check_num = new System.Windows.Forms.CheckBox();
-            this.com_Target = new System.Windows.Forms.ComboBox();
-            this.label79 = new System.Windows.Forms.Label();
-            this.com_scantime = new System.Windows.Forms.ComboBox();
-            this.label39 = new System.Windows.Forms.Label();
-            this.com_S = new System.Windows.Forms.ComboBox();
-            this.label32 = new System.Windows.Forms.Label();
-            this.com_Q = new System.Windows.Forms.ComboBox();
-            this.label31 = new System.Windows.Forms.Label();
-            this.group_ant1 = new System.Windows.Forms.GroupBox();
-            this.check_ant4 = new System.Windows.Forms.CheckBox();
-            this.check_ant3 = new System.Windows.Forms.CheckBox();
-            this.check_ant2 = new System.Windows.Forms.CheckBox();
-            this.check_ant1 = new System.Windows.Forms.CheckBox();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.rb_fastid = new System.Windows.Forms.RadioButton();
-            this.rb_mix = new System.Windows.Forms.RadioButton();
-            this.rb_tid = new System.Windows.Forms.RadioButton();
-            this.rb_epc = new System.Windows.Forms.RadioButton();
-            this.btIventoryG2 = new System.Windows.Forms.Button();
-            this.btFlashCl = new System.Windows.Forms.Button();
             this.timer_answer = new System.Windows.Forms.Timer(this.components);
             this.timer_runmode = new System.Windows.Forms.Timer(this.components);
             this.timer_RealTime = new System.Windows.Forms.Timer(this.components);
-            this.ckClearOperationRec = new System.Windows.Forms.CheckBox();
+            this.scanning_active = new System.Windows.Forms.TextBox();
             this.Maintab.SuspendLayout();
             this.Main_Page1.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -292,39 +247,9 @@
             this.tabControl2.SuspendLayout();
             this.tabPage_answer.SuspendLayout();
             this.panel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.DIS_InvList.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.View_InvList)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.lxLedControl6)).BeginInit();
-            this.gbp_MixRead.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.lxLedControl5)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.lxLedControl4)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.lxLedControl3)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.lxLedControl2)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.lxLedControl1)).BeginInit();
-            this.groupBox4.SuspendLayout();
-            this.group_ant1.SuspendLayout();
-            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // lrtxtLog
-            // 
-            this.lrtxtLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.lrtxtLog.EnableAutoDragDrop = true;
-            this.lrtxtLog.Location = new System.Drawing.Point(-1, 685);
-            this.lrtxtLog.Name = "lrtxtLog";
-            this.lrtxtLog.Size = new System.Drawing.Size(1080, 96);
-            this.lrtxtLog.TabIndex = 0;
-            this.lrtxtLog.Text = "";
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(15, 659);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(94, 13);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "Operation records:";
             // 
             // Maintab
             // 
@@ -1715,7 +1640,7 @@
             this.tabPage_Module.Name = "tabPage_Module";
             this.tabPage_Module.Size = new System.Drawing.Size(1057, 584);
             this.tabPage_Module.TabIndex = 2;
-            this.tabPage_Module.Text = "Real-time-inventory setting";
+            this.tabPage_Module.Text = "Advanced Settings";
             this.tabPage_Module.UseVisualStyleBackColor = true;
             // 
             // panel9
@@ -2180,52 +2105,77 @@
             // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.dataGridView1);
+            this.panel1.Controls.Add(this.scanning_active);
+            this.panel1.Controls.Add(this.check_ant1);
+            this.panel1.Controls.Add(this.check_ant2);
+            this.panel1.Controls.Add(this.check_ant4);
+            this.panel1.Controls.Add(this.btIventoryG2);
+            this.panel1.Controls.Add(this.check_ant3);
             this.panel1.Controls.Add(this.DIS_InvList);
-            this.panel1.Controls.Add(this.lxLedControl6);
-            this.panel1.Controls.Add(this.label119);
-            this.panel1.Controls.Add(this.gbp_MixRead);
-            this.panel1.Controls.Add(this.lxLedControl5);
-            this.panel1.Controls.Add(this.label9);
-            this.panel1.Controls.Add(this.lxLedControl4);
-            this.panel1.Controls.Add(this.label8);
-            this.panel1.Controls.Add(this.lxLedControl3);
-            this.panel1.Controls.Add(this.label7);
-            this.panel1.Controls.Add(this.lxLedControl2);
-            this.panel1.Controls.Add(this.label6);
-            this.panel1.Controls.Add(this.lxLedControl1);
-            this.panel1.Controls.Add(this.label5);
-            this.panel1.Controls.Add(this.groupBox5);
-            this.panel1.Controls.Add(this.groupBox4);
-            this.panel1.Controls.Add(this.group_ant1);
-            this.panel1.Controls.Add(this.groupBox2);
             this.panel1.Enabled = false;
             this.panel1.Location = new System.Drawing.Point(2, 2);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(1066, 574);
             this.panel1.TabIndex = 0;
             // 
-            // dataGridView1
+            // check_ant1
             // 
-            this.dataGridView1.AccessibleRole = System.Windows.Forms.AccessibleRole.None;
-            this.dataGridView1.AllowUserToAddRows = false;
-            this.dataGridView1.AllowUserToDeleteRows = false;
-            this.dataGridView1.AllowUserToResizeColumns = false;
-            this.dataGridView1.AllowUserToResizeRows = false;
-            this.dataGridView1.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.dataGridView1.BackgroundColor = System.Drawing.SystemColors.ControlLightLight;
-            this.dataGridView1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Location = new System.Drawing.Point(9, 99);
-            this.dataGridView1.MultiSelect = false;
-            this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.ReadOnly = true;
-            this.dataGridView1.RowHeadersVisible = false;
-            this.dataGridView1.RowTemplate.Height = 23;
-            this.dataGridView1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.dataGridView1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridView1.Size = new System.Drawing.Size(665, 190);
-            this.dataGridView1.TabIndex = 1;
+            this.check_ant1.AutoSize = true;
+            this.check_ant1.Checked = true;
+            this.check_ant1.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.check_ant1.ForeColor = System.Drawing.Color.RoyalBlue;
+            this.check_ant1.Location = new System.Drawing.Point(314, 108);
+            this.check_ant1.Name = "check_ant1";
+            this.check_ant1.Size = new System.Drawing.Size(54, 17);
+            this.check_ant1.TabIndex = 34;
+            this.check_ant1.Text = "ANT1";
+            this.check_ant1.UseVisualStyleBackColor = true;
+            // 
+            // check_ant2
+            // 
+            this.check_ant2.AutoSize = true;
+            this.check_ant2.ForeColor = System.Drawing.Color.RoyalBlue;
+            this.check_ant2.Location = new System.Drawing.Point(402, 108);
+            this.check_ant2.Name = "check_ant2";
+            this.check_ant2.Size = new System.Drawing.Size(54, 17);
+            this.check_ant2.TabIndex = 35;
+            this.check_ant2.Text = "ANT2";
+            this.check_ant2.UseVisualStyleBackColor = true;
+            // 
+            // check_ant4
+            // 
+            this.check_ant4.AutoSize = true;
+            this.check_ant4.ForeColor = System.Drawing.Color.RoyalBlue;
+            this.check_ant4.Location = new System.Drawing.Point(389, 166);
+            this.check_ant4.Name = "check_ant4";
+            this.check_ant4.Size = new System.Drawing.Size(54, 17);
+            this.check_ant4.TabIndex = 37;
+            this.check_ant4.Text = "ANT4";
+            this.check_ant4.UseVisualStyleBackColor = true;
+            // 
+            // btIventoryG2
+            // 
+            this.btIventoryG2.BackColor = System.Drawing.Color.Transparent;
+            this.btIventoryG2.Font = new System.Drawing.Font("SimSun", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.btIventoryG2.ForeColor = System.Drawing.Color.DarkBlue;
+            this.btIventoryG2.Location = new System.Drawing.Point(101, 166);
+            this.btIventoryG2.Name = "btIventoryG2";
+            this.btIventoryG2.Size = new System.Drawing.Size(109, 43);
+            this.btIventoryG2.TabIndex = 0;
+            this.btIventoryG2.Text = "Start";
+            this.btIventoryG2.UseVisualStyleBackColor = false;
+            this.btIventoryG2.Click += new System.EventHandler(this.btIventoryG2_Click);
+            // 
+            // check_ant3
+            // 
+            this.check_ant3.AutoSize = true;
+            this.check_ant3.ForeColor = System.Drawing.Color.RoyalBlue;
+            this.check_ant3.Location = new System.Drawing.Point(314, 152);
+            this.check_ant3.Name = "check_ant3";
+            this.check_ant3.Size = new System.Drawing.Size(54, 17);
+            this.check_ant3.TabIndex = 36;
+            this.check_ant3.Text = "ANT3";
+            this.check_ant3.UseVisualStyleBackColor = true;
             // 
             // DIS_InvList
             // 
@@ -2236,7 +2186,7 @@
             this.DIS_InvList.Controls.Add(this.textBox1);
             this.DIS_InvList.Controls.Add(this.BN_Open_FullDB);
             this.DIS_InvList.Controls.Add(this.View_InvList);
-            this.DIS_InvList.Location = new System.Drawing.Point(4, 301);
+            this.DIS_InvList.Location = new System.Drawing.Point(329, 243);
             this.DIS_InvList.Name = "DIS_InvList";
             this.DIS_InvList.Size = new System.Drawing.Size(678, 275);
             this.DIS_InvList.TabIndex = 34;
@@ -2306,606 +2256,6 @@
             this.View_InvList.Size = new System.Drawing.Size(665, 147);
             this.View_InvList.TabIndex = 32;
             // 
-            // lxLedControl6
-            // 
-            this.lxLedControl6.BackColor = System.Drawing.Color.Transparent;
-            this.lxLedControl6.BackColor_1 = System.Drawing.Color.Transparent;
-            this.lxLedControl6.BackColor_2 = System.Drawing.Color.DarkRed;
-            this.lxLedControl6.BevelRate = 0.5F;
-            this.lxLedControl6.BorderColor = System.Drawing.Color.Lavender;
-            this.lxLedControl6.BorderWidth = 3;
-            this.lxLedControl6.FadedColor = System.Drawing.SystemColors.ControlLight;
-            this.lxLedControl6.FocusedBorderColor = System.Drawing.Color.LightCoral;
-            this.lxLedControl6.ForeColor = System.Drawing.Color.MidnightBlue;
-            this.lxLedControl6.HighlightOpaque = ((byte)(50));
-            this.lxLedControl6.Location = new System.Drawing.Point(712, 247);
-            this.lxLedControl6.Name = "lxLedControl6";
-            this.lxLedControl6.RoundCorner = true;
-            this.lxLedControl6.ShowHighlight = true;
-            this.lxLedControl6.Size = new System.Drawing.Size(313, 92);
-            this.lxLedControl6.TabIndex = 31;
-            this.lxLedControl6.Text = "0";
-            this.lxLedControl6.TextAlignment = LxControl.LxLedControl.Alignment.Right;
-            this.lxLedControl6.TotalCharCount = 7;
-            // 
-            // label119
-            // 
-            this.label119.AutoSize = true;
-            this.label119.Location = new System.Drawing.Point(709, 226);
-            this.label119.Name = "label119";
-            this.label119.Size = new System.Drawing.Size(68, 13);
-            this.label119.TabIndex = 30;
-            this.label119.Text = "TID Number:";
-            // 
-            // gbp_MixRead
-            // 
-            this.gbp_MixRead.Controls.Add(this.text_readpsd);
-            this.gbp_MixRead.Controls.Add(this.label118);
-            this.gbp_MixRead.Controls.Add(this.text_readLen);
-            this.gbp_MixRead.Controls.Add(this.label117);
-            this.gbp_MixRead.Controls.Add(this.text_readadr);
-            this.gbp_MixRead.Controls.Add(this.label115);
-            this.gbp_MixRead.Controls.Add(this.com_MixMem);
-            this.gbp_MixRead.Controls.Add(this.label114);
-            this.gbp_MixRead.Enabled = false;
-            this.gbp_MixRead.Location = new System.Drawing.Point(396, 1);
-            this.gbp_MixRead.Name = "gbp_MixRead";
-            this.gbp_MixRead.Size = new System.Drawing.Size(222, 77);
-            this.gbp_MixRead.TabIndex = 29;
-            this.gbp_MixRead.TabStop = false;
-            this.gbp_MixRead.Text = "Mix";
-            // 
-            // text_readpsd
-            // 
-            this.text_readpsd.Location = new System.Drawing.Point(64, 46);
-            this.text_readpsd.MaxLength = 8;
-            this.text_readpsd.Name = "text_readpsd";
-            this.text_readpsd.Size = new System.Drawing.Size(65, 20);
-            this.text_readpsd.TabIndex = 7;
-            this.text_readpsd.Text = "00000000";
-            this.text_readpsd.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.text_address_KeyPress);
-            // 
-            // label118
-            // 
-            this.label118.AutoSize = true;
-            this.label118.Location = new System.Drawing.Point(6, 50);
-            this.label118.Name = "label118";
-            this.label118.Size = new System.Drawing.Size(56, 13);
-            this.label118.TabIndex = 6;
-            this.label118.Text = "Password:";
-            // 
-            // text_readLen
-            // 
-            this.text_readLen.Location = new System.Drawing.Point(176, 48);
-            this.text_readLen.MaxLength = 2;
-            this.text_readLen.Name = "text_readLen";
-            this.text_readLen.Size = new System.Drawing.Size(41, 20);
-            this.text_readLen.TabIndex = 5;
-            this.text_readLen.Text = "04";
-            this.text_readLen.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.text_address_KeyPress);
-            // 
-            // label117
-            // 
-            this.label117.AutoSize = true;
-            this.label117.Location = new System.Drawing.Point(136, 52);
-            this.label117.Name = "label117";
-            this.label117.Size = new System.Drawing.Size(28, 13);
-            this.label117.TabIndex = 4;
-            this.label117.Text = "Len:";
-            // 
-            // text_readadr
-            // 
-            this.text_readadr.Location = new System.Drawing.Point(176, 14);
-            this.text_readadr.MaxLength = 4;
-            this.text_readadr.Name = "text_readadr";
-            this.text_readadr.Size = new System.Drawing.Size(41, 20);
-            this.text_readadr.TabIndex = 3;
-            this.text_readadr.Text = "0002";
-            this.text_readadr.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.text_address_KeyPress);
-            // 
-            // label115
-            // 
-            this.label115.AutoSize = true;
-            this.label115.Location = new System.Drawing.Point(136, 18);
-            this.label115.Name = "label115";
-            this.label115.Size = new System.Drawing.Size(32, 13);
-            this.label115.TabIndex = 2;
-            this.label115.Text = "Addr:";
-            // 
-            // com_MixMem
-            // 
-            this.com_MixMem.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.com_MixMem.FormattingEnabled = true;
-            this.com_MixMem.Items.AddRange(new object[] {
-            "Password",
-            "EPC",
-            "TID",
-            "User"});
-            this.com_MixMem.Location = new System.Drawing.Point(64, 13);
-            this.com_MixMem.Name = "com_MixMem";
-            this.com_MixMem.Size = new System.Drawing.Size(66, 21);
-            this.com_MixMem.TabIndex = 1;
-            // 
-            // label114
-            // 
-            this.label114.AutoSize = true;
-            this.label114.Location = new System.Drawing.Point(5, 17);
-            this.label114.Name = "label114";
-            this.label114.Size = new System.Drawing.Size(33, 13);
-            this.label114.TabIndex = 0;
-            this.label114.Text = "Mem:";
-            // 
-            // lxLedControl5
-            // 
-            this.lxLedControl5.BackColor = System.Drawing.Color.Transparent;
-            this.lxLedControl5.BackColor_1 = System.Drawing.Color.Transparent;
-            this.lxLedControl5.BackColor_2 = System.Drawing.Color.DarkRed;
-            this.lxLedControl5.BevelRate = 0.5F;
-            this.lxLedControl5.BorderColor = System.Drawing.Color.Lavender;
-            this.lxLedControl5.BorderWidth = 3;
-            this.lxLedControl5.FadedColor = System.Drawing.SystemColors.ControlLight;
-            this.lxLedControl5.FocusedBorderColor = System.Drawing.Color.LightCoral;
-            this.lxLedControl5.ForeColor = System.Drawing.Color.MidnightBlue;
-            this.lxLedControl5.HighlightOpaque = ((byte)(50));
-            this.lxLedControl5.Location = new System.Drawing.Point(886, 486);
-            this.lxLedControl5.Name = "lxLedControl5";
-            this.lxLedControl5.RoundCorner = true;
-            this.lxLedControl5.ShowHighlight = true;
-            this.lxLedControl5.Size = new System.Drawing.Size(154, 43);
-            this.lxLedControl5.TabIndex = 28;
-            this.lxLedControl5.Text = "0";
-            this.lxLedControl5.TextAlignment = LxControl.LxLedControl.Alignment.Right;
-            this.lxLedControl5.TotalCharCount = 7;
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.ForeColor = System.Drawing.Color.RoyalBlue;
-            this.label9.Location = new System.Drawing.Point(884, 465);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(98, 13);
-            this.label9.TabIndex = 27;
-            this.label9.Text = "Total-cmd-time(ms):";
-            // 
-            // lxLedControl4
-            // 
-            this.lxLedControl4.BackColor = System.Drawing.Color.Transparent;
-            this.lxLedControl4.BackColor_1 = System.Drawing.Color.Transparent;
-            this.lxLedControl4.BackColor_2 = System.Drawing.Color.DarkRed;
-            this.lxLedControl4.BevelRate = 0.5F;
-            this.lxLedControl4.BorderColor = System.Drawing.Color.Lavender;
-            this.lxLedControl4.BorderWidth = 3;
-            this.lxLedControl4.FadedColor = System.Drawing.SystemColors.ControlLight;
-            this.lxLedControl4.FocusedBorderColor = System.Drawing.Color.LightCoral;
-            this.lxLedControl4.ForeColor = System.Drawing.Color.MidnightBlue;
-            this.lxLedControl4.HighlightOpaque = ((byte)(50));
-            this.lxLedControl4.Location = new System.Drawing.Point(711, 485);
-            this.lxLedControl4.Name = "lxLedControl4";
-            this.lxLedControl4.RoundCorner = true;
-            this.lxLedControl4.ShowHighlight = true;
-            this.lxLedControl4.Size = new System.Drawing.Size(154, 44);
-            this.lxLedControl4.TabIndex = 26;
-            this.lxLedControl4.Text = "0";
-            this.lxLedControl4.TextAlignment = LxControl.LxLedControl.Alignment.Right;
-            this.lxLedControl4.TotalCharCount = 7;
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.ForeColor = System.Drawing.Color.RoyalBlue;
-            this.label8.Location = new System.Drawing.Point(709, 465);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(90, 13);
-            this.label8.TabIndex = 25;
-            this.label8.Text = "Total tag number:";
-            // 
-            // lxLedControl3
-            // 
-            this.lxLedControl3.BackColor = System.Drawing.Color.Transparent;
-            this.lxLedControl3.BackColor_1 = System.Drawing.Color.Transparent;
-            this.lxLedControl3.BackColor_2 = System.Drawing.Color.DarkRed;
-            this.lxLedControl3.BevelRate = 0.5F;
-            this.lxLedControl3.BorderColor = System.Drawing.Color.Lavender;
-            this.lxLedControl3.BorderWidth = 3;
-            this.lxLedControl3.FadedColor = System.Drawing.SystemColors.ControlLight;
-            this.lxLedControl3.FocusedBorderColor = System.Drawing.Color.LightCoral;
-            this.lxLedControl3.ForeColor = System.Drawing.Color.Purple;
-            this.lxLedControl3.HighlightOpaque = ((byte)(50));
-            this.lxLedControl3.Location = new System.Drawing.Point(886, 398);
-            this.lxLedControl3.Name = "lxLedControl3";
-            this.lxLedControl3.RoundCorner = true;
-            this.lxLedControl3.ShowHighlight = true;
-            this.lxLedControl3.Size = new System.Drawing.Size(154, 31);
-            this.lxLedControl3.TabIndex = 24;
-            this.lxLedControl3.Text = "0";
-            this.lxLedControl3.TextAlignment = LxControl.LxLedControl.Alignment.Right;
-            this.lxLedControl3.TotalCharCount = 10;
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.ForeColor = System.Drawing.Color.RoyalBlue;
-            this.label7.Location = new System.Drawing.Point(884, 372);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(71, 13);
-            this.label7.TabIndex = 23;
-            this.label7.Text = "cmd time(ms):";
-            // 
-            // lxLedControl2
-            // 
-            this.lxLedControl2.BackColor = System.Drawing.Color.Transparent;
-            this.lxLedControl2.BackColor_1 = System.Drawing.Color.Transparent;
-            this.lxLedControl2.BackColor_2 = System.Drawing.Color.DarkRed;
-            this.lxLedControl2.BevelRate = 0.5F;
-            this.lxLedControl2.BorderColor = System.Drawing.Color.Lavender;
-            this.lxLedControl2.BorderWidth = 3;
-            this.lxLedControl2.FadedColor = System.Drawing.SystemColors.ControlLight;
-            this.lxLedControl2.FocusedBorderColor = System.Drawing.Color.LightCoral;
-            this.lxLedControl2.ForeColor = System.Drawing.Color.Purple;
-            this.lxLedControl2.HighlightOpaque = ((byte)(50));
-            this.lxLedControl2.Location = new System.Drawing.Point(711, 398);
-            this.lxLedControl2.Name = "lxLedControl2";
-            this.lxLedControl2.RoundCorner = true;
-            this.lxLedControl2.ShowHighlight = true;
-            this.lxLedControl2.Size = new System.Drawing.Size(154, 31);
-            this.lxLedControl2.TabIndex = 22;
-            this.lxLedControl2.Text = "0";
-            this.lxLedControl2.TextAlignment = LxControl.LxLedControl.Alignment.Right;
-            this.lxLedControl2.TotalCharCount = 10;
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.ForeColor = System.Drawing.Color.RoyalBlue;
-            this.label6.Location = new System.Drawing.Point(709, 372);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(41, 13);
-            this.label6.TabIndex = 21;
-            this.label6.Text = "Speed:";
-            // 
-            // lxLedControl1
-            // 
-            this.lxLedControl1.BackColor = System.Drawing.Color.Transparent;
-            this.lxLedControl1.BackColor_1 = System.Drawing.Color.Transparent;
-            this.lxLedControl1.BackColor_2 = System.Drawing.Color.DarkRed;
-            this.lxLedControl1.BevelRate = 0.5F;
-            this.lxLedControl1.BorderColor = System.Drawing.Color.Lavender;
-            this.lxLedControl1.BorderWidth = 3;
-            this.lxLedControl1.FadedColor = System.Drawing.SystemColors.ControlLight;
-            this.lxLedControl1.FocusedBorderColor = System.Drawing.Color.LightCoral;
-            this.lxLedControl1.ForeColor = System.Drawing.Color.MidnightBlue;
-            this.lxLedControl1.HighlightOpaque = ((byte)(50));
-            this.lxLedControl1.Location = new System.Drawing.Point(712, 116);
-            this.lxLedControl1.Name = "lxLedControl1";
-            this.lxLedControl1.RoundCorner = true;
-            this.lxLedControl1.ShowHighlight = true;
-            this.lxLedControl1.Size = new System.Drawing.Size(313, 92);
-            this.lxLedControl1.TabIndex = 20;
-            this.lxLedControl1.Text = "0";
-            this.lxLedControl1.TextAlignment = LxControl.LxLedControl.Alignment.Right;
-            this.lxLedControl1.TotalCharCount = 7;
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(709, 99);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(71, 13);
-            this.label5.TabIndex = 19;
-            this.label5.Text = "EPC Number:";
-            // 
-            // groupBox5
-            // 
-            this.groupBox5.Location = new System.Drawing.Point(4, 86);
-            this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(678, 209);
-            this.groupBox5.TabIndex = 18;
-            this.groupBox5.TabStop = false;
-            this.groupBox5.Text = "Tag list(No Repeat)";
-            // 
-            // groupBox4
-            // 
-            this.groupBox4.Controls.Add(this.checkBox_rate);
-            this.groupBox4.Controls.Add(this.label80);
-            this.groupBox4.Controls.Add(this.text_target);
-            this.groupBox4.Controls.Add(this.check_num);
-            this.groupBox4.Controls.Add(this.com_Target);
-            this.groupBox4.Controls.Add(this.label79);
-            this.groupBox4.Controls.Add(this.com_scantime);
-            this.groupBox4.Controls.Add(this.label39);
-            this.groupBox4.Controls.Add(this.com_S);
-            this.groupBox4.Controls.Add(this.label32);
-            this.groupBox4.Controls.Add(this.com_Q);
-            this.groupBox4.Controls.Add(this.label31);
-            this.groupBox4.Location = new System.Drawing.Point(619, 0);
-            this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(437, 77);
-            this.groupBox4.TabIndex = 17;
-            this.groupBox4.TabStop = false;
-            // 
-            // checkBox_rate
-            // 
-            this.checkBox_rate.AutoSize = true;
-            this.checkBox_rate.Location = new System.Drawing.Point(317, 50);
-            this.checkBox_rate.Name = "checkBox_rate";
-            this.checkBox_rate.Size = new System.Drawing.Size(92, 17);
-            this.checkBox_rate.TabIndex = 37;
-            this.checkBox_rate.Text = "Return Speed";
-            this.checkBox_rate.UseVisualStyleBackColor = true;
-            // 
-            // label80
-            // 
-            this.label80.AutoSize = true;
-            this.label80.Location = new System.Drawing.Point(102, 52);
-            this.label80.Name = "label80";
-            this.label80.Size = new System.Drawing.Size(168, 13);
-            this.label80.TabIndex = 36;
-            this.label80.Text = "times no tag.then A/B conversion ";
-            // 
-            // text_target
-            // 
-            this.text_target.ForeColor = System.Drawing.Color.Red;
-            this.text_target.Location = new System.Drawing.Point(55, 46);
-            this.text_target.MaxLength = 2;
-            this.text_target.Name = "text_target";
-            this.text_target.Size = new System.Drawing.Size(43, 20);
-            this.text_target.TabIndex = 35;
-            this.text_target.Text = "5";
-            this.text_target.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.text_target.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.tb_Port_KeyPress);
-            // 
-            // check_num
-            // 
-            this.check_num.AutoSize = true;
-            this.check_num.Checked = true;
-            this.check_num.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.check_num.Location = new System.Drawing.Point(7, 50);
-            this.check_num.Name = "check_num";
-            this.check_num.Size = new System.Drawing.Size(52, 17);
-            this.check_num.TabIndex = 34;
-            this.check_num.Text = "Read";
-            this.check_num.UseVisualStyleBackColor = true;
-            // 
-            // com_Target
-            // 
-            this.com_Target.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.com_Target.FormattingEnabled = true;
-            this.com_Target.Items.AddRange(new object[] {
-            "A",
-            "B"});
-            this.com_Target.Location = new System.Drawing.Point(384, 15);
-            this.com_Target.Name = "com_Target";
-            this.com_Target.Size = new System.Drawing.Size(51, 21);
-            this.com_Target.TabIndex = 33;
-            // 
-            // label79
-            // 
-            this.label79.AutoSize = true;
-            this.label79.Location = new System.Drawing.Point(339, 20);
-            this.label79.Name = "label79";
-            this.label79.Size = new System.Drawing.Size(41, 13);
-            this.label79.TabIndex = 32;
-            this.label79.Text = "Target:";
-            // 
-            // com_scantime
-            // 
-            this.com_scantime.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.com_scantime.FormattingEnabled = true;
-            this.com_scantime.Location = new System.Drawing.Point(258, 15);
-            this.com_scantime.Name = "com_scantime";
-            this.com_scantime.Size = new System.Drawing.Size(77, 21);
-            this.com_scantime.TabIndex = 31;
-            // 
-            // label39
-            // 
-            this.label39.AutoSize = true;
-            this.label39.Location = new System.Drawing.Point(191, 20);
-            this.label39.Name = "label39";
-            this.label39.Size = new System.Drawing.Size(58, 13);
-            this.label39.TabIndex = 30;
-            this.label39.Text = "ScanTime:";
-            // 
-            // com_S
-            // 
-            this.com_S.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.com_S.FormattingEnabled = true;
-            this.com_S.Items.AddRange(new object[] {
-            "0",
-            "1",
-            "2",
-            "3",
-            "AUTO"});
-            this.com_S.Location = new System.Drawing.Point(125, 21);
-            this.com_S.Name = "com_S";
-            this.com_S.Size = new System.Drawing.Size(59, 21);
-            this.com_S.TabIndex = 29;
-            this.com_S.SelectedIndexChanged += new System.EventHandler(this.com_S_SelectedIndexChanged);
-            // 
-            // label32
-            // 
-            this.label32.AutoSize = true;
-            this.label32.Location = new System.Drawing.Point(71, 20);
-            this.label32.Name = "label32";
-            this.label32.Size = new System.Drawing.Size(50, 13);
-            this.label32.TabIndex = 28;
-            this.label32.Text = "Session：";
-            // 
-            // com_Q
-            // 
-            this.com_Q.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.com_Q.FormattingEnabled = true;
-            this.com_Q.Items.AddRange(new object[] {
-            "0",
-            "1",
-            "2",
-            "3",
-            "4",
-            "5",
-            "6",
-            "7",
-            "8",
-            "9",
-            "10",
-            "11",
-            "12",
-            "13",
-            "14",
-            "15"});
-            this.com_Q.Location = new System.Drawing.Point(18, 15);
-            this.com_Q.Name = "com_Q";
-            this.com_Q.Size = new System.Drawing.Size(51, 21);
-            this.com_Q.TabIndex = 27;
-            // 
-            // label31
-            // 
-            this.label31.AutoSize = true;
-            this.label31.Location = new System.Drawing.Point(3, 20);
-            this.label31.Name = "label31";
-            this.label31.Size = new System.Drawing.Size(18, 13);
-            this.label31.TabIndex = 26;
-            this.label31.Text = "Q:";
-            // 
-            // group_ant1
-            // 
-            this.group_ant1.Controls.Add(this.check_ant4);
-            this.group_ant1.Controls.Add(this.check_ant3);
-            this.group_ant1.Controls.Add(this.check_ant2);
-            this.group_ant1.Controls.Add(this.check_ant1);
-            this.group_ant1.Location = new System.Drawing.Point(262, 1);
-            this.group_ant1.Name = "group_ant1";
-            this.group_ant1.Size = new System.Drawing.Size(135, 77);
-            this.group_ant1.TabIndex = 16;
-            this.group_ant1.TabStop = false;
-            // 
-            // check_ant4
-            // 
-            this.check_ant4.AutoSize = true;
-            this.check_ant4.ForeColor = System.Drawing.Color.RoyalBlue;
-            this.check_ant4.Location = new System.Drawing.Point(80, 47);
-            this.check_ant4.Name = "check_ant4";
-            this.check_ant4.Size = new System.Drawing.Size(54, 17);
-            this.check_ant4.TabIndex = 37;
-            this.check_ant4.Text = "ANT4";
-            this.check_ant4.UseVisualStyleBackColor = true;
-            // 
-            // check_ant3
-            // 
-            this.check_ant3.AutoSize = true;
-            this.check_ant3.ForeColor = System.Drawing.Color.RoyalBlue;
-            this.check_ant3.Location = new System.Drawing.Point(20, 47);
-            this.check_ant3.Name = "check_ant3";
-            this.check_ant3.Size = new System.Drawing.Size(54, 17);
-            this.check_ant3.TabIndex = 36;
-            this.check_ant3.Text = "ANT3";
-            this.check_ant3.UseVisualStyleBackColor = true;
-            // 
-            // check_ant2
-            // 
-            this.check_ant2.AutoSize = true;
-            this.check_ant2.ForeColor = System.Drawing.Color.RoyalBlue;
-            this.check_ant2.Location = new System.Drawing.Point(80, 17);
-            this.check_ant2.Name = "check_ant2";
-            this.check_ant2.Size = new System.Drawing.Size(54, 17);
-            this.check_ant2.TabIndex = 35;
-            this.check_ant2.Text = "ANT2";
-            this.check_ant2.UseVisualStyleBackColor = true;
-            // 
-            // check_ant1
-            // 
-            this.check_ant1.AutoSize = true;
-            this.check_ant1.Checked = true;
-            this.check_ant1.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.check_ant1.ForeColor = System.Drawing.Color.RoyalBlue;
-            this.check_ant1.Location = new System.Drawing.Point(20, 17);
-            this.check_ant1.Name = "check_ant1";
-            this.check_ant1.Size = new System.Drawing.Size(54, 17);
-            this.check_ant1.TabIndex = 34;
-            this.check_ant1.Text = "ANT1";
-            this.check_ant1.UseVisualStyleBackColor = true;
-            // 
-            // groupBox2
-            // 
-            this.groupBox2.Controls.Add(this.rb_fastid);
-            this.groupBox2.Controls.Add(this.rb_mix);
-            this.groupBox2.Controls.Add(this.rb_tid);
-            this.groupBox2.Controls.Add(this.rb_epc);
-            this.groupBox2.Controls.Add(this.btIventoryG2);
-            this.groupBox2.Location = new System.Drawing.Point(5, 1);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(257, 77);
-            this.groupBox2.TabIndex = 15;
-            this.groupBox2.TabStop = false;
-            // 
-            // rb_fastid
-            // 
-            this.rb_fastid.AutoSize = true;
-            this.rb_fastid.Location = new System.Drawing.Point(123, 47);
-            this.rb_fastid.Name = "rb_fastid";
-            this.rb_fastid.Size = new System.Drawing.Size(56, 17);
-            this.rb_fastid.TabIndex = 4;
-            this.rb_fastid.Text = "FastID";
-            this.rb_fastid.UseVisualStyleBackColor = true;
-            this.rb_fastid.CheckedChanged += new System.EventHandler(this.rb_fastid_CheckedChanged);
-            // 
-            // rb_mix
-            // 
-            this.rb_mix.AutoSize = true;
-            this.rb_mix.Location = new System.Drawing.Point(207, 47);
-            this.rb_mix.Name = "rb_mix";
-            this.rb_mix.Size = new System.Drawing.Size(44, 17);
-            this.rb_mix.TabIndex = 3;
-            this.rb_mix.Text = "MIX";
-            this.rb_mix.UseVisualStyleBackColor = true;
-            this.rb_mix.CheckedChanged += new System.EventHandler(this.rb_mix_CheckedChanged);
-            this.rb_mix.Click += new System.EventHandler(this.rb_mix_Click);
-            // 
-            // rb_tid
-            // 
-            this.rb_tid.AutoSize = true;
-            this.rb_tid.Location = new System.Drawing.Point(207, 21);
-            this.rb_tid.Name = "rb_tid";
-            this.rb_tid.Size = new System.Drawing.Size(43, 17);
-            this.rb_tid.TabIndex = 2;
-            this.rb_tid.Text = "TID";
-            this.rb_tid.UseVisualStyleBackColor = true;
-            this.rb_tid.CheckedChanged += new System.EventHandler(this.rb_tid_CheckedChanged);
-            // 
-            // rb_epc
-            // 
-            this.rb_epc.AutoSize = true;
-            this.rb_epc.Checked = true;
-            this.rb_epc.Location = new System.Drawing.Point(123, 22);
-            this.rb_epc.Name = "rb_epc";
-            this.rb_epc.Size = new System.Drawing.Size(46, 17);
-            this.rb_epc.TabIndex = 1;
-            this.rb_epc.TabStop = true;
-            this.rb_epc.Text = "EPC";
-            this.rb_epc.UseVisualStyleBackColor = true;
-            this.rb_epc.CheckedChanged += new System.EventHandler(this.rb_epc_CheckedChanged);
-            // 
-            // btIventoryG2
-            // 
-            this.btIventoryG2.BackColor = System.Drawing.Color.Transparent;
-            this.btIventoryG2.Font = new System.Drawing.Font("SimSun", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.btIventoryG2.ForeColor = System.Drawing.Color.DarkBlue;
-            this.btIventoryG2.Location = new System.Drawing.Point(6, 22);
-            this.btIventoryG2.Name = "btIventoryG2";
-            this.btIventoryG2.Size = new System.Drawing.Size(109, 43);
-            this.btIventoryG2.TabIndex = 0;
-            this.btIventoryG2.Text = "Start";
-            this.btIventoryG2.UseVisualStyleBackColor = false;
-            this.btIventoryG2.Click += new System.EventHandler(this.btIventoryG2_Click);
-            // 
-            // btFlashCl
-            // 
-            this.btFlashCl.Location = new System.Drawing.Point(939, 653);
-            this.btFlashCl.Name = "btFlashCl";
-            this.btFlashCl.Size = new System.Drawing.Size(100, 25);
-            this.btFlashCl.TabIndex = 5;
-            this.btFlashCl.Text = "Refresh";
-            this.btFlashCl.UseVisualStyleBackColor = true;
-            this.btFlashCl.Click += new System.EventHandler(this.btFlashCl_Click);
-            // 
             // timer_answer
             // 
             this.timer_answer.Interval = 50;
@@ -2921,28 +2271,19 @@
             this.timer_RealTime.Interval = 50;
             this.timer_RealTime.Tick += new System.EventHandler(this.timer_RealTime_Tick);
             // 
-            // ckClearOperationRec
+            // scanning_active
             // 
-            this.ckClearOperationRec.AutoSize = true;
-            this.ckClearOperationRec.Checked = true;
-            this.ckClearOperationRec.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.ckClearOperationRec.Location = new System.Drawing.Point(134, 659);
-            this.ckClearOperationRec.Name = "ckClearOperationRec";
-            this.ckClearOperationRec.Size = new System.Drawing.Size(75, 17);
-            this.ckClearOperationRec.TabIndex = 18;
-            this.ckClearOperationRec.Text = "Auto-Clear";
-            this.ckClearOperationRec.UseVisualStyleBackColor = true;
+            this.scanning_active.Location = new System.Drawing.Point(942, 19);
+            this.scanning_active.Name = "scanning_active";
+            this.scanning_active.Size = new System.Drawing.Size(100, 20);
+            this.scanning_active.TabIndex = 38;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1079, 749);
-            this.Controls.Add(this.ckClearOperationRec);
-            this.Controls.Add(this.btFlashCl);
+            this.ClientSize = new System.Drawing.Size(1079, 654);
             this.Controls.Add(this.Maintab);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.lrtxtLog);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "Form1";
@@ -3016,33 +2357,14 @@
             this.tabPage_answer.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.DIS_InvList.ResumeLayout(false);
             this.DIS_InvList.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.View_InvList)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.lxLedControl6)).EndInit();
-            this.gbp_MixRead.ResumeLayout(false);
-            this.gbp_MixRead.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.lxLedControl5)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.lxLedControl4)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.lxLedControl3)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.lxLedControl2)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.lxLedControl1)).EndInit();
-            this.groupBox4.ResumeLayout(false);
-            this.groupBox4.PerformLayout();
-            this.group_ant1.ResumeLayout(false);
-            this.group_ant1.PerformLayout();
-            this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
         #endregion
-
-        private CustomControl.LogRichTextBox lrtxtLog;
-        private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TabControl Maintab;
         private System.Windows.Forms.TabPage Main_Page1;
         private System.Windows.Forms.TabPage Main_Page2;
@@ -3067,26 +2389,7 @@
         private CustomControl.IpAddressTextBox ipServerIP;
         private System.Windows.Forms.TabControl tabControl2;
         private System.Windows.Forms.TabPage tabPage_answer;
-        private System.Windows.Forms.Button btFlashCl;
         private System.Windows.Forms.Timer timer_answer;
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.GroupBox groupBox5;
-        private System.Windows.Forms.GroupBox groupBox4;
-        private System.Windows.Forms.ComboBox com_scantime;
-        private System.Windows.Forms.Label label39;
-        private System.Windows.Forms.ComboBox com_S;
-        private System.Windows.Forms.Label label32;
-        private System.Windows.Forms.ComboBox com_Q;
-        private System.Windows.Forms.Label label31;
-        private System.Windows.Forms.GroupBox group_ant1;
-        public System.Windows.Forms.CheckBox check_ant4;
-        public System.Windows.Forms.CheckBox check_ant3;
-        public System.Windows.Forms.CheckBox check_ant2;
-        public System.Windows.Forms.CheckBox check_ant1;
-        private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.RadioButton rb_tid;
-        private System.Windows.Forms.RadioButton rb_epc;
-        private System.Windows.Forms.Button btIventoryG2;
         private System.Windows.Forms.GroupBox gpb_address;
         private System.Windows.Forms.TextBox text_address;
         private System.Windows.Forms.Button btaddress;
@@ -3148,11 +2451,6 @@
         private System.Windows.Forms.Button btGetInformation;
         private System.Windows.Forms.Button btDefault;
         private System.Windows.Forms.Timer timer_runmode;
-        private System.Windows.Forms.TextBox text_target;
-        private System.Windows.Forms.CheckBox check_num;
-        private System.Windows.Forms.ComboBox com_Target;
-        private System.Windows.Forms.Label label79;
-        private System.Windows.Forms.Label label80;
         private System.Windows.Forms.GroupBox gbp_buff;
         private System.Windows.Forms.RadioButton rb496;
         private System.Windows.Forms.RadioButton rb128;
@@ -3161,7 +2459,6 @@
         private System.Windows.Forms.GroupBox group_maxtime;
         private System.Windows.Forms.Button btSetMaxtime;
         private System.Windows.Forms.ComboBox comboBox_maxtime;
-        private System.Windows.Forms.CheckBox checkBox_rate;
         private System.Windows.Forms.TabPage tabPage_Module;
         private System.Windows.Forms.Panel panel9;
         private System.Windows.Forms.GroupBox groupBox32;
@@ -3214,17 +2511,6 @@
         private System.Windows.Forms.ComboBox com_retrytimes;
         private System.Windows.Forms.Button bt_Getretry;
         private System.Windows.Forms.Button bt_Setretry;
-        private System.Windows.Forms.GroupBox gbp_MixRead;
-        private System.Windows.Forms.ComboBox com_MixMem;
-        private System.Windows.Forms.Label label114;
-        private System.Windows.Forms.RadioButton rb_mix;
-        private System.Windows.Forms.TextBox text_readpsd;
-        private System.Windows.Forms.Label label118;
-        private System.Windows.Forms.TextBox text_readLen;
-        private System.Windows.Forms.Label label117;
-        private System.Windows.Forms.TextBox text_readadr;
-        private System.Windows.Forms.Label label115;
-        private System.Windows.Forms.RadioButton rb_fastid;
         private System.Windows.Forms.GroupBox gbp_DRM;
         private System.Windows.Forms.RadioButton DRM_CLOSE;
         private System.Windows.Forms.RadioButton DRM_OPEN;
@@ -3241,29 +2527,22 @@
         private System.Windows.Forms.Button btnGetReaderTemperature;
         private System.Windows.Forms.TextBox txtReaderTemperature;
         private System.Windows.Forms.ComboBox cbbAnt;
-        private System.Windows.Forms.CheckBox ckClearOperationRec;
         private System.Windows.Forms.RadioButton radioButton_band12;
-        private System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.Panel panel1;
+        public System.Windows.Forms.CheckBox check_ant1;
+        public System.Windows.Forms.CheckBox check_ant2;
+        public System.Windows.Forms.CheckBox check_ant4;
+        private System.Windows.Forms.Button btIventoryG2;
+        public System.Windows.Forms.CheckBox check_ant3;
         private System.Windows.Forms.GroupBox DIS_InvList;
-        private System.Windows.Forms.Button BN_Open_FullDB;
-        private System.Windows.Forms.DataGridView View_InvList;
-        private LxControl.LxLedControl lxLedControl6;
-        private System.Windows.Forms.Label label119;
-        private LxControl.LxLedControl lxLedControl5;
-        private System.Windows.Forms.Label label9;
-        private LxControl.LxLedControl lxLedControl4;
-        private System.Windows.Forms.Label label8;
-        private LxControl.LxLedControl lxLedControl3;
-        private System.Windows.Forms.Label label7;
-        private LxControl.LxLedControl lxLedControl2;
-        private System.Windows.Forms.Label label6;
-        private LxControl.LxLedControl lxLedControl1;
-        private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.Label label11;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Button BN_Search;
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.TextBox textBox2;
-        private System.Windows.Forms.Button BN_Search;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Button BN_Open_FullDB;
+        private System.Windows.Forms.DataGridView View_InvList;
+        private System.Windows.Forms.TextBox scanning_active;
     }
 }
 
