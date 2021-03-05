@@ -212,6 +212,11 @@
             this.timer_runmode = new System.Windows.Forms.Timer(this.components);
             this.timer_RealTime = new System.Windows.Forms.Timer(this.components);
             this.status_checker = new System.Windows.Forms.Timer(this.components);
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.groupBox6 = new System.Windows.Forms.GroupBox();
+            this.alarm_checker = new System.Windows.Forms.Timer(this.components);
+            this.lbl_alarm = new System.Windows.Forms.Label();
             this.Maintab.SuspendLayout();
             this.Main_Page1.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -251,6 +256,9 @@
             this.DIS_InvList.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.View_InvList)).BeginInit();
             this.groupBox2.SuspendLayout();
+            this.groupBox4.SuspendLayout();
+            this.groupBox5.SuspendLayout();
+            this.groupBox6.SuspendLayout();
             this.SuspendLayout();
             // 
             // Maintab
@@ -2074,13 +2082,10 @@
             // Main_Page2
             // 
             this.Main_Page2.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.Main_Page2.Controls.Add(this.groupBox6);
+            this.Main_Page2.Controls.Add(this.groupBox4);
             this.Main_Page2.Controls.Add(this.DIS_InvList);
-            this.Main_Page2.Controls.Add(this.check_ant4);
-            this.Main_Page2.Controls.Add(this.check_ant2);
-            this.Main_Page2.Controls.Add(this.check_ant3);
-            this.Main_Page2.Controls.Add(this.check_ant1);
             this.Main_Page2.Controls.Add(this.groupBox2);
-            this.Main_Page2.Controls.Add(this.btIventoryG2);
             this.Main_Page2.Location = new System.Drawing.Point(4, 27);
             this.Main_Page2.Name = "Main_Page2";
             this.Main_Page2.Padding = new System.Windows.Forms.Padding(3);
@@ -2098,9 +2103,9 @@
             this.DIS_InvList.Controls.Add(this.textBox1);
             this.DIS_InvList.Controls.Add(this.BN_Open_FullDB);
             this.DIS_InvList.Controls.Add(this.View_InvList);
-            this.DIS_InvList.Location = new System.Drawing.Point(47, 293);
+            this.DIS_InvList.Location = new System.Drawing.Point(8, 108);
             this.DIS_InvList.Name = "DIS_InvList";
-            this.DIS_InvList.Size = new System.Drawing.Size(678, 275);
+            this.DIS_InvList.Size = new System.Drawing.Size(810, 275);
             this.DIS_InvList.TabIndex = 34;
             this.DIS_InvList.TabStop = false;
             this.DIS_InvList.Text = "Inventory List";
@@ -2171,8 +2176,8 @@
             // check_ant4
             // 
             this.check_ant4.AutoSize = true;
-            this.check_ant4.ForeColor = System.Drawing.Color.RoyalBlue;
-            this.check_ant4.Location = new System.Drawing.Point(640, 152);
+            this.check_ant4.ForeColor = System.Drawing.Color.Black;
+            this.check_ant4.Location = new System.Drawing.Point(86, 41);
             this.check_ant4.Name = "check_ant4";
             this.check_ant4.Size = new System.Drawing.Size(54, 17);
             this.check_ant4.TabIndex = 37;
@@ -2182,8 +2187,8 @@
             // check_ant2
             // 
             this.check_ant2.AutoSize = true;
-            this.check_ant2.ForeColor = System.Drawing.Color.RoyalBlue;
-            this.check_ant2.Location = new System.Drawing.Point(594, 188);
+            this.check_ant2.ForeColor = System.Drawing.Color.Black;
+            this.check_ant2.Location = new System.Drawing.Point(6, 41);
             this.check_ant2.Name = "check_ant2";
             this.check_ant2.Size = new System.Drawing.Size(54, 17);
             this.check_ant2.TabIndex = 35;
@@ -2193,8 +2198,8 @@
             // check_ant3
             // 
             this.check_ant3.AutoSize = true;
-            this.check_ant3.ForeColor = System.Drawing.Color.RoyalBlue;
-            this.check_ant3.Location = new System.Drawing.Point(496, 162);
+            this.check_ant3.ForeColor = System.Drawing.Color.Black;
+            this.check_ant3.Location = new System.Drawing.Point(86, 19);
             this.check_ant3.Name = "check_ant3";
             this.check_ant3.Size = new System.Drawing.Size(54, 17);
             this.check_ant3.TabIndex = 36;
@@ -2206,8 +2211,8 @@
             this.check_ant1.AutoSize = true;
             this.check_ant1.Checked = true;
             this.check_ant1.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.check_ant1.ForeColor = System.Drawing.Color.RoyalBlue;
-            this.check_ant1.Location = new System.Drawing.Point(515, 136);
+            this.check_ant1.ForeColor = System.Drawing.Color.Black;
+            this.check_ant1.Location = new System.Drawing.Point(6, 19);
             this.check_ant1.Name = "check_ant1";
             this.check_ant1.Size = new System.Drawing.Size(54, 17);
             this.check_ant1.TabIndex = 34;
@@ -2222,7 +2227,7 @@
             this.groupBox2.Controls.Add(this.tb_hw_connected);
             this.groupBox2.Controls.Add(this.label1);
             this.groupBox2.Controls.Add(this.lbl_db_conn);
-            this.groupBox2.Location = new System.Drawing.Point(824, 6);
+            this.groupBox2.Location = new System.Drawing.Point(286, 6);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(239, 96);
             this.groupBox2.TabIndex = 38;
@@ -2289,9 +2294,9 @@
             // btIventoryG2
             // 
             this.btIventoryG2.BackColor = System.Drawing.Color.Transparent;
-            this.btIventoryG2.Font = new System.Drawing.Font("SimSun", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.btIventoryG2.ForeColor = System.Drawing.Color.DarkBlue;
-            this.btIventoryG2.Location = new System.Drawing.Point(861, 239);
+            this.btIventoryG2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btIventoryG2.ForeColor = System.Drawing.Color.Black;
+            this.btIventoryG2.Location = new System.Drawing.Point(6, 30);
             this.btIventoryG2.Name = "btIventoryG2";
             this.btIventoryG2.Size = new System.Drawing.Size(109, 43);
             this.btIventoryG2.TabIndex = 0;
@@ -2319,6 +2324,57 @@
             this.status_checker.Enabled = true;
             this.status_checker.Interval = 1000;
             this.status_checker.Tick += new System.EventHandler(this.status_checker_Tick);
+            // 
+            // groupBox4
+            // 
+            this.groupBox4.Controls.Add(this.groupBox5);
+            this.groupBox4.Controls.Add(this.btIventoryG2);
+            this.groupBox4.Location = new System.Drawing.Point(8, 6);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(272, 96);
+            this.groupBox4.TabIndex = 39;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "Start Scanning:";
+            // 
+            // groupBox5
+            // 
+            this.groupBox5.Controls.Add(this.check_ant1);
+            this.groupBox5.Controls.Add(this.check_ant2);
+            this.groupBox5.Controls.Add(this.check_ant3);
+            this.groupBox5.Controls.Add(this.check_ant4);
+            this.groupBox5.Location = new System.Drawing.Point(120, 20);
+            this.groupBox5.Name = "groupBox5";
+            this.groupBox5.Size = new System.Drawing.Size(146, 64);
+            this.groupBox5.TabIndex = 40;
+            this.groupBox5.TabStop = false;
+            this.groupBox5.Text = "Antenna Selection:";
+            // 
+            // groupBox6
+            // 
+            this.groupBox6.Controls.Add(this.lbl_alarm);
+            this.groupBox6.Location = new System.Drawing.Point(531, 6);
+            this.groupBox6.Name = "groupBox6";
+            this.groupBox6.Size = new System.Drawing.Size(96, 96);
+            this.groupBox6.TabIndex = 40;
+            this.groupBox6.TabStop = false;
+            this.groupBox6.Text = "Alarms";
+            // 
+            // alarm_checker
+            // 
+            this.alarm_checker.Enabled = true;
+            this.alarm_checker.Interval = 10000;
+            this.alarm_checker.Tick += new System.EventHandler(this.alarm_checker_Tick);
+            // 
+            // lbl_alarm
+            // 
+            this.lbl_alarm.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.lbl_alarm.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_alarm.Location = new System.Drawing.Point(23, 30);
+            this.lbl_alarm.Name = "lbl_alarm";
+            this.lbl_alarm.Size = new System.Drawing.Size(50, 50);
+            this.lbl_alarm.TabIndex = 42;
+            this.lbl_alarm.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lbl_alarm.Click += new System.EventHandler(this.lbl_alarm_Click);
             // 
             // Form1
             // 
@@ -2395,12 +2451,15 @@
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             this.Main_Page2.ResumeLayout(false);
-            this.Main_Page2.PerformLayout();
             this.DIS_InvList.ResumeLayout(false);
             this.DIS_InvList.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.View_InvList)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
+            this.groupBox4.ResumeLayout(false);
+            this.groupBox5.ResumeLayout(false);
+            this.groupBox5.PerformLayout();
+            this.groupBox6.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -2588,6 +2647,11 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox tb_db_connection;
+        private System.Windows.Forms.GroupBox groupBox6;
+        private System.Windows.Forms.GroupBox groupBox4;
+        private System.Windows.Forms.GroupBox groupBox5;
+        private System.Windows.Forms.Timer alarm_checker;
+        private System.Windows.Forms.Label lbl_alarm;
     }
 }
 

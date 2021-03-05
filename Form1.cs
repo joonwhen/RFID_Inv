@@ -17,6 +17,7 @@ using System.IO;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using Npgsql;
+
 namespace UHFReader288MPDemo
 {
     public partial class Form1 : Form
@@ -87,6 +88,7 @@ namespace UHFReader288MPDemo
         public static bool hw_connected = false;
         public static bool connected = false;
         public static bool scan_active = false;
+        public static bool startup = true;
 
         /// <summary>
         /// Device Search的回调函数;
@@ -796,6 +798,8 @@ namespace UHFReader288MPDemo
                 epclist.Clear();
                 tidlist.Clear();
                 AA_times = 0;
+
+                startup = false;
 
                 total_tagnum = 0;
                 total_time = System.Environment.TickCount;
@@ -2543,6 +2547,7 @@ namespace UHFReader288MPDemo
             }
         }
 
+
         private void status_checker_Tick(object sender, EventArgs e)
         {
             if (connected)
@@ -2565,17 +2570,54 @@ namespace UHFReader288MPDemo
                 tb_hw_connected.BackColor = Color.Red;
                 tb_hw_connected.Text = "Disconnected";
             }
-            if (scan_active)
-            {
-                tb_scanning.BackColor = Color.Green;
-                tb_scanning.Text = "Operational";
-            }
-            if (!scan_active)
+
+            if(startup)
             {
                 tb_scanning.BackColor = Color.Red;
                 tb_scanning.Text = "Disconnected";
             }
+
+            else if (!startup)
+            {
+                if (toStopThread)
+                {
+                    tb_scanning.BackColor = Color.Red;
+                    tb_scanning.Text = "Disconnected";
+                }
+
+                if (!toStopThread)
+                {
+                    tb_scanning.BackColor = Color.Green;
+                    tb_scanning.Text = "Operational";
+                }
+            }
         }
 
+        private void alarm_checker_Tick(object sender, EventArgs e)
+        {
+            Console.WriteLine("Syncing with Database . . . ");
+            string connstring = String.Format("Host=localhost;Port=5432;User Id=Admin;Password=password;Database=Inventory;");
+            NpgsqlConnection conn = new NpgsqlConnection(connstring);
+            conn.Open();
+            var cmd = new NpgsqlCommand("SELECT COUNT(*) from rfid_inventory WHERE item_status_automated = 'Error: status do not tally.';", conn);
+            int alarm_no = Convert.ToInt32(cmd.ExecuteScalar());
+            conn.Close();
+            lbl_alarm.Text = alarm_no.ToString();
+            if (alarm_no > 0)
+            {
+                lbl_alarm.BackColor = Color.Red;
+            }
+            else
+            {
+                lbl_alarm.BackColor = Color.LightGreen;
+            }
+            
+        }
+        
+        private void lbl_alarm_Click(object sender, EventArgs e)
+        {
+            Inventory_Monitoring.Form2 f2 = new Inventory_Monitoring.Form2();
+            f2.ShowDialog();
+        }
     }
 }
