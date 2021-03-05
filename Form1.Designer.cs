@@ -188,14 +188,6 @@
             this.MRB_6B = new System.Windows.Forms.RadioButton();
             this.MRB_G2 = new System.Windows.Forms.RadioButton();
             this.Main_Page2 = new System.Windows.Forms.TabPage();
-            this.tabControl2 = new System.Windows.Forms.TabControl();
-            this.tabPage_answer = new System.Windows.Forms.TabPage();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.check_ant1 = new System.Windows.Forms.CheckBox();
-            this.check_ant2 = new System.Windows.Forms.CheckBox();
-            this.check_ant4 = new System.Windows.Forms.CheckBox();
-            this.btIventoryG2 = new System.Windows.Forms.Button();
-            this.check_ant3 = new System.Windows.Forms.CheckBox();
             this.DIS_InvList = new System.Windows.Forms.GroupBox();
             this.BN_Search = new System.Windows.Forms.Button();
             this.label12 = new System.Windows.Forms.Label();
@@ -204,10 +196,22 @@
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.BN_Open_FullDB = new System.Windows.Forms.Button();
             this.View_InvList = new System.Windows.Forms.DataGridView();
+            this.check_ant4 = new System.Windows.Forms.CheckBox();
+            this.check_ant2 = new System.Windows.Forms.CheckBox();
+            this.check_ant3 = new System.Windows.Forms.CheckBox();
+            this.check_ant1 = new System.Windows.Forms.CheckBox();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.tb_db_connection = new System.Windows.Forms.TextBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.tb_scanning = new System.Windows.Forms.TextBox();
+            this.tb_hw_connected = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.lbl_db_conn = new System.Windows.Forms.Label();
+            this.btIventoryG2 = new System.Windows.Forms.Button();
             this.timer_answer = new System.Windows.Forms.Timer(this.components);
             this.timer_runmode = new System.Windows.Forms.Timer(this.components);
             this.timer_RealTime = new System.Windows.Forms.Timer(this.components);
-            this.scanning_active = new System.Windows.Forms.TextBox();
+            this.status_checker = new System.Windows.Forms.Timer(this.components);
             this.Maintab.SuspendLayout();
             this.Main_Page1.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -244,11 +248,9 @@
             this.groupBox28.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.Main_Page2.SuspendLayout();
-            this.tabControl2.SuspendLayout();
-            this.tabPage_answer.SuspendLayout();
-            this.panel1.SuspendLayout();
             this.DIS_InvList.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.View_InvList)).BeginInit();
+            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // Maintab
@@ -2072,7 +2074,13 @@
             // Main_Page2
             // 
             this.Main_Page2.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.Main_Page2.Controls.Add(this.tabControl2);
+            this.Main_Page2.Controls.Add(this.DIS_InvList);
+            this.Main_Page2.Controls.Add(this.check_ant4);
+            this.Main_Page2.Controls.Add(this.check_ant2);
+            this.Main_Page2.Controls.Add(this.check_ant3);
+            this.Main_Page2.Controls.Add(this.check_ant1);
+            this.Main_Page2.Controls.Add(this.groupBox2);
+            this.Main_Page2.Controls.Add(this.btIventoryG2);
             this.Main_Page2.Location = new System.Drawing.Point(4, 27);
             this.Main_Page2.Name = "Main_Page2";
             this.Main_Page2.Padding = new System.Windows.Forms.Padding(3);
@@ -2080,102 +2088,6 @@
             this.Main_Page2.TabIndex = 1;
             this.Main_Page2.Text = "Inventory Check";
             this.Main_Page2.UseVisualStyleBackColor = true;
-            // 
-            // tabControl2
-            // 
-            this.tabControl2.Controls.Add(this.tabPage_answer);
-            this.tabControl2.ItemSize = new System.Drawing.Size(120, 23);
-            this.tabControl2.Location = new System.Drawing.Point(-1, 7);
-            this.tabControl2.Name = "tabControl2";
-            this.tabControl2.SelectedIndex = 0;
-            this.tabControl2.Size = new System.Drawing.Size(1071, 612);
-            this.tabControl2.TabIndex = 0;
-            this.tabControl2.SelectedIndexChanged += new System.EventHandler(this.Maintab_SelectedIndexChanged);
-            // 
-            // tabPage_answer
-            // 
-            this.tabPage_answer.Controls.Add(this.panel1);
-            this.tabPage_answer.Location = new System.Drawing.Point(4, 27);
-            this.tabPage_answer.Name = "tabPage_answer";
-            this.tabPage_answer.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage_answer.Size = new System.Drawing.Size(1063, 581);
-            this.tabPage_answer.TabIndex = 0;
-            this.tabPage_answer.Text = "Answer Mode";
-            this.tabPage_answer.UseVisualStyleBackColor = true;
-            // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.scanning_active);
-            this.panel1.Controls.Add(this.check_ant1);
-            this.panel1.Controls.Add(this.check_ant2);
-            this.panel1.Controls.Add(this.check_ant4);
-            this.panel1.Controls.Add(this.btIventoryG2);
-            this.panel1.Controls.Add(this.check_ant3);
-            this.panel1.Controls.Add(this.DIS_InvList);
-            this.panel1.Enabled = false;
-            this.panel1.Location = new System.Drawing.Point(2, 2);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1066, 574);
-            this.panel1.TabIndex = 0;
-            // 
-            // check_ant1
-            // 
-            this.check_ant1.AutoSize = true;
-            this.check_ant1.Checked = true;
-            this.check_ant1.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.check_ant1.ForeColor = System.Drawing.Color.RoyalBlue;
-            this.check_ant1.Location = new System.Drawing.Point(314, 108);
-            this.check_ant1.Name = "check_ant1";
-            this.check_ant1.Size = new System.Drawing.Size(54, 17);
-            this.check_ant1.TabIndex = 34;
-            this.check_ant1.Text = "ANT1";
-            this.check_ant1.UseVisualStyleBackColor = true;
-            // 
-            // check_ant2
-            // 
-            this.check_ant2.AutoSize = true;
-            this.check_ant2.ForeColor = System.Drawing.Color.RoyalBlue;
-            this.check_ant2.Location = new System.Drawing.Point(402, 108);
-            this.check_ant2.Name = "check_ant2";
-            this.check_ant2.Size = new System.Drawing.Size(54, 17);
-            this.check_ant2.TabIndex = 35;
-            this.check_ant2.Text = "ANT2";
-            this.check_ant2.UseVisualStyleBackColor = true;
-            // 
-            // check_ant4
-            // 
-            this.check_ant4.AutoSize = true;
-            this.check_ant4.ForeColor = System.Drawing.Color.RoyalBlue;
-            this.check_ant4.Location = new System.Drawing.Point(389, 166);
-            this.check_ant4.Name = "check_ant4";
-            this.check_ant4.Size = new System.Drawing.Size(54, 17);
-            this.check_ant4.TabIndex = 37;
-            this.check_ant4.Text = "ANT4";
-            this.check_ant4.UseVisualStyleBackColor = true;
-            // 
-            // btIventoryG2
-            // 
-            this.btIventoryG2.BackColor = System.Drawing.Color.Transparent;
-            this.btIventoryG2.Font = new System.Drawing.Font("SimSun", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.btIventoryG2.ForeColor = System.Drawing.Color.DarkBlue;
-            this.btIventoryG2.Location = new System.Drawing.Point(101, 166);
-            this.btIventoryG2.Name = "btIventoryG2";
-            this.btIventoryG2.Size = new System.Drawing.Size(109, 43);
-            this.btIventoryG2.TabIndex = 0;
-            this.btIventoryG2.Text = "Start";
-            this.btIventoryG2.UseVisualStyleBackColor = false;
-            this.btIventoryG2.Click += new System.EventHandler(this.btIventoryG2_Click);
-            // 
-            // check_ant3
-            // 
-            this.check_ant3.AutoSize = true;
-            this.check_ant3.ForeColor = System.Drawing.Color.RoyalBlue;
-            this.check_ant3.Location = new System.Drawing.Point(314, 152);
-            this.check_ant3.Name = "check_ant3";
-            this.check_ant3.Size = new System.Drawing.Size(54, 17);
-            this.check_ant3.TabIndex = 36;
-            this.check_ant3.Text = "ANT3";
-            this.check_ant3.UseVisualStyleBackColor = true;
             // 
             // DIS_InvList
             // 
@@ -2186,7 +2098,7 @@
             this.DIS_InvList.Controls.Add(this.textBox1);
             this.DIS_InvList.Controls.Add(this.BN_Open_FullDB);
             this.DIS_InvList.Controls.Add(this.View_InvList);
-            this.DIS_InvList.Location = new System.Drawing.Point(329, 243);
+            this.DIS_InvList.Location = new System.Drawing.Point(47, 293);
             this.DIS_InvList.Name = "DIS_InvList";
             this.DIS_InvList.Size = new System.Drawing.Size(678, 275);
             this.DIS_InvList.TabIndex = 34;
@@ -2256,6 +2168,137 @@
             this.View_InvList.Size = new System.Drawing.Size(665, 147);
             this.View_InvList.TabIndex = 32;
             // 
+            // check_ant4
+            // 
+            this.check_ant4.AutoSize = true;
+            this.check_ant4.ForeColor = System.Drawing.Color.RoyalBlue;
+            this.check_ant4.Location = new System.Drawing.Point(640, 152);
+            this.check_ant4.Name = "check_ant4";
+            this.check_ant4.Size = new System.Drawing.Size(54, 17);
+            this.check_ant4.TabIndex = 37;
+            this.check_ant4.Text = "ANT4";
+            this.check_ant4.UseVisualStyleBackColor = true;
+            // 
+            // check_ant2
+            // 
+            this.check_ant2.AutoSize = true;
+            this.check_ant2.ForeColor = System.Drawing.Color.RoyalBlue;
+            this.check_ant2.Location = new System.Drawing.Point(594, 188);
+            this.check_ant2.Name = "check_ant2";
+            this.check_ant2.Size = new System.Drawing.Size(54, 17);
+            this.check_ant2.TabIndex = 35;
+            this.check_ant2.Text = "ANT2";
+            this.check_ant2.UseVisualStyleBackColor = true;
+            // 
+            // check_ant3
+            // 
+            this.check_ant3.AutoSize = true;
+            this.check_ant3.ForeColor = System.Drawing.Color.RoyalBlue;
+            this.check_ant3.Location = new System.Drawing.Point(496, 162);
+            this.check_ant3.Name = "check_ant3";
+            this.check_ant3.Size = new System.Drawing.Size(54, 17);
+            this.check_ant3.TabIndex = 36;
+            this.check_ant3.Text = "ANT3";
+            this.check_ant3.UseVisualStyleBackColor = true;
+            // 
+            // check_ant1
+            // 
+            this.check_ant1.AutoSize = true;
+            this.check_ant1.Checked = true;
+            this.check_ant1.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.check_ant1.ForeColor = System.Drawing.Color.RoyalBlue;
+            this.check_ant1.Location = new System.Drawing.Point(515, 136);
+            this.check_ant1.Name = "check_ant1";
+            this.check_ant1.Size = new System.Drawing.Size(54, 17);
+            this.check_ant1.TabIndex = 34;
+            this.check_ant1.Text = "ANT1";
+            this.check_ant1.UseVisualStyleBackColor = true;
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.tb_db_connection);
+            this.groupBox2.Controls.Add(this.label5);
+            this.groupBox2.Controls.Add(this.tb_scanning);
+            this.groupBox2.Controls.Add(this.tb_hw_connected);
+            this.groupBox2.Controls.Add(this.label1);
+            this.groupBox2.Controls.Add(this.lbl_db_conn);
+            this.groupBox2.Location = new System.Drawing.Point(824, 6);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(239, 96);
+            this.groupBox2.TabIndex = 38;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Connection Status:";
+            // 
+            // tb_db_connection
+            // 
+            this.tb_db_connection.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tb_db_connection.Location = new System.Drawing.Point(125, 17);
+            this.tb_db_connection.Name = "tb_db_connection";
+            this.tb_db_connection.ReadOnly = true;
+            this.tb_db_connection.Size = new System.Drawing.Size(100, 20);
+            this.tb_db_connection.TabIndex = 39;
+            this.tb_db_connection.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(34, 69);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(85, 13);
+            this.label5.TabIndex = 44;
+            this.label5.Text = "Scanning Mode:";
+            // 
+            // tb_scanning
+            // 
+            this.tb_scanning.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tb_scanning.Location = new System.Drawing.Point(125, 69);
+            this.tb_scanning.Name = "tb_scanning";
+            this.tb_scanning.ReadOnly = true;
+            this.tb_scanning.Size = new System.Drawing.Size(100, 20);
+            this.tb_scanning.TabIndex = 42;
+            this.tb_scanning.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // tb_hw_connected
+            // 
+            this.tb_hw_connected.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tb_hw_connected.Location = new System.Drawing.Point(125, 43);
+            this.tb_hw_connected.Name = "tb_hw_connected";
+            this.tb_hw_connected.ReadOnly = true;
+            this.tb_hw_connected.Size = new System.Drawing.Size(100, 20);
+            this.tb_hw_connected.TabIndex = 40;
+            this.tb_hw_connected.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(6, 46);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(113, 13);
+            this.label1.TabIndex = 41;
+            this.label1.Text = "Hardware Connection:";
+            // 
+            // lbl_db_conn
+            // 
+            this.lbl_db_conn.AutoSize = true;
+            this.lbl_db_conn.Location = new System.Drawing.Point(6, 20);
+            this.lbl_db_conn.Name = "lbl_db_conn";
+            this.lbl_db_conn.Size = new System.Drawing.Size(113, 13);
+            this.lbl_db_conn.TabIndex = 39;
+            this.lbl_db_conn.Text = "Database Connection:";
+            // 
+            // btIventoryG2
+            // 
+            this.btIventoryG2.BackColor = System.Drawing.Color.Transparent;
+            this.btIventoryG2.Font = new System.Drawing.Font("SimSun", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.btIventoryG2.ForeColor = System.Drawing.Color.DarkBlue;
+            this.btIventoryG2.Location = new System.Drawing.Point(861, 239);
+            this.btIventoryG2.Name = "btIventoryG2";
+            this.btIventoryG2.Size = new System.Drawing.Size(109, 43);
+            this.btIventoryG2.TabIndex = 0;
+            this.btIventoryG2.Text = "Start";
+            this.btIventoryG2.UseVisualStyleBackColor = false;
+            this.btIventoryG2.Click += new System.EventHandler(this.btIventoryG2_Click);
+            // 
             // timer_answer
             // 
             this.timer_answer.Interval = 50;
@@ -2271,12 +2314,11 @@
             this.timer_RealTime.Interval = 50;
             this.timer_RealTime.Tick += new System.EventHandler(this.timer_RealTime_Tick);
             // 
-            // scanning_active
+            // status_checker
             // 
-            this.scanning_active.Location = new System.Drawing.Point(942, 19);
-            this.scanning_active.Name = "scanning_active";
-            this.scanning_active.Size = new System.Drawing.Size(100, 20);
-            this.scanning_active.TabIndex = 38;
+            this.status_checker.Enabled = true;
+            this.status_checker.Interval = 1000;
+            this.status_checker.Tick += new System.EventHandler(this.status_checker_Tick);
             // 
             // Form1
             // 
@@ -2353,13 +2395,12 @@
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             this.Main_Page2.ResumeLayout(false);
-            this.tabControl2.ResumeLayout(false);
-            this.tabPage_answer.ResumeLayout(false);
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
+            this.Main_Page2.PerformLayout();
             this.DIS_InvList.ResumeLayout(false);
             this.DIS_InvList.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.View_InvList)).EndInit();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -2387,8 +2428,6 @@
         internal System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox tb_Port;
         private CustomControl.IpAddressTextBox ipServerIP;
-        private System.Windows.Forms.TabControl tabControl2;
-        private System.Windows.Forms.TabPage tabPage_answer;
         private System.Windows.Forms.Timer timer_answer;
         private System.Windows.Forms.GroupBox gpb_address;
         private System.Windows.Forms.TextBox text_address;
@@ -2528,7 +2567,6 @@
         private System.Windows.Forms.TextBox txtReaderTemperature;
         private System.Windows.Forms.ComboBox cbbAnt;
         private System.Windows.Forms.RadioButton radioButton_band12;
-        private System.Windows.Forms.Panel panel1;
         public System.Windows.Forms.CheckBox check_ant1;
         public System.Windows.Forms.CheckBox check_ant2;
         public System.Windows.Forms.CheckBox check_ant4;
@@ -2542,7 +2580,14 @@
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Button BN_Open_FullDB;
         private System.Windows.Forms.DataGridView View_InvList;
-        private System.Windows.Forms.TextBox scanning_active;
+        private System.Windows.Forms.Timer status_checker;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.Label lbl_db_conn;
+        private System.Windows.Forms.TextBox tb_scanning;
+        private System.Windows.Forms.TextBox tb_hw_connected;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.TextBox tb_db_connection;
     }
 }
 
