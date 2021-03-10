@@ -188,18 +188,25 @@
             this.MRB_6B = new System.Windows.Forms.RadioButton();
             this.MRB_G2 = new System.Windows.Forms.RadioButton();
             this.Main_Page2 = new System.Windows.Forms.TabPage();
-            this.DIS_InvList = new System.Windows.Forms.GroupBox();
-            this.BN_Search = new System.Windows.Forms.Button();
-            this.label12 = new System.Windows.Forms.Label();
-            this.textBox2 = new System.Windows.Forms.TextBox();
-            this.label11 = new System.Windows.Forms.Label();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.bn_Search = new System.Windows.Forms.Button();
             this.BN_Open_FullDB = new System.Windows.Forms.Button();
-            this.View_InvList = new System.Windows.Forms.DataGridView();
-            this.check_ant4 = new System.Windows.Forms.CheckBox();
+            this.groupBox6 = new System.Windows.Forms.GroupBox();
+            this.lbl_alarm = new System.Windows.Forms.Label();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.check_ant1 = new System.Windows.Forms.CheckBox();
             this.check_ant2 = new System.Windows.Forms.CheckBox();
             this.check_ant3 = new System.Windows.Forms.CheckBox();
-            this.check_ant1 = new System.Windows.Forms.CheckBox();
+            this.check_ant4 = new System.Windows.Forms.CheckBox();
+            this.btIventoryG2 = new System.Windows.Forms.Button();
+            this.DIS_InvList = new System.Windows.Forms.GroupBox();
+            this.gb_command_builder = new System.Windows.Forms.GroupBox();
+            this.lbl_sn = new System.Windows.Forms.Label();
+            this.tb_query_sn = new System.Windows.Forms.TextBox();
+            this.lbl_epc = new System.Windows.Forms.Label();
+            this.tb_query_epc = new System.Windows.Forms.TextBox();
+            this.panel_datagrid = new System.Windows.Forms.Panel();
+            this.View_InvList = new System.Windows.Forms.DataGridView();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.tb_db_connection = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
@@ -207,16 +214,17 @@
             this.tb_hw_connected = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.lbl_db_conn = new System.Windows.Forms.Label();
-            this.btIventoryG2 = new System.Windows.Forms.Button();
             this.timer_answer = new System.Windows.Forms.Timer(this.components);
             this.timer_runmode = new System.Windows.Forms.Timer(this.components);
             this.timer_RealTime = new System.Windows.Forms.Timer(this.components);
             this.status_checker = new System.Windows.Forms.Timer(this.components);
-            this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.groupBox5 = new System.Windows.Forms.GroupBox();
-            this.groupBox6 = new System.Windows.Forms.GroupBox();
             this.alarm_checker = new System.Windows.Forms.Timer(this.components);
-            this.lbl_alarm = new System.Windows.Forms.Label();
+            this.tb_command_builder = new System.Windows.Forms.TextBox();
+            this.bn_build_command = new System.Windows.Forms.Button();
+            this.date_query = new System.Windows.Forms.DateTimePicker();
+            this.lbl_checkout_date = new System.Windows.Forms.Label();
+            this.lbl_checkin_date = new System.Windows.Forms.Label();
+            this.date_checkin_query = new System.Windows.Forms.DateTimePicker();
             this.Maintab.SuspendLayout();
             this.Main_Page1.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -253,12 +261,14 @@
             this.groupBox28.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.Main_Page2.SuspendLayout();
-            this.DIS_InvList.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.View_InvList)).BeginInit();
-            this.groupBox2.SuspendLayout();
+            this.groupBox6.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.groupBox5.SuspendLayout();
-            this.groupBox6.SuspendLayout();
+            this.DIS_InvList.SuspendLayout();
+            this.gb_command_builder.SuspendLayout();
+            this.panel_datagrid.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.View_InvList)).BeginInit();
+            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // Maintab
@@ -2082,6 +2092,8 @@
             // Main_Page2
             // 
             this.Main_Page2.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.Main_Page2.Controls.Add(this.bn_Search);
+            this.Main_Page2.Controls.Add(this.BN_Open_FullDB);
             this.Main_Page2.Controls.Add(this.groupBox6);
             this.Main_Page2.Controls.Add(this.groupBox4);
             this.Main_Page2.Controls.Add(this.DIS_InvList);
@@ -2094,67 +2106,19 @@
             this.Main_Page2.Text = "Inventory Check";
             this.Main_Page2.UseVisualStyleBackColor = true;
             // 
-            // DIS_InvList
+            // bn_Search
             // 
-            this.DIS_InvList.Controls.Add(this.BN_Search);
-            this.DIS_InvList.Controls.Add(this.label12);
-            this.DIS_InvList.Controls.Add(this.textBox2);
-            this.DIS_InvList.Controls.Add(this.label11);
-            this.DIS_InvList.Controls.Add(this.textBox1);
-            this.DIS_InvList.Controls.Add(this.BN_Open_FullDB);
-            this.DIS_InvList.Controls.Add(this.View_InvList);
-            this.DIS_InvList.Location = new System.Drawing.Point(8, 108);
-            this.DIS_InvList.Name = "DIS_InvList";
-            this.DIS_InvList.Size = new System.Drawing.Size(810, 275);
-            this.DIS_InvList.TabIndex = 34;
-            this.DIS_InvList.TabStop = false;
-            this.DIS_InvList.Text = "Inventory List";
-            // 
-            // BN_Search
-            // 
-            this.BN_Search.Location = new System.Drawing.Point(156, 246);
-            this.BN_Search.Name = "BN_Search";
-            this.BN_Search.Size = new System.Drawing.Size(75, 23);
-            this.BN_Search.TabIndex = 39;
-            this.BN_Search.Text = "Search";
-            this.BN_Search.UseVisualStyleBackColor = true;
-            this.BN_Search.Click += new System.EventHandler(this.BN_Search_Click);
-            // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(2, 213);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(76, 13);
-            this.label12.TabIndex = 37;
-            this.label12.Text = "Serial Number:";
-            // 
-            // textBox2
-            // 
-            this.textBox2.Location = new System.Drawing.Point(84, 210);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(147, 20);
-            this.textBox2.TabIndex = 36;
-            // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(2, 179);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(31, 13);
-            this.label11.TabIndex = 35;
-            this.label11.Text = "EPC:";
-            // 
-            // textBox1
-            // 
-            this.textBox1.Location = new System.Drawing.Point(84, 176);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(147, 20);
-            this.textBox1.TabIndex = 34;
+            this.bn_Search.Location = new System.Drawing.Point(31, 558);
+            this.bn_Search.Name = "bn_Search";
+            this.bn_Search.Size = new System.Drawing.Size(62, 23);
+            this.bn_Search.TabIndex = 41;
+            this.bn_Search.Text = "Search";
+            this.bn_Search.UseVisualStyleBackColor = true;
+            this.bn_Search.Click += new System.EventHandler(this.bn_Search_Click);
             // 
             // BN_Open_FullDB
             // 
-            this.BN_Open_FullDB.Location = new System.Drawing.Point(5, 246);
+            this.BN_Open_FullDB.Location = new System.Drawing.Point(117, 558);
             this.BN_Open_FullDB.Name = "BN_Open_FullDB";
             this.BN_Open_FullDB.Size = new System.Drawing.Size(145, 23);
             this.BN_Open_FullDB.TabIndex = 33;
@@ -2162,27 +2126,63 @@
             this.BN_Open_FullDB.UseVisualStyleBackColor = true;
             this.BN_Open_FullDB.Click += new System.EventHandler(this.BN_Open_FullDB_Click);
             // 
-            // View_InvList
+            // groupBox6
             // 
-            this.View_InvList.BackgroundColor = System.Drawing.SystemColors.ControlLightLight;
-            this.View_InvList.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.View_InvList.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.View_InvList.GridColor = System.Drawing.SystemColors.ActiveBorder;
-            this.View_InvList.Location = new System.Drawing.Point(5, 19);
-            this.View_InvList.Name = "View_InvList";
-            this.View_InvList.Size = new System.Drawing.Size(665, 147);
-            this.View_InvList.TabIndex = 32;
+            this.groupBox6.Controls.Add(this.lbl_alarm);
+            this.groupBox6.Location = new System.Drawing.Point(531, 6);
+            this.groupBox6.Name = "groupBox6";
+            this.groupBox6.Size = new System.Drawing.Size(96, 96);
+            this.groupBox6.TabIndex = 40;
+            this.groupBox6.TabStop = false;
+            this.groupBox6.Text = "Alarms";
             // 
-            // check_ant4
+            // lbl_alarm
             // 
-            this.check_ant4.AutoSize = true;
-            this.check_ant4.ForeColor = System.Drawing.Color.Black;
-            this.check_ant4.Location = new System.Drawing.Point(86, 41);
-            this.check_ant4.Name = "check_ant4";
-            this.check_ant4.Size = new System.Drawing.Size(54, 17);
-            this.check_ant4.TabIndex = 37;
-            this.check_ant4.Text = "ANT4";
-            this.check_ant4.UseVisualStyleBackColor = true;
+            this.lbl_alarm.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.lbl_alarm.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_alarm.Location = new System.Drawing.Point(23, 30);
+            this.lbl_alarm.Name = "lbl_alarm";
+            this.lbl_alarm.Size = new System.Drawing.Size(50, 50);
+            this.lbl_alarm.TabIndex = 42;
+            this.lbl_alarm.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lbl_alarm.Click += new System.EventHandler(this.lbl_alarm_Click);
+            // 
+            // groupBox4
+            // 
+            this.groupBox4.Controls.Add(this.groupBox5);
+            this.groupBox4.Controls.Add(this.btIventoryG2);
+            this.groupBox4.Location = new System.Drawing.Point(8, 6);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(272, 96);
+            this.groupBox4.TabIndex = 39;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "Start Scanning:";
+            // 
+            // groupBox5
+            // 
+            this.groupBox5.Controls.Add(this.check_ant1);
+            this.groupBox5.Controls.Add(this.check_ant2);
+            this.groupBox5.Controls.Add(this.check_ant3);
+            this.groupBox5.Controls.Add(this.check_ant4);
+            this.groupBox5.Location = new System.Drawing.Point(120, 20);
+            this.groupBox5.Name = "groupBox5";
+            this.groupBox5.Size = new System.Drawing.Size(146, 64);
+            this.groupBox5.TabIndex = 40;
+            this.groupBox5.TabStop = false;
+            this.groupBox5.Text = "Antenna Selection:";
+            // 
+            // check_ant1
+            // 
+            this.check_ant1.AutoSize = true;
+            this.check_ant1.Checked = true;
+            this.check_ant1.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.check_ant1.ForeColor = System.Drawing.Color.Black;
+            this.check_ant1.Location = new System.Drawing.Point(6, 19);
+            this.check_ant1.Name = "check_ant1";
+            this.check_ant1.Size = new System.Drawing.Size(54, 17);
+            this.check_ant1.TabIndex = 34;
+            this.check_ant1.Text = "ANT1";
+            this.check_ant1.UseVisualStyleBackColor = true;
             // 
             // check_ant2
             // 
@@ -2206,18 +2206,116 @@
             this.check_ant3.Text = "ANT3";
             this.check_ant3.UseVisualStyleBackColor = true;
             // 
-            // check_ant1
+            // check_ant4
             // 
-            this.check_ant1.AutoSize = true;
-            this.check_ant1.Checked = true;
-            this.check_ant1.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.check_ant1.ForeColor = System.Drawing.Color.Black;
-            this.check_ant1.Location = new System.Drawing.Point(6, 19);
-            this.check_ant1.Name = "check_ant1";
-            this.check_ant1.Size = new System.Drawing.Size(54, 17);
-            this.check_ant1.TabIndex = 34;
-            this.check_ant1.Text = "ANT1";
-            this.check_ant1.UseVisualStyleBackColor = true;
+            this.check_ant4.AutoSize = true;
+            this.check_ant4.ForeColor = System.Drawing.Color.Black;
+            this.check_ant4.Location = new System.Drawing.Point(86, 41);
+            this.check_ant4.Name = "check_ant4";
+            this.check_ant4.Size = new System.Drawing.Size(54, 17);
+            this.check_ant4.TabIndex = 37;
+            this.check_ant4.Text = "ANT4";
+            this.check_ant4.UseVisualStyleBackColor = true;
+            // 
+            // btIventoryG2
+            // 
+            this.btIventoryG2.BackColor = System.Drawing.Color.Transparent;
+            this.btIventoryG2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btIventoryG2.ForeColor = System.Drawing.Color.Black;
+            this.btIventoryG2.Location = new System.Drawing.Point(6, 30);
+            this.btIventoryG2.Name = "btIventoryG2";
+            this.btIventoryG2.Size = new System.Drawing.Size(109, 43);
+            this.btIventoryG2.TabIndex = 0;
+            this.btIventoryG2.Text = "Start";
+            this.btIventoryG2.UseVisualStyleBackColor = false;
+            this.btIventoryG2.Click += new System.EventHandler(this.btIventoryG2_Click);
+            // 
+            // DIS_InvList
+            // 
+            this.DIS_InvList.Controls.Add(this.gb_command_builder);
+            this.DIS_InvList.Controls.Add(this.panel_datagrid);
+            this.DIS_InvList.Location = new System.Drawing.Point(8, 108);
+            this.DIS_InvList.Name = "DIS_InvList";
+            this.DIS_InvList.Size = new System.Drawing.Size(1055, 410);
+            this.DIS_InvList.TabIndex = 34;
+            this.DIS_InvList.TabStop = false;
+            this.DIS_InvList.Text = "Query:";
+            // 
+            // gb_command_builder
+            // 
+            this.gb_command_builder.Controls.Add(this.lbl_checkin_date);
+            this.gb_command_builder.Controls.Add(this.date_checkin_query);
+            this.gb_command_builder.Controls.Add(this.lbl_checkout_date);
+            this.gb_command_builder.Controls.Add(this.date_query);
+            this.gb_command_builder.Controls.Add(this.bn_build_command);
+            this.gb_command_builder.Controls.Add(this.tb_command_builder);
+            this.gb_command_builder.Controls.Add(this.lbl_sn);
+            this.gb_command_builder.Controls.Add(this.tb_query_sn);
+            this.gb_command_builder.Controls.Add(this.lbl_epc);
+            this.gb_command_builder.Controls.Add(this.tb_query_epc);
+            this.gb_command_builder.Location = new System.Drawing.Point(3, 185);
+            this.gb_command_builder.Name = "gb_command_builder";
+            this.gb_command_builder.Size = new System.Drawing.Size(1049, 219);
+            this.gb_command_builder.TabIndex = 42;
+            this.gb_command_builder.TabStop = false;
+            this.gb_command_builder.Text = "Query Setup:";
+            // 
+            // lbl_sn
+            // 
+            this.lbl_sn.AutoSize = true;
+            this.lbl_sn.Location = new System.Drawing.Point(9, 48);
+            this.lbl_sn.Name = "lbl_sn";
+            this.lbl_sn.Size = new System.Drawing.Size(30, 13);
+            this.lbl_sn.TabIndex = 43;
+            this.lbl_sn.Text = "S/N:";
+            // 
+            // tb_query_sn
+            // 
+            this.tb_query_sn.Location = new System.Drawing.Point(43, 45);
+            this.tb_query_sn.Name = "tb_query_sn";
+            this.tb_query_sn.Size = new System.Drawing.Size(166, 20);
+            this.tb_query_sn.TabIndex = 44;
+            // 
+            // lbl_epc
+            // 
+            this.lbl_epc.AutoSize = true;
+            this.lbl_epc.Location = new System.Drawing.Point(8, 22);
+            this.lbl_epc.Name = "lbl_epc";
+            this.lbl_epc.Size = new System.Drawing.Size(31, 13);
+            this.lbl_epc.TabIndex = 42;
+            this.lbl_epc.Text = "EPC:";
+            // 
+            // tb_query_epc
+            // 
+            this.tb_query_epc.Location = new System.Drawing.Point(43, 19);
+            this.tb_query_epc.Name = "tb_query_epc";
+            this.tb_query_epc.Size = new System.Drawing.Size(166, 20);
+            this.tb_query_epc.TabIndex = 42;
+            // 
+            // panel_datagrid
+            // 
+            this.panel_datagrid.Controls.Add(this.View_InvList);
+            this.panel_datagrid.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel_datagrid.Location = new System.Drawing.Point(3, 16);
+            this.panel_datagrid.Name = "panel_datagrid";
+            this.panel_datagrid.Size = new System.Drawing.Size(1049, 160);
+            this.panel_datagrid.TabIndex = 41;
+            // 
+            // View_InvList
+            // 
+            this.View_InvList.AllowUserToAddRows = false;
+            this.View_InvList.AllowUserToDeleteRows = false;
+            this.View_InvList.AllowUserToResizeColumns = false;
+            this.View_InvList.AllowUserToResizeRows = false;
+            this.View_InvList.BackgroundColor = System.Drawing.SystemColors.ControlLightLight;
+            this.View_InvList.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.View_InvList.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.View_InvList.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.View_InvList.GridColor = System.Drawing.SystemColors.ActiveBorder;
+            this.View_InvList.Location = new System.Drawing.Point(0, 0);
+            this.View_InvList.Name = "View_InvList";
+            this.View_InvList.Size = new System.Drawing.Size(1049, 160);
+            this.View_InvList.TabIndex = 32;
             // 
             // groupBox2
             // 
@@ -2291,19 +2389,6 @@
             this.lbl_db_conn.TabIndex = 39;
             this.lbl_db_conn.Text = "Database Connection:";
             // 
-            // btIventoryG2
-            // 
-            this.btIventoryG2.BackColor = System.Drawing.Color.Transparent;
-            this.btIventoryG2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btIventoryG2.ForeColor = System.Drawing.Color.Black;
-            this.btIventoryG2.Location = new System.Drawing.Point(6, 30);
-            this.btIventoryG2.Name = "btIventoryG2";
-            this.btIventoryG2.Size = new System.Drawing.Size(109, 43);
-            this.btIventoryG2.TabIndex = 0;
-            this.btIventoryG2.Text = "Start";
-            this.btIventoryG2.UseVisualStyleBackColor = false;
-            this.btIventoryG2.Click += new System.EventHandler(this.btIventoryG2_Click);
-            // 
             // timer_answer
             // 
             this.timer_answer.Interval = 50;
@@ -2325,56 +2410,69 @@
             this.status_checker.Interval = 1000;
             this.status_checker.Tick += new System.EventHandler(this.status_checker_Tick);
             // 
-            // groupBox4
-            // 
-            this.groupBox4.Controls.Add(this.groupBox5);
-            this.groupBox4.Controls.Add(this.btIventoryG2);
-            this.groupBox4.Location = new System.Drawing.Point(8, 6);
-            this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(272, 96);
-            this.groupBox4.TabIndex = 39;
-            this.groupBox4.TabStop = false;
-            this.groupBox4.Text = "Start Scanning:";
-            // 
-            // groupBox5
-            // 
-            this.groupBox5.Controls.Add(this.check_ant1);
-            this.groupBox5.Controls.Add(this.check_ant2);
-            this.groupBox5.Controls.Add(this.check_ant3);
-            this.groupBox5.Controls.Add(this.check_ant4);
-            this.groupBox5.Location = new System.Drawing.Point(120, 20);
-            this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(146, 64);
-            this.groupBox5.TabIndex = 40;
-            this.groupBox5.TabStop = false;
-            this.groupBox5.Text = "Antenna Selection:";
-            // 
-            // groupBox6
-            // 
-            this.groupBox6.Controls.Add(this.lbl_alarm);
-            this.groupBox6.Location = new System.Drawing.Point(531, 6);
-            this.groupBox6.Name = "groupBox6";
-            this.groupBox6.Size = new System.Drawing.Size(96, 96);
-            this.groupBox6.TabIndex = 40;
-            this.groupBox6.TabStop = false;
-            this.groupBox6.Text = "Alarms";
-            // 
             // alarm_checker
             // 
             this.alarm_checker.Enabled = true;
             this.alarm_checker.Interval = 10000;
             this.alarm_checker.Tick += new System.EventHandler(this.alarm_checker_Tick);
             // 
-            // lbl_alarm
+            // tb_command_builder
             // 
-            this.lbl_alarm.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.lbl_alarm.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lbl_alarm.Location = new System.Drawing.Point(23, 30);
-            this.lbl_alarm.Name = "lbl_alarm";
-            this.lbl_alarm.Size = new System.Drawing.Size(50, 50);
-            this.lbl_alarm.TabIndex = 42;
-            this.lbl_alarm.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.lbl_alarm.Click += new System.EventHandler(this.lbl_alarm_Click);
+            this.tb_command_builder.Location = new System.Drawing.Point(11, 150);
+            this.tb_command_builder.Multiline = true;
+            this.tb_command_builder.Name = "tb_command_builder";
+            this.tb_command_builder.Size = new System.Drawing.Size(464, 25);
+            this.tb_command_builder.TabIndex = 42;
+            // 
+            // bn_build_command
+            // 
+            this.bn_build_command.Location = new System.Drawing.Point(11, 181);
+            this.bn_build_command.Name = "bn_build_command";
+            this.bn_build_command.Size = new System.Drawing.Size(62, 23);
+            this.bn_build_command.TabIndex = 42;
+            this.bn_build_command.Text = "Build";
+            this.bn_build_command.UseVisualStyleBackColor = true;
+            this.bn_build_command.Click += new System.EventHandler(this.bn_build_command_Click);
+            // 
+            // date_query
+            // 
+            this.date_query.CustomFormat = " ";
+            this.date_query.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.date_query.Location = new System.Drawing.Point(324, 45);
+            this.date_query.Name = "date_query";
+            this.date_query.Size = new System.Drawing.Size(166, 20);
+            this.date_query.TabIndex = 45;
+            this.date_query.Value = new System.DateTime(2021, 3, 10, 16, 50, 47, 0);
+            this.date_query.ValueChanged += new System.EventHandler(this.date_query_ValueChanged);
+            // 
+            // lbl_checkout_date
+            // 
+            this.lbl_checkout_date.AutoSize = true;
+            this.lbl_checkout_date.Location = new System.Drawing.Point(236, 48);
+            this.lbl_checkout_date.Name = "lbl_checkout_date";
+            this.lbl_checkout_date.Size = new System.Drawing.Size(82, 13);
+            this.lbl_checkout_date.TabIndex = 46;
+            this.lbl_checkout_date.Text = "Checkout Date:";
+            // 
+            // lbl_checkin_date
+            // 
+            this.lbl_checkin_date.AutoSize = true;
+            this.lbl_checkin_date.Location = new System.Drawing.Point(243, 22);
+            this.lbl_checkin_date.Name = "lbl_checkin_date";
+            this.lbl_checkin_date.Size = new System.Drawing.Size(75, 13);
+            this.lbl_checkin_date.TabIndex = 48;
+            this.lbl_checkin_date.Text = "Checkin Date:";
+            // 
+            // date_checkin_query
+            // 
+            this.date_checkin_query.CustomFormat = " ";
+            this.date_checkin_query.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.date_checkin_query.Location = new System.Drawing.Point(324, 19);
+            this.date_checkin_query.Name = "date_checkin_query";
+            this.date_checkin_query.Size = new System.Drawing.Size(166, 20);
+            this.date_checkin_query.TabIndex = 47;
+            this.date_checkin_query.Value = new System.DateTime(2021, 3, 10, 16, 50, 47, 0);
+            this.date_checkin_query.ValueChanged += new System.EventHandler(this.date_checkin_query_ValueChanged);
             // 
             // Form1
             // 
@@ -2451,15 +2549,17 @@
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             this.Main_Page2.ResumeLayout(false);
-            this.DIS_InvList.ResumeLayout(false);
-            this.DIS_InvList.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.View_InvList)).EndInit();
-            this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
+            this.groupBox6.ResumeLayout(false);
             this.groupBox4.ResumeLayout(false);
             this.groupBox5.ResumeLayout(false);
             this.groupBox5.PerformLayout();
-            this.groupBox6.ResumeLayout(false);
+            this.DIS_InvList.ResumeLayout(false);
+            this.gb_command_builder.ResumeLayout(false);
+            this.gb_command_builder.PerformLayout();
+            this.panel_datagrid.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.View_InvList)).EndInit();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -2632,11 +2732,6 @@
         private System.Windows.Forms.Button btIventoryG2;
         public System.Windows.Forms.CheckBox check_ant3;
         private System.Windows.Forms.GroupBox DIS_InvList;
-        private System.Windows.Forms.Button BN_Search;
-        private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.TextBox textBox2;
-        private System.Windows.Forms.Label label11;
-        private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Button BN_Open_FullDB;
         private System.Windows.Forms.DataGridView View_InvList;
         private System.Windows.Forms.Timer status_checker;
@@ -2652,6 +2747,19 @@
         private System.Windows.Forms.GroupBox groupBox5;
         private System.Windows.Forms.Timer alarm_checker;
         private System.Windows.Forms.Label lbl_alarm;
+        private System.Windows.Forms.Panel panel_datagrid;
+        private System.Windows.Forms.Button bn_Search;
+        private System.Windows.Forms.GroupBox gb_command_builder;
+        private System.Windows.Forms.Label lbl_epc;
+        private System.Windows.Forms.TextBox tb_query_epc;
+        private System.Windows.Forms.Label lbl_sn;
+        private System.Windows.Forms.TextBox tb_query_sn;
+        private System.Windows.Forms.Button bn_build_command;
+        private System.Windows.Forms.TextBox tb_command_builder;
+        private System.Windows.Forms.DateTimePicker date_query;
+        private System.Windows.Forms.Label lbl_checkin_date;
+        private System.Windows.Forms.DateTimePicker date_checkin_query;
+        private System.Windows.Forms.Label lbl_checkout_date;
     }
 }
 

@@ -2494,59 +2494,23 @@ namespace UHFReader288MPDemo
             
             string connstring = String.Format("Host=localhost;Port=5432;User Id=Admin;Password=password;Database=Inventory;");
             NpgsqlConnection conn = new NpgsqlConnection(connstring);
-            conn.Open();
-            string command = "SELECT * FROM rfid_inventory;";
-            NpgsqlDataAdapter dataadapter_query = new NpgsqlDataAdapter(command, conn);
-            dataset_query.Reset();
-            dataadapter_query.Fill(dataset_query);
-            datatable_query = dataset_query.Tables[0];
-            View_InvList.DataSource = datatable_query;
-            conn.Close();
+            try
+            {
+                conn.Open();
+                string command = "SELECT * FROM rfid_inventory;";
+                NpgsqlDataAdapter dataadapter_query = new NpgsqlDataAdapter(command, conn);
+                dataset_query.Reset();
+                dataadapter_query.Fill(dataset_query);
+                datatable_query = dataset_query.Tables[0];
+                View_InvList.DataSource = datatable_query;
+                conn.Close();
+            }
+            catch(Exception em)
+            {
+                MessageBox.Show("Connection to the database is not established.");
+            }
             
         }
-
-        private void BN_Search_Click(object sender, EventArgs e)
-        {
-            string epc_search = textBox1.Text;
-            string sn_search = textBox2.Text;
-            string connstring = String.Format("Host=localhost;Port=5432;User Id=Admin;Password=password;Database=Inventory;");
-            NpgsqlConnection conn = new NpgsqlConnection(connstring);
-            conn.Open();
-
-            if (epc_search == null)
-            {
-                string command = "SELECT * FROM rfid_inventory WHERE item_sn = '" + sn_search + "';";
-                NpgsqlDataAdapter dataadapter_query = new NpgsqlDataAdapter(command, conn);
-                dataset_query.Reset();
-                dataadapter_query.Fill(dataset_query);
-                datatable_query = dataset_query.Tables[0];
-                View_InvList.DataSource = datatable_query;
-                conn.Close();
-            }
-
-            else if(sn_search == null)
-            {
-                string command = "SELECT * FROM rfid_inventory WHERE epc = '" + epc_search + "';";
-                NpgsqlDataAdapter dataadapter_query = new NpgsqlDataAdapter(command, conn);
-                dataset_query.Reset();
-                dataadapter_query.Fill(dataset_query);
-                datatable_query = dataset_query.Tables[0];
-                View_InvList.DataSource = datatable_query;
-                conn.Close();
-            }
-
-            else
-            {
-                string command = "SELECT * FROM rfid_inventory WHERE item_sn = '" + sn_search + "' AND epc = '" + epc_search + "';";
-                NpgsqlDataAdapter dataadapter_query = new NpgsqlDataAdapter(command, conn);
-                dataset_query.Reset();
-                dataadapter_query.Fill(dataset_query);
-                datatable_query = dataset_query.Tables[0];
-                View_InvList.DataSource = datatable_query;
-                conn.Close();
-            }
-        }
-
 
         private void status_checker_Tick(object sender, EventArgs e)
         {
@@ -2598,26 +2562,143 @@ namespace UHFReader288MPDemo
             Console.WriteLine("Syncing with Database . . . ");
             string connstring = String.Format("Host=localhost;Port=5432;User Id=Admin;Password=password;Database=Inventory;");
             NpgsqlConnection conn = new NpgsqlConnection(connstring);
-            conn.Open();
-            var cmd = new NpgsqlCommand("SELECT COUNT(*) from rfid_inventory WHERE item_status_automated = 'Error: status do not tally.';", conn);
-            int alarm_no = Convert.ToInt32(cmd.ExecuteScalar());
-            conn.Close();
-            lbl_alarm.Text = alarm_no.ToString();
-            if (alarm_no > 0)
+            try
             {
-                lbl_alarm.BackColor = Color.Red;
+                conn.Open();
+                var cmd = new NpgsqlCommand("SELECT COUNT(*) from rfid_inventory WHERE item_status_automated = 'Error: status do not tally.';", conn);
+                int alarm_no = Convert.ToInt32(cmd.ExecuteScalar());
+                conn.Close();
+                lbl_alarm.Text = alarm_no.ToString();
+                if (alarm_no > 0)
+                {
+                    lbl_alarm.BackColor = Color.Red;
+                }
+                else
+                {
+                    lbl_alarm.BackColor = Color.LightGreen;
+                }
             }
-            else
+            catch(Exception em)
             {
-                lbl_alarm.BackColor = Color.LightGreen;
+                lbl_alarm.Text = "Error";
             }
-            
         }
         
         private void lbl_alarm_Click(object sender, EventArgs e)
         {
             Inventory_Monitoring.Form2 f2 = new Inventory_Monitoring.Form2();
             f2.ShowDialog();
+        }
+
+        public string command_line = "";
+
+        private void bn_Search_Click(object sender, EventArgs e)
+        {
+            string epc = tb_query_epc.Text;
+            string sn = tb_query_sn.Text;
+
+            string connstring = String.Format("Host=localhost;Port=5432;User Id=Admin;Password=password;Database=Inventory;");
+            NpgsqlConnection conn = new NpgsqlConnection(connstring);
+            try
+            {
+                conn.Open();
+                command_line += ";";
+                NpgsqlDataAdapter dataadapter_query = new NpgsqlDataAdapter(command_line, conn);
+                tb_command_builder.Text = "Query completed.";
+                Console.WriteLine(command_line);
+                dataset_query.Reset();
+                dataadapter_query.Fill(dataset_query);
+                datatable_query = dataset_query.Tables[0];
+                View_InvList.DataSource = datatable_query;
+                conn.Close();
+            }
+            catch (Exception em)
+            {
+                MessageBox.Show("Error: Unable to connect with the database.");
+            }
+
+        }
+
+        private void bn_build_command_Click(object sender, EventArgs e)
+        {
+            command_line = "SELECT * FROM rfid_inventory ";
+            int checker = 0;
+
+            if(tb_query_epc.Text.Length > 0)
+            {
+                if(checker == 0)
+                {
+                    command_line += "WHERE ";
+                    command_line += "EPC = '" + tb_query_epc.Text + "' "; 
+                    checker++;
+                }
+                else
+                {
+                    command_line += "AND ";
+                    command_line += "EPC = '" + tb_query_epc.Text + "' ";
+                }
+            }
+
+            if(tb_query_sn.Text.Length > 0)
+            {
+                if (checker == 0)
+                {
+                    command_line += "WHERE ";
+                    command_line += "item_sn = '" + tb_query_sn.Text + "' ";
+                    checker++;
+                }
+                else
+                {
+                    command_line += "AND ";
+                    command_line += "item_sn = '" + tb_query_sn.Text + "' ";
+                }
+            }
+
+            if (date_query.Text.Length > 1)
+            {
+                if (checker == 0)
+                {
+                    command_line += "WHERE ";
+                    command_line += "time_check_out LIKE '%" + date_query.Text + "%' ";
+                    checker++;
+                }
+                else
+                {
+                    command_line += "AND ";
+                    command_line += "time_check_out LIKE '%" + date_query.Text + "%' ";
+                }
+            }
+
+            if (date_checkin_query.Text.Length > 1)
+            {
+                if (checker == 0)
+                {
+                    command_line += "WHERE ";
+                    command_line += "time_checked_in LIKE '%" + date_checkin_query.Text + "%' ";
+                    checker++;
+                }
+                else
+                {
+                    command_line += "AND ";
+                    command_line += "time_checked_in LIKE '%" + date_checkin_query.Text + "%' ";
+                }
+            }
+
+            tb_command_builder.Text = "Command built.";
+        }
+
+        private void date_query_ValueChanged(object sender, EventArgs e)
+        {
+            date_query.CustomFormat = "M/d/yyyy";
+            date_query.Format = DateTimePickerFormat.Custom;
+            date_query.Text = date_query.Value.ToString();
+        }
+
+        private void date_checkin_query_ValueChanged(object sender, EventArgs e)
+        {
+            date_checkin_query.CustomFormat = "M/d/yyyy";
+            date_checkin_query.Format = DateTimePickerFormat.Custom;
+            date_checkin_query.Text = date_checkin_query.Value.ToString();
         }
     }
 }
