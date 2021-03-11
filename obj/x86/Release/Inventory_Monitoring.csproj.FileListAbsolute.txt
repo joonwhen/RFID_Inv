@@ -47,3 +47,4 @@ D:\JW\Work\Repository\RFID_Inv\bin\x86\Release\System.Text.Json.xml
 D:\JW\Work\Repository\RFID_Inv\bin\x86\Release\System.Threading.Channels.xml
 D:\JW\Work\Repository\RFID_Inv\bin\x86\Release\System.Threading.Tasks.Extensions.xml
 D:\JW\Work\Repository\RFID_Inv\bin\x86\Release\System.ValueTuple.xml
+D:\JW\Work\Repository\RFID_Inv\obj\x86\Release\Inventory_Monitoring.Form2.resources

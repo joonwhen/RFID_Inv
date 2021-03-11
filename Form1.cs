@@ -17,6 +17,7 @@ using System.IO;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using Npgsql;
+
 namespace UHFReader288MPDemo
 {
     public partial class Form1 : Form
@@ -45,29 +46,24 @@ namespace UHFReader288MPDemo
         public const int WM_FASTID = USER + 107;
 
         private byte fComAdr = 0xff; //当前操作的ComAdr
-        private int ferrorcode;
         private byte fBaud;
         private double fdminfre;
         private double fdmaxfre;
         private int fCmdRet = 30; //所有执行指令的返回值
-        private bool fisinventoryscan_6B;
         private byte[] fOperEPC = new byte[100];
         private byte[] fPassWord = new byte[4];
         private byte[] fOperID_6B = new byte[10];
         ArrayList list = new ArrayList();
         private List<string> epclist = new List<string>();
         private List<string> tidlist = new List<string>();
-        private int CardNum1 = 0;
         private string fInventory_EPC_List; //存贮询查列表（如果读取的数据没有变化，则不进行刷新）
         private int frmcomportindex;
-        private bool SeriaATflag = false;
         private byte Target = 0;
         private byte InAnt = 0;
         private byte Scantime = 0;
         private byte FastFlag = 0;
         private byte Qvalue = 0;
         private byte Session = 0;
-        private int total_turns = 0;//轮数
         private int total_tagnum = 0;//标签数量
         private int CardNum = 0;
         private int total_time = 0;//总时间
@@ -89,6 +85,10 @@ namespace UHFReader288MPDemo
         public static List<string> remove_list = new List<string>();
         //JW - Condition to run epc checker
         public static bool run_epc_checker = true;
+        public static bool hw_connected = false;
+        public static bool connected = false;
+        public static bool scan_active = false;
+        public static bool startup = true;
 
         /// <summary>
         /// Device Search的回调函数;
@@ -118,6 +118,7 @@ namespace UHFReader288MPDemo
         {
             return new IPAddress((uint)IPAddress.HostToNetworkOrder((int)interIP));
         }
+
         RFIDCallBack elegateRFIDCallBack;
         public Form1()
         {
@@ -128,6 +129,9 @@ namespace UHFReader288MPDemo
             //JW - Initiate a new thread
             Thread Checker_thr = new Thread(Periodic_Checker);
             Checker_thr.Start();
+
+            date_checkin_query.Value = DateTimePicker.MinimumDateTime;
+            date_query.Value = DateTimePicker.MinimumDateTime;
 
             //初始化设备控制模块；
             DevControl.tagErrorCode eCode = DevControl.DM_Init(searchCallBack, IntPtr.Zero);
@@ -140,8 +144,6 @@ namespace UHFReader288MPDemo
             elegateRFIDCallBack = new RFIDCallBack(GetUid);
         }
 
-        string epcandtid = "";//标记整合数据
-        int lastnum = 0;
         public void GetUid(IntPtr p, Int32 nEvt)
         {
 
@@ -152,51 +154,13 @@ namespace UHFReader288MPDemo
                 ptrWnd = FindWindow(null, "UHFReader288MP Demo V2.2");
                 if (ptrWnd != IntPtr.Zero)         // 检查当前统计窗口是否打开
                 {
-                    if (rb_mix.Checked)
-                    {
-                        int gnum = ce.PacketParam;
-                        if (gnum < 0x80)//EPC号
-                        {
-                            lastnum = gnum;
-                            epcandtid = ce.UID;
-                        }
-                        else//附带数据
-                        {
-                            if (((lastnum & 0x3F) == ((gnum & 0x3F) - 1)) || ((lastnum & 0x3F) == 127 && ((gnum & 0x3F) == 0)))//相邻的滚码
-                            {
-                                epcandtid = epcandtid + "-" + ce.UID;
-                                if (ptrWnd != IntPtr.Zero)         // 检查当前统计窗口是否打开
-                                {
-                                    int Antnum = ce.ANT;
-                                    string str_ant = Convert.ToString(Antnum, 2).PadLeft(4, '0');
-                                    string para = str_ant + "," + epcandtid + "," + ce.RSSI.ToString();
-                                    SendMessage(ptrWnd, WM_MIXTAG, IntPtr.Zero, para);
-                                }
-                            }
-                            else
-                            {
-                                epcandtid = "";
-                            }
-                        }
-                    }
-                    else if (rb_fastid.Checked)
-                    {
-                        int Antnum = ce.ANT;
-                        string str_ant = Convert.ToString(Antnum, 2).PadLeft(4, '0');
-                        string epclen = Convert.ToString(ce.LEN, 16);
-                        if (epclen.Length == 1) epclen = "0" + epclen;
-                        string para = str_ant + "," + epclen + ce.UID + "," + ce.RSSI.ToString() + " ";
-                        SendMessage(ptrWnd, WM_FASTID, IntPtr.Zero, para);
-                    }
-                    else
-                    {
-                        int Antnum = ce.ANT;
-                        string str_ant = Convert.ToString(Antnum, 2).PadLeft(4, '0');
-                        string epclen = Convert.ToString(ce.LEN, 16);
-                        if (epclen.Length == 1) epclen = "0" + epclen;
-                        string para = str_ant + "," + epclen + ce.UID + "," + ce.RSSI.ToString() + " ";
-                        SendMessage(ptrWnd, WM_SENDTAG, IntPtr.Zero, para);
-                    }
+                    int Antnum = ce.ANT;
+                    string str_ant = Convert.ToString(Antnum, 2).PadLeft(4, '0');
+                    string epclen = Convert.ToString(ce.LEN, 16);
+                    if (epclen.Length == 1) epclen = "0" + epclen;
+                    string para = str_ant + "," + epclen + ce.UID + "," + ce.RSSI.ToString() + " ";
+                    SendMessage(ptrWnd, WM_SENDTAG, IntPtr.Zero, para);
+                    
                 }
                 total_tagnum++;
                 CardNum++;
@@ -220,175 +184,16 @@ namespace UHFReader288MPDemo
                 index++;
                 string RSSI = tagInfo.Substring(index);
 
-                DataTable dt = dataGridView1.DataSource as DataTable;
+                //JW - Insert Raw Data Here and call the function to check if the EPC exists on the list.
+                List<string> Raw_EPC_List = new List<string>();
+                string time_now = DateTime.Now.ToString();
+                Raw_EPC_List.Add(sEPC);
+                Raw_EPC_List.Add(RSSI);
+                Raw_EPC_List.Add(time_now);
+                Raw_EPC_List.Add(str_ant);
+                EPC_Checker(Raw_EPC_List);
+                Raw_EPC_List.Clear();
 
-                if (dt == null)
-                {
-                    dt = new DataTable();
-                    dt.Columns.Add("Column1", Type.GetType("System.String"));
-                    dt.Columns.Add("Column2", Type.GetType("System.String"));
-                    dt.Columns.Add("Column3", Type.GetType("System.String"));
-                    dt.Columns.Add("Column4", Type.GetType("System.String"));
-                    dt.Columns.Add("Column5", Type.GetType("System.String"));
-                    DataRow dr = dt.NewRow();
-                    dr["Column1"] = (dt.Rows.Count + 1).ToString();
-                    dr["Column2"] = sEPC;
-                    dr["Column3"] = "1";
-                    dr["Column4"] = RSSI;
-                    dr["Column5"] = str_ant;
-                    dt.Rows.Add(dr);
-
-                    //JW - Insert Raw Data Here and call the function to check if the EPC exists on the list.
-                    List<string> Raw_EPC_List = new List<string>();
-                    string time_now = DateTime.Now.ToString();
-                    Raw_EPC_List.Add(sEPC);
-                    Raw_EPC_List.Add(RSSI);
-                    Raw_EPC_List.Add(time_now);
-                    Raw_EPC_List.Add(str_ant);
-                    Console.WriteLine("Calling EPC Checker #1");
-                    EPC_Checker(Raw_EPC_List);
-
-                    if (rb_fastid.Checked)
-                    {
-                        if ((epclen & 0x80) == 0)//只有EPC
-                        {
-                            if (epclist.IndexOf(sEPC) == -1)
-                            {
-                                epclist.Add(sEPC);
-                            }
-                            lxLedControl1.Text = epclist.Count.ToString();
-                        }
-                        else//同时有EPC和TID
-                        {
-                            int len = epclen & 0x7F;
-                            string myepc = sEPC.Substring(0, (len - 12) * 2);
-                            string mytid = sEPC.Substring((len - 12) * 2, 24);
-                            if (epclist.IndexOf(myepc) == -1)
-                            {
-                                epclist.Add(myepc);
-                            }
-                            if (tidlist.IndexOf(mytid) == -1)
-                            {
-                                tidlist.Add(mytid);
-                            }
-                            lxLedControl1.Text = epclist.Count.ToString();
-                            lxLedControl6.Text = tidlist.Count.ToString();
-
-                        }
-                    }
-                    else if (rb_epc.Checked)
-                    {
-                        lxLedControl1.Text = dt.Rows.Count.ToString();
-                    }
-                    else if (rb_tid.Checked)
-                    {
-                        lxLedControl6.Text = dt.Rows.Count.ToString();
-                    }
-                    lxLedControl5.Text = dt.Rows.Count.ToString();
-                    comboBox_EPC.Items.Add(sEPC);
-                }
-                else
-                {
-                    DataRow[] dr;
-                    dr = dt.Select("Column2='" + sEPC + "'");
-                    if (dr.Length == 0)     // epc号不存在
-                    {
-                        DataRow dr2 = dt.NewRow();
-                        dr2["Column1"] = (dt.Rows.Count + 1).ToString();
-                        dr2["Column2"] = sEPC;
-                        dr2["Column3"] = "1";
-                        dr2["Column4"] = RSSI;
-                        dr2["Column5"] = str_ant;
-                        dt.Rows.Add(dr2);
-
-                        //JW - Insert Raw Data Here and call the function to check if the EPC exists on the list.
-                        List<string> Raw_EPC_List = new List<string>();
-                        string time_now = DateTime.Now.ToString();
-                        Raw_EPC_List.Add(sEPC);
-                        Raw_EPC_List.Add(RSSI);
-                        Raw_EPC_List.Add(time_now);
-                        Raw_EPC_List.Add(str_ant);
-                        Console.WriteLine("Calling EPC Checker #2");
-                        EPC_Checker(Raw_EPC_List);
-
-                        if (rb_fastid.Checked)
-                        {
-                            if ((epclen & 0x80) == 0)//只有EPC
-                            {
-                                if (epclist.IndexOf(sEPC) == -1)
-                                {
-                                    epclist.Add(sEPC);
-                                }
-                                lxLedControl1.Text = epclist.Count.ToString();
-                            }
-                            else//同时有EPC和TID
-                            {
-                                int len = epclen & 0x7F;
-                                string myepc = sEPC.Substring(0, (len - 12) * 2);
-                                string mytid = sEPC.Substring((len - 12) * 2, 24);
-                                if (epclist.IndexOf(myepc) == -1)
-                                {
-                                    epclist.Add(myepc);
-                                }
-                                if (tidlist.IndexOf(mytid) == -1)
-                                {
-                                    tidlist.Add(mytid);
-                                }
-                                lxLedControl1.Text = epclist.Count.ToString();
-                                lxLedControl6.Text = tidlist.Count.ToString();
-
-                            }
-                        }
-                        else if (rb_epc.Checked)
-                        {
-                            lxLedControl1.Text = dt.Rows.Count.ToString();
-                        }
-                        else if (rb_tid.Checked)
-                        {
-                            lxLedControl6.Text = dt.Rows.Count.ToString();
-                        }
-
-                        lxLedControl5.Text = (System.Environment.TickCount - total_time).ToString();
-                        comboBox_EPC.Items.Add(sEPC);
-                    }
-                    else     // epc号已存在
-                    {
-                        int cnt = int.Parse(dr[0]["Column3"].ToString());
-                        cnt++;
-                        dt.Rows[dt.Rows.IndexOf(dr[0])]["Column3"] = cnt.ToString();
-                        dt.Rows[dt.Rows.IndexOf(dr[0])]["Column4"] = RSSI;
-                        int ant1 = Convert.ToInt32(dr[0]["Column5"].ToString(), 2);
-                        int ant2 = Convert.ToInt32(str_ant, 2);
-                        dt.Rows[dt.Rows.IndexOf(dr[0])]["Column5"] = Convert.ToString((ant1 | ant2), 2).PadLeft(4, '0');
-
-                        //JW - Insert Raw Data Here and call the function to check if the EPC exists on the list.
-                        List<string> Raw_EPC_List = new List<string>();
-                        string time_now = DateTime.Now.ToString();
-                        Raw_EPC_List.Add(sEPC);
-                        Raw_EPC_List.Add(RSSI);
-                        Raw_EPC_List.Add(time_now);
-                        Raw_EPC_List.Add(str_ant);
-                        //Console.WriteLine("EPC Checker #3");
-                        EPC_Checker(Raw_EPC_List);
-                    }
-                }
-                bool flagset = false;
-                flagset = (dataGridView1.DataSource == null) ? true : false;
-                dataGridView1.DataSource = dt;
-
-                if (flagset)
-                {
-                    dataGridView1.Columns["Column1"].HeaderText = "NO.";
-                    dataGridView1.Columns["Column1"].Width = 80;
-                    dataGridView1.Columns["Column2"].HeaderText = "EPC";
-                    dataGridView1.Columns["Column2"].Width = 300;
-                    dataGridView1.Columns["Column3"].HeaderText = "Times";
-                    dataGridView1.Columns["Column3"].Width = 80;
-                    dataGridView1.Columns["Column4"].HeaderText = "RSSI";
-                    dataGridView1.Columns["Column4"].Width = 80;
-                    dataGridView1.Columns["Column5"].HeaderText = "Ant(4-1)";
-                    dataGridView1.Columns["Column5"].Width = 100;
-                }
             }
             else if (m.Msg == WM_MIXTAG)
             {
@@ -404,114 +209,7 @@ namespace UHFReader288MPDemo
                 sEPC = sEPC.Substring(0, n);
                 index++;
                 string RSSI = tagInfo.Substring(index);
-
-                DataTable dt = dataGridView1.DataSource as DataTable;
-
-                if (dt == null)
-                {
-                    dt = new DataTable();
-                    dt.Columns.Add("Column1", Type.GetType("System.String"));
-                    dt.Columns.Add("Column2", Type.GetType("System.String"));
-                    dt.Columns.Add("Column3", Type.GetType("System.String"));
-                    dt.Columns.Add("Column4", Type.GetType("System.String"));
-                    dt.Columns.Add("Column5", Type.GetType("System.String"));
-                    dt.Columns.Add("Column6", Type.GetType("System.String"));
-                    DataRow dr = dt.NewRow();
-                    dr["Column1"] = (dt.Rows.Count + 1).ToString();
-                    dr["Column2"] = sEPC;
-                    dr["Column3"] = sData;
-                    dr["Column4"] = "1";
-                    dr["Column5"] = RSSI;
-                    dr["Column6"] = str_ant;
-                    dt.Rows.Add(dr);
-                    lxLedControl1.Text = dt.Rows.Count.ToString();
-                    lxLedControl5.Text = dt.Rows.Count.ToString();
-                    comboBox_EPC.Items.Add(sEPC);
-
-                    //JW - Insert Raw Data Here and call the function to check if the EPC exists on the list.
-                    List<string> Raw_EPC_List = new List<string>();
-                    string time_now = DateTime.Now.ToString();
-                    Raw_EPC_List.Add(sEPC);
-                    Raw_EPC_List.Add(RSSI);
-                    Raw_EPC_List.Add(time_now);
-                    Raw_EPC_List.Add(str_ant);
-                    Console.WriteLine("Calling EPC Checker #4");
-                    EPC_Checker(Raw_EPC_List);
-                }
-                else
-                {
-                    DataRow[] dr;
-                    dr = dt.Select("Column2='" + sEPC + "'");
-                    if (dr.Length == 0)     // epc号不存在
-                    {
-                        DataRow dr2 = dt.NewRow();
-                        dr2["Column1"] = (dt.Rows.Count + 1).ToString();
-                        dr2["Column2"] = sEPC;
-                        dr2["Column3"] = sData;
-                        dr2["Column4"] = "1";
-                        dr2["Column5"] = RSSI;
-                        dr2["Column6"] = str_ant;
-                        dt.Rows.Add(dr2);
-
-                        //JW - Insert Raw Data Here and call the function to check if the EPC exists on the list.
-                        List<string> Raw_EPC_List = new List<string>();
-                        string time_now = DateTime.Now.ToString();
-                        Raw_EPC_List.Add(sEPC);
-                        Raw_EPC_List.Add(RSSI);
-                        Raw_EPC_List.Add(time_now);
-                        Raw_EPC_List.Add(str_ant);
-                        Console.WriteLine("Calling EPC Checker #5");
-                        EPC_Checker(Raw_EPC_List);
-
-                        lxLedControl1.Text = dt.Rows.Count.ToString();
-                        lxLedControl5.Text = (System.Environment.TickCount - total_time).ToString();
-                        comboBox_EPC.Items.Add(sEPC);
-                    }
-                    else     // epc号已存在
-                    {
-                        int cnt = int.Parse(dr[0]["Column4"].ToString());
-                        cnt++;
-                        dt.Rows[dt.Rows.IndexOf(dr[0])]["Column4"] = cnt.ToString();
-                        dt.Rows[dt.Rows.IndexOf(dr[0])]["Column5"] = RSSI;
-                        int ant1 = Convert.ToInt32(dr[0]["Column6"].ToString(), 2);
-                        int ant2 = Convert.ToInt32(str_ant, 2);
-                        dt.Rows[dt.Rows.IndexOf(dr[0])]["Column6"] = Convert.ToString((ant1 | ant2), 2).PadLeft(4, '0');
-
-                        //JW - Insert Raw Data Here and call the function to check if the EPC exists on the list.
-                        List<string> Raw_EPC_List = new List<string>();
-                        string time_now = DateTime.Now.ToString();
-                        Raw_EPC_List.Add(sEPC);
-                        Raw_EPC_List.Add(RSSI);
-                        Raw_EPC_List.Add(time_now);
-                        Raw_EPC_List.Add(str_ant);
-                        Console.WriteLine("Calling EPC Checker #6");
-                        EPC_Checker(Raw_EPC_List);
-                    }
-                }
-                bool flagset = false;
-                flagset = (dataGridView1.DataSource == null) ? true : false;
-                dataGridView1.DataSource = dt;
-
-                if (flagset)
-                {
-                    dataGridView1.Columns["Column1"].HeaderText = "No.";
-                    dataGridView1.Columns["Column1"].Width = 60;
-
-                    dataGridView1.Columns["Column2"].HeaderText = "EPC";
-                    dataGridView1.Columns["Column2"].Width = 280;
-
-                    dataGridView1.Columns["Column3"].HeaderText = "Data";
-                    dataGridView1.Columns["Column3"].Width = 150;
-
-                    dataGridView1.Columns["Column4"].HeaderText = "Times";
-                    dataGridView1.Columns["Column4"].Width = 60;
-
-                    dataGridView1.Columns["Column5"].HeaderText = "RSSI";
-                    dataGridView1.Columns["Column5"].Width = 60;
-
-                    dataGridView1.Columns["Column6"].HeaderText = "Ant(4-1)";
-                    dataGridView1.Columns["Column6"].Width = 60;
-                }
+                
             }
             else if (m.Msg == WM_FASTID)
             {
@@ -531,7 +229,6 @@ namespace UHFReader288MPDemo
                     {
                         epclist.Add(sEPC);
                     }
-                    lxLedControl1.Text = epclist.Count.ToString();
                 }
                 else
                 {
@@ -546,120 +243,11 @@ namespace UHFReader288MPDemo
                     {
                         tidlist.Add(sTID);
                     }
-                    lxLedControl1.Text = epclist.Count.ToString();
-                    lxLedControl6.Text = tidlist.Count.ToString();
 
                 }
                 index++;
                 string RSSI = tagInfo.Substring(index);
-
-                DataTable dt = dataGridView1.DataSource as DataTable;
-
-                if (dt == null)
-                {
-                    dt = new DataTable();
-                    dt.Columns.Add("Column1", Type.GetType("System.String"));
-                    dt.Columns.Add("Column2", Type.GetType("System.String"));
-                    dt.Columns.Add("Column3", Type.GetType("System.String"));
-                    dt.Columns.Add("Column4", Type.GetType("System.String"));
-                    dt.Columns.Add("Column5", Type.GetType("System.String"));
-                    dt.Columns.Add("Column6", Type.GetType("System.String"));
-                    DataRow dr = dt.NewRow();
-                    dr["Column1"] = (dt.Rows.Count + 1).ToString();
-                    dr["Column2"] = sEPC;
-                    dr["Column3"] = sTID;
-                    dr["Column4"] = "1";
-                    dr["Column5"] = RSSI;
-                    dr["Column6"] = str_ant;
-                    dt.Rows.Add(dr);
-
-                    //JW - Insert Raw Data Here and call the function to check if the EPC exists on the list.
-                    List<string> Raw_EPC_List = new List<string>();
-                    string time_now = DateTime.Now.ToString();
-                    Raw_EPC_List.Add(sEPC);
-                    Raw_EPC_List.Add(RSSI);
-                    Raw_EPC_List.Add(time_now);
-                    Raw_EPC_List.Add(str_ant);
-                    Console.WriteLine("Calling EPC Checker #7");
-                    EPC_Checker(Raw_EPC_List);
-
-                    //lxLedControl1.Text = dt.Rows.Count.ToString();
-                    lxLedControl5.Text = dt.Rows.Count.ToString();
-                    comboBox_EPC.Items.Add(sEPC);
-                }
-                else
-                {
-                    DataRow[] dr;
-                    dr = dt.Select("Column2='" + sEPC + "' and Column3='" + sTID + "'");
-                    if (dr.Length == 0)     // epc号不存在
-                    {
-                        DataRow dr2 = dt.NewRow();
-                        dr2["Column1"] = (dt.Rows.Count + 1).ToString();
-                        dr2["Column2"] = sEPC;
-                        dr2["Column3"] = sTID;
-                        dr2["Column4"] = "1";
-                        dr2["Column5"] = RSSI;
-                        dr2["Column6"] = str_ant;
-                        dt.Rows.Add(dr2);
-
-                        //JW - Insert Raw Data Here and call the function to check if the EPC exists on the list.
-                        List<string> Raw_EPC_List = new List<string>();
-                        string time_now = DateTime.Now.ToString();
-                        Raw_EPC_List.Add(sEPC);
-                        Raw_EPC_List.Add(RSSI);
-                        Raw_EPC_List.Add(time_now);
-                        Raw_EPC_List.Add(str_ant);
-                        Console.WriteLine("Calling EPC Checker #8");
-                        EPC_Checker(Raw_EPC_List);
-
-                        //lxLedControl1.Text = dt.Rows.Count.ToString();
-                        lxLedControl5.Text = (System.Environment.TickCount - total_time).ToString();
-                        comboBox_EPC.Items.Add(sEPC);
-                    }
-                    else     // epc号已存在
-                    {
-                        int cnt = int.Parse(dr[0]["Column4"].ToString());
-                        cnt++;
-                        dt.Rows[dt.Rows.IndexOf(dr[0])]["Column4"] = cnt.ToString();
-                        dt.Rows[dt.Rows.IndexOf(dr[0])]["Column5"] = RSSI;
-                        int ant1 = Convert.ToInt32(dr[0]["Column6"].ToString(), 2);
-                        int ant2 = Convert.ToInt32(str_ant, 2);
-                        dt.Rows[dt.Rows.IndexOf(dr[0])]["Column6"] = Convert.ToString((ant1 | ant2), 2).PadLeft(4, '0');
-
-                        //JW - Insert Raw Data Here and call the function to check if the EPC exists on the list.
-                        List<string> Raw_EPC_List = new List<string>();
-                        string time_now = DateTime.Now.ToString();
-                        Raw_EPC_List.Add(sEPC);
-                        Raw_EPC_List.Add(RSSI);
-                        Raw_EPC_List.Add(time_now);
-                        Console.WriteLine("Calling EPC Checker #9");
-                        EPC_Checker(Raw_EPC_List);
-                    }
-                }
-                bool flagset = false;
-                flagset = (dataGridView1.DataSource == null) ? true : false;
-                dataGridView1.DataSource = dt;
-
-                if (flagset)
-                {
-                    dataGridView1.Columns["Column1"].HeaderText = "No.";
-                    dataGridView1.Columns["Column1"].Width = 60;
-
-                    dataGridView1.Columns["Column2"].HeaderText = "EPC";
-                    dataGridView1.Columns["Column2"].Width = 280;
-
-                    dataGridView1.Columns["Column3"].HeaderText = "Data";
-                    dataGridView1.Columns["Column3"].Width = 150;
-
-                    dataGridView1.Columns["Column4"].HeaderText = "Times";
-                    dataGridView1.Columns["Column4"].Width = 60;
-
-                    dataGridView1.Columns["Column5"].HeaderText = "RSSI";
-                    dataGridView1.Columns["Column5"].Width = 60;
-
-                    dataGridView1.Columns["Column6"].HeaderText = "Ant(4-1)";
-                    dataGridView1.Columns["Column6"].Width = 60;
-                }
+                
             }
             else if (m.Msg == WM_SENDTAGSTAT)
             {
@@ -673,16 +261,12 @@ namespace UHFReader288MPDemo
                 index++;
                 string cmdTime = str.Substring(index);
 
-                lxLedControl2.Text = tagRate;
-                lxLedControl3.Text = cmdTime;
-                lxLedControl4.Text = tagNum;
             }
             else if (m.Msg == WM_SENDSTATU)
             {
                 string Info = Marshal.PtrToStringAnsi(m.LParam);
                 fCmdRet = Convert.ToInt32(Info);
                 string strLog = "Inventory: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
             }
             else if (m.Msg == WM_SENDBUFF)
             {
@@ -704,15 +288,6 @@ namespace UHFReader288MPDemo
                 str = str.Substring(index);
                 string total_tagnum = str;
 
-                lxLed_BNum.Text = tagNum;
-                lxLed_Bcmdsud.Text = tagRate;
-                lxLed_cmdTime.Text = cmdTime;
-                lxLed_Btoltag.Text = total_tagnum;
-                WriteLog(lrtxtLog, "Buffer-Inventiry:Operation success", 1);
-            }
-            else if (m.Msg == WM_SHOWNUM)
-            {
-                lxLedControl5.Text = (System.Environment.TickCount - total_time).ToString();
             }
             else
                 base.DefWndProc(ref m);
@@ -728,9 +303,6 @@ namespace UHFReader288MPDemo
             }
             else
             {
-
-                if ((ckClearOperationRec.Checked) && (lrtxtLog.Lines.Length > 20))
-                    lrtxtLog.Clear();
                 if ((nType == 0) || (nType == 0x26) || (nType == 0x01) || (nType == 0x02) || (nType == 0xFB))
                 {
                     logRichTxt.AppendTextEx(strLog, Color.Indigo);
@@ -887,23 +459,11 @@ namespace UHFReader288MPDemo
         private void DisabledForm()
         {
             ////应答模式下
-            lxLedControl1.Text = "0";
-            lxLedControl2.Text = "0";
-            lxLedControl3.Text = "0";
-            lxLedControl4.Text = "0";
-            lxLedControl5.Text = "0";
-            dataGridView1.DataSource = null;
-            comboBox_EPC.Items.Clear();
             text_RDVersion.Text = "";
             text_Serial.Text = "";
             timer_answer.Enabled = false;
             btIventoryG2.Text = "Start";
-            panel1.Enabled = false;
-            panel4.Enabled = false;
-            panel5.Enabled = false;
-            panel8.Enabled = false;
             panel9.Enabled = false;
-            panel10.Enabled = false;
             gpb_address.Enabled = false;
             gpb_antconfig.Enabled = false;
             gpb_baud.Enabled = false;
@@ -929,12 +489,7 @@ namespace UHFReader288MPDemo
         }
         private void EnabledForm()
         {
-            panel1.Enabled = true;
-            panel4.Enabled = true;
-            panel5.Enabled = true;
-            panel8.Enabled = true;
             panel9.Enabled = true;
-            panel10.Enabled = true;
             gpb_address.Enabled = true;
             gpb_antconfig.Enabled = true;
             gpb_baud.Enabled = true;
@@ -979,14 +534,12 @@ namespace UHFReader288MPDemo
                     if (fCmdRet != 0)
                     {
                         string strLog = "TCP close failed: " + GetReturnCodeDesc(fCmdRet);
-                        WriteLog(lrtxtLog, strLog, 1);
 
                         return;
                     }
                     else
                     {
                         string strLog = "TCP close success";
-                        WriteLog(lrtxtLog, strLog, 0);
                     }
 
 
@@ -1028,14 +581,12 @@ namespace UHFReader288MPDemo
                     if (fCmdRet != 0)
                     {
                         string strLog = "COM close failed: " + GetReturnCodeDesc(fCmdRet);
-                        WriteLog(lrtxtLog, strLog, 1);
 
                         return;
                     }
                     else
                     {
                         string strLog = "COM close success";
-                        WriteLog(lrtxtLog, strLog, 0);
                     }
                 }
                 gpb_tcp.Enabled = true;
@@ -1058,13 +609,6 @@ namespace UHFReader288MPDemo
             btnBold.Font = newFont;
         }
 
-        private void SetRadioButtonBold(CheckBox ckBold)
-        {
-            Font oldFont = ckBold.Font;
-            Font newFont = new Font(oldFont, oldFont.Style ^ FontStyle.Bold);
-            ckBold.Font = newFont;
-        }
-
         private void Form1_Load(object sender, EventArgs e)
         {
             gpb_rs232.Enabled = false;
@@ -1072,17 +616,12 @@ namespace UHFReader288MPDemo
             rb_rs232.Checked = true;
             ComboBox_COM.SelectedIndex = 0;
             ComboBox_baud2.SelectedIndex = 3;
-            com_Q.SelectedIndex = 4;
-            com_Target.SelectedIndex = 0;
             int i = 0;
             for (i = 0x00; i <= 0xff; i++)
             {
-                com_scantime.Items.Add(Convert.ToString(i) + "*100ms");
                 comboBox_maxtime.Items.Add(Convert.ToString(i) + "*100ms");
             }
-            com_scantime.SelectedIndex = 20;
             comboBox_maxtime.SelectedIndex = 0;
-            com_S.SelectedIndex = 4;
             DisabledForm();
             radioButton_band2.Checked = true;
             ComboBox_baud.SelectedIndex = 3;
@@ -1106,7 +645,6 @@ namespace UHFReader288MPDemo
             com_Mmode.SelectedIndex = 0;
             com_wpower.SelectedIndex = 30;
             com_retrytimes.SelectedIndex = 3;
-            com_MixMem.SelectedIndex = 2;
             cbbAnt.SelectedIndex = 0;
         }
 
@@ -1123,14 +661,13 @@ namespace UHFReader288MPDemo
             if (fCmdRet != 0)
             {
                 string strLog = "Connect reader failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
                 return;
             }
             else
             {
                 frmcomportindex = FrmPortIndex;
                 string strLog = "Connect: " + ComboBox_COM.Text + "@" + ComboBox_baud2.Text;
-                WriteLog(lrtxtLog, strLog, 0);
+                hw_connected = true;
             }
 
             //处理界面元素是否有效
@@ -1166,14 +703,13 @@ namespace UHFReader288MPDemo
             if (fCmdRet != 0)
             {
                 string strLog = "COM close failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
 
                 return;
             }
             else
             {
                 string strLog = "COM close success";
-                WriteLog(lrtxtLog, strLog, 0);
+                hw_connected = false;
             }
         }
 
@@ -1195,14 +731,13 @@ namespace UHFReader288MPDemo
             if (fCmdRet != 0)
             {
                 string strLog = "TCP close failed " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
 
                 return;
             }
             else
             {
                 string strLog = "TCP close success";
-                WriteLog(lrtxtLog, strLog, 0);
+                hw_connected = false;
             }
         }
 
@@ -1219,14 +754,13 @@ namespace UHFReader288MPDemo
                 if (fCmdRet != 0)
                 {
                     string strLog = "Connect reader failed: " + GetReturnCodeDesc(fCmdRet);
-                    WriteLog(lrtxtLog, strLog, 1);
                     return;
                 }
                 else
                 {
                     frmcomportindex = FrmPortIndex;
                     string strLog = "Connect: " + ipAddress + "@" + nPort.ToString();
-                    WriteLog(lrtxtLog, strLog, 0);
+                    hw_connected = true;
                 }
 
 
@@ -1249,63 +783,6 @@ namespace UHFReader288MPDemo
             }
         }
 
-        private void btFlashCl_Click(object sender, EventArgs e)
-        {
-            ////应答模式下刷屏
-            if (tabControl2.SelectedTab == tabPage_answer)
-            {
-                lxLedControl1.Text = "0";
-                lxLedControl2.Text = "0";
-                lxLedControl3.Text = "0";
-                lxLedControl4.Text = "0";
-                lxLedControl5.Text = "0";
-                lxLedControl6.Text = "0";
-                epclist.Clear();
-                tidlist.Clear();
-                dataGridView1.DataSource = null;
-            }
-
-            ////缓存模式下刷屏
-            if (tabControl2.SelectedTab == tabPage_Buff)
-            {
-                lxLed_BNum.Text = "0";
-                lxLed_Bcmdsud.Text = "0";
-                lxLed_Btoltag.Text = "0";
-                lxLed_Btoltime.Text = "0";
-                lxLed_cmdTime.Text = "0";
-                dataGridView3.Rows.Clear();
-            }
-            ////实时查询刷屏
-            if (tabControl2.SelectedTab == tabPage_Realtime)
-            {
-                lxLed_Mtag.Text = "0";
-                lxLed_Mtime.Text = "0";
-                total_time = System.Environment.TickCount;
-                dataGridView4.Rows.Clear();
-
-            }
-            ////6B标签刷屏
-            if (Maintab.SelectedTab == Main_Page3)
-            {
-                text_R6B.Text = "";
-                text_6BUID.Text = "";
-                text_Statu6B.Text = "";
-            }
-            if (tabControl3.SelectedTab == tabPage8)//TCP 服务器
-            {
-                stcprecv.Clear();
-            }
-            if (tabControl3.SelectedTab == tabPage9)//TCP 客户端
-            {
-                ctctrecv.Clear();
-                ctctsend.Text = "";
-            }
-            total_tagnum = 0;
-            total_time = System.Environment.TickCount;
-            comboBox_EPC.Items.Clear();
-            lrtxtLog.Clear();
-
-        }
         byte[] antlist = new byte[4];
         private volatile bool fIsInventoryScan = false;
         private volatile bool toStopThread = false;
@@ -1318,64 +795,16 @@ namespace UHFReader288MPDemo
 
         private void btIventoryG2_Click(object sender, EventArgs e)
         {
-            if ((text_readadr.Text.Length != 4) || (text_readLen.Text.Length != 2) || (text_readpsd.Text.Length != 8))
-            {
-                MessageBox.Show("Mix inventory parameter error!!!");
-                return;
-            }
 
             if (btIventoryG2.Text == "Start")
             {
-                if (rb_mix.Checked)
-                {
-                    ReadMem = (byte)com_MixMem.SelectedIndex;
-                    ReadAdr = HexStringToByteArray(text_readadr.Text);
-                    ReadLen = Convert.ToByte(text_readLen.Text, 16);
-                    Psd = HexStringToByteArray(text_readpsd.Text);
-                }
-                lxLedControl1.Text = "0";
-                lxLedControl2.Text = "0";
-                lxLedControl3.Text = "0";
-                lxLedControl4.Text = "0";
-                lxLedControl5.Text = "0";
-                lxLedControl6.Text = "0";
                 epclist.Clear();
                 tidlist.Clear();
-                dataGridView1.DataSource = null;
-                lrtxtLog.Clear();
-                comboBox_EPC.Items.Clear();
-                text_epc.Text = "";
                 AA_times = 0;
-                Scantime = Convert.ToByte(com_scantime.SelectedIndex);
-                if (checkBox_rate.Checked)
-                    Qvalue = Convert.ToByte(com_Q.SelectedIndex | 0x80);
-                else
-                    Qvalue = Convert.ToByte(com_Q.SelectedIndex);
 
+                startup = false;
 
-                Session = Convert.ToByte(com_S.SelectedIndex);
-                if (Session == 4)
-                    Session = 255;
-
-                if (rb_epc.Checked)
-                {
-                    TIDFlag = 0;
-                }
-                else if (rb_fastid.Checked)
-                {
-                    TIDFlag = 0;
-                    Qvalue = Convert.ToByte(com_Q.SelectedIndex | 0x20);
-                }
-                else if (rb_tid.Checked)
-                {
-                    TIDFlag = 1;
-                    tidAddr = (byte)(Convert.ToInt32(text_readadr.Text, 16) & 0x00FF);
-                    tidLen = Convert.ToByte(text_readLen.Text, 16);
-                }
-
-                total_turns = 0;
                 total_tagnum = 0;
-                targettimes = Convert.ToInt32(text_target.Text);
                 total_time = System.Environment.TickCount;
                 fIsInventoryScan = false;
                 btIventoryG2.BackColor = Color.Indigo;
@@ -1401,7 +830,6 @@ namespace UHFReader288MPDemo
                     antlist[3] = 1;
                     InAnt = 0x83;
                 }
-                Target = (byte)com_Target.SelectedIndex;
                 toStopThread = false;
                 if (fIsInventoryScan == false)
                 {
@@ -1410,17 +838,13 @@ namespace UHFReader288MPDemo
                     mythread.Start();
                     timer_answer.Enabled = true;
                 }
-                rb_mix.Enabled = false;
-                rb_epc.Enabled = false;
-                rb_tid.Enabled = false;
-                rb_fastid.Enabled = false;
             }
             else
             {
                 toStopThread = true;
                 btIventoryG2.Enabled = false;
                 btIventoryG2.BackColor = Color.Transparent;
-                btIventoryG2.Text = "Stoping";
+                btIventoryG2.Text = "Stop";
             }
         }
         #region ///EPC或TID查询
@@ -1581,14 +1005,7 @@ namespace UHFReader288MPDemo
                 if (Session == 255)
                 {
                     FastFlag = 0;
-                    if (rb_mix.Checked)
-                    {
-                        flashmix_G2();
-                    }
-                    else
-                    {
-                        flash_G2();
-                    }
+                    flash_G2();
 
                 }
                 else
@@ -1615,15 +1032,11 @@ namespace UHFReader288MPDemo
                         {
                             if (Session > 1)//s2,s3
                             {
-                                if ((check_num.Checked) && (AA_times + 1 > targettimes))
+                                if ((AA_times + 1 > targettimes))
                                 {
                                     Target = Convert.ToByte(1 - Target);  //如果连续2次未读到卡片，A/B状态切换。
                                     AA_times = 0;
                                 }
-                            }
-                            if (rb_mix.Checked)
-                            {
-                                flashmix_G2();
                             }
                             else
                             {
@@ -1647,10 +1060,6 @@ namespace UHFReader288MPDemo
                     fIsInventoryScan = false;
                 }
                 timer_answer.Enabled = false;
-                rb_mix.Enabled = true;
-                rb_epc.Enabled = true;
-                rb_tid.Enabled = true;
-                rb_fastid.Enabled = true;
                 fIsInventoryScan = false;
                 btIventoryG2.Enabled = true;
             });
@@ -1742,30 +1151,6 @@ namespace UHFReader288MPDemo
                 ComboBox_dmaxfre.SelectedIndex = ComboBox_dminfre.SelectedIndex;
         }
 
-        private void btworkmode_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btResponse_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btGetWorkmodepara_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void comboBox_Resp_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btGetActivedata_Click(object sender, EventArgs e)
-        {
-
-        }
         private bool CheckCRC(string s)
         {
             int i, j;
@@ -1797,10 +1182,6 @@ namespace UHFReader288MPDemo
 
         }
 
-        private void GetData()
-        {
-
-        }
         private void timer_runmode_Tick(object sender, EventArgs e)
         {
 
@@ -1820,72 +1201,21 @@ namespace UHFReader288MPDemo
             {
                 toStopThread = true;//标志，接收数据线程判断stop为true，正常情况下会自动退出线程                                
                 ReadThread.Abort();//若线程无法退出，强制结束
-                timer_Buff.Enabled = false;
                 fIsInventoryScan = false;
             }
             timer_runmode.Enabled = false;
             timer_answer.Enabled = false;
-            timer_EAS.Enabled = false;
-            Timer_Test_6B.Enabled = false;
-            timer_Buff.Enabled = false;
             timer_RealTime.Enabled = false;
             btIventoryG2.Text = "Start";
-            btCheckEASAlarm.Text = "Detect";
-            btStartBuff.Text = "Start";
-            btStartMactive.Text = "Start";
-            pictureBox2.Visible = false;
             btIventoryG2.BackColor = Color.Transparent;
-            btStartBuff.BackColor = Color.Transparent;
-            btStartMactive.BackColor = Color.Transparent;
-            btCheckEASAlarm.BackColor = Color.Transparent;
-            btInventory6B.Text = "Start";
-            btInventory6B.BackColor = Color.Transparent;
 
-
-            if (comboBox_EPC.Text == "" && comboBox_EPC.Items.Count > 0)
-            {
-                comboBox_EPC.SelectedIndex = 0;
-            }
             if ((ReadTypes == "16") || (ReadTypes == "21"))//单口
             {
-                group_ant1.Enabled = false;
                 check_ant1.Checked = true;
                 check_ant2.Checked = false;
                 check_ant3.Checked = false;
                 check_ant4.Checked = false;
             }
-            else
-            {
-                if (com_S.SelectedIndex < 4)
-                    group_ant1.Enabled = true;
-                else
-                    group_ant1.Enabled = false;
-            }
-
-        }
-
-        private void btClearBuffer_Click(object sender, EventArgs e)
-        {
-            fCmdRet = RWDev.ClearTagBuffer(ref fComAdr, frmcomportindex);
-            if (fCmdRet != 0)
-            {
-                string strLog = "Clear data failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
-            }
-            else
-            {
-                string strLog = "Clear datda success ";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-        }
-
-        private void btGettagbuffer_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btGetrunmodedata_Click(object sender, EventArgs e)
-        {
 
         }
 
@@ -1919,7 +1249,6 @@ namespace UHFReader288MPDemo
             if (fCmdRet != 0)
             {
                 string strLog = "Get Reader Information failed:" + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
             }
             else
             {
@@ -1940,13 +1269,8 @@ namespace UHFReader288MPDemo
                             if (tabControl1.TabPages.IndexOf(tabPage_Module) == -1)
                                 tabControl1.TabPages.Add(tabPage_Module);
 
-                            //主动询查显示
-                            if (tabControl2.TabPages.IndexOf(tabPage_Realtime) == -1)
-                                tabControl2.TabPages.Add(tabPage_Realtime);
                             //缓存显示
                             gbp_buff.Enabled = true;
-                            if (tabControl2.TabPages.IndexOf(tabPage_Buff) == -1)
-                                tabControl2.TabPages.Add(tabPage_Buff);
                             text_RDVersion.Text = "UHFReader288MP--" + Convert.ToString(VersionInfo[0], 10).PadLeft(2, '0') + "." + Convert.ToString(VersionInfo[1], 10).PadLeft(2, '0');
                         }
                         break;
@@ -1961,11 +1285,8 @@ namespace UHFReader288MPDemo
                             gpb_antconfig.Enabled = false;
                             //主动模式显示
                             tabControl1.TabPages.Remove(tabPage_Module);
-                            //主动询查显示
-                            tabControl2.TabPages.Remove(tabPage_Realtime);
                             //缓存显示
                             gbp_buff.Enabled = false;
-                            tabControl2.TabPages.Remove(tabPage_Buff);
                             text_RDVersion.Text = "UHFReader82--" + Convert.ToString(VersionInfo[0], 10).PadLeft(2, '0') + "." + Convert.ToString(VersionInfo[1], 10).PadLeft(2, '0');
                         }
                         break;
@@ -2108,7 +1429,6 @@ namespace UHFReader288MPDemo
                     rb_Opencheckant.Checked = true;
                 }
                 string strLog = "Get Reader Information success ";
-                WriteLog(lrtxtLog, strLog, 0);
             }
         }
 
@@ -2126,60 +1446,50 @@ namespace UHFReader288MPDemo
             if (fCmdRet != 0)
             {
                 string strLog = "Set Reader address failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
             }
             else
             {
                 string strLog = "Set Reader address success ";
-                WriteLog(lrtxtLog, strLog, 0);
             }
 
             fCmdRet = RWDev.SetRfPower(ref fComAdr, powerDbm, frmcomportindex);
             if (fCmdRet != 0)
             {
                 string strLog = "Set Power failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
             }
             else
             {
                 string strLog = "Set power success ";
-                WriteLog(lrtxtLog, strLog, 0);
             }
 
             fCmdRet = RWDev.SetRegion(ref fComAdr, dmaxfre, dminfre, frmcomportindex);
             if (fCmdRet != 0)
             {
                 string strLog = "Set Region failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
             }
             else
             {
                 string strLog = "Set Region success";
-                WriteLog(lrtxtLog, strLog, 0);
             }
 
             fCmdRet = RWDev.SetBaudRate(ref fComAdr, fBaud, frmcomportindex);
             if (fCmdRet != 0)
             {
                 string strLog = "Set baud rate failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
             }
             else
             {
                 string strLog = "Set baud rate success ";
-                WriteLog(lrtxtLog, strLog, 0);
             }
 
             fCmdRet = RWDev.SetInventoryScanTime(ref fComAdr, scantime, frmcomportindex);
             if (fCmdRet != 0)
             {
                 string strLog = "Set inventory scan time failed:： " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
             }
             else
             {
                 string strLog = "Set inventory scan time success ";
-                WriteLog(lrtxtLog, strLog, 0);
             }
             btGetInformation_Click(null, null);
         }
@@ -2191,12 +1501,10 @@ namespace UHFReader288MPDemo
             if (fCmdRet != 0)
             {
                 string strLog = "Set reader address failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
             }
             else
             {
                 string strLog = "Set reader address success ";
-                WriteLog(lrtxtLog, strLog, 0);
             }
         }
 
@@ -2222,12 +1530,10 @@ namespace UHFReader288MPDemo
             if (fCmdRet != 0)
             {
                 string strLog = "Set region failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
             }
             else
             {
                 string strLog = "Set region success ";
-                WriteLog(lrtxtLog, strLog, 0);
             }
         }
 
@@ -2238,12 +1544,10 @@ namespace UHFReader288MPDemo
             if (fCmdRet != 0)
             {
                 string strLog = "Set power failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
             }
             else
             {
                 string strLog = "Set power success ";
-                WriteLog(lrtxtLog, strLog, 0);
             }
         }
 
@@ -2256,12 +1560,10 @@ namespace UHFReader288MPDemo
             if (fCmdRet != 0)
             {
                 string strLog = "Set baud rate failed " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
             }
             else
             {
                 string strLog = "Set baud rate success ";
-                WriteLog(lrtxtLog, strLog, 0);
             }
         }
 
@@ -2273,19 +1575,12 @@ namespace UHFReader288MPDemo
             if (fCmdRet != 0)
             {
                 string strLog = "Get serial number failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
             }
             else
             {
                 text_Serial.Text = ByteArrayToHexString(SeriaNo);
                 string strLog = "Get serial number success ";
-                WriteLog(lrtxtLog, strLog, 0);
             }
-        }
-
-        private void btMDVersion_Click(object sender, EventArgs e)
-        {
-
         }
 
         private void Button_Beep_Click(object sender, EventArgs e)
@@ -2299,12 +1594,10 @@ namespace UHFReader288MPDemo
             if (fCmdRet != 0)
             {
                 string strLog = "Set beep failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
             }
             else
             {
                 string strLog = "Set beep success ";
-                WriteLog(lrtxtLog, strLog, 0);
             }
         }
 
@@ -2316,12 +1609,10 @@ namespace UHFReader288MPDemo
             if (fCmdRet != 0)
             {
                 string strLog = "Set relay failed:" + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
             }
             else
             {
                 string strLog = "Set relay success ";
-                WriteLog(lrtxtLog, strLog, 0);
             }
         }
 
@@ -2340,12 +1631,10 @@ namespace UHFReader288MPDemo
             if (fCmdRet != 0)
             {
                 string strLog = "Set notification pulse output failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
             }
             else
             {
                 string strLog = "Set notification pulse output success ";
-                WriteLog(lrtxtLog, strLog, 0);
             }
         }
 
@@ -2361,12 +1650,10 @@ namespace UHFReader288MPDemo
             if (fCmdRet != 0)
             {
                 string strLog = "Set GPIO failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
             }
             else
             {
                 string strLog = "Set GPIO success";
-                WriteLog(lrtxtLog, strLog, 0);
             }
         }
 
@@ -2377,7 +1664,6 @@ namespace UHFReader288MPDemo
             if (fCmdRet != 0)
             {
                 string strLog = "Get GPIO failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
             }
             else
             {
@@ -2405,7 +1691,6 @@ namespace UHFReader288MPDemo
 
 
                 string strLog = "Get GPIO success ";
-                WriteLog(lrtxtLog, strLog, 0);
             }
         }
 
@@ -2420,12 +1705,10 @@ namespace UHFReader288MPDemo
             if (fCmdRet != 0)
             {
                 string strLog = "Set antenna check failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
             }
             else
             {
                 string strLog = "Set antenna check success ";
-                WriteLog(lrtxtLog, strLog, 0);
             }
         }
 
@@ -2442,7 +1725,6 @@ namespace UHFReader288MPDemo
             if (fCmdRet != 0)
             {
                 string strLog = "Antenna config failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
             }
             else
             {
@@ -2482,1392 +1764,6 @@ namespace UHFReader288MPDemo
                     check_ant4.Checked = false;
                 }
                 string strLog = "Antenna config success ";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-        }
-
-        private void ClockCMD_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btAccuracy_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btMaskSet_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void bt_typeTag_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void bttrigger_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btTIDpara_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btSetQS_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void btGetQS_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btInterval_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btSelectTag_Click(object sender, EventArgs e)
-        {
-            text_epc.Text = comboBox_EPC.Text;
-        }
-
-        private void checkBox1_CheckedChanged(object sender, EventArgs e)
-        {
-            if (checkBox1.Checked)
-            {
-                maskadr_textbox.Enabled = true;
-                maskLen_textBox.Enabled = true;
-                maskData_textBox.Enabled = true;
-                R_EPC.Enabled = true;
-                R_TID.Enabled = true;
-                R_User.Enabled = true;
-            }
-            else
-            {
-                maskadr_textbox.Enabled = false;
-                maskLen_textBox.Enabled = false;
-                maskData_textBox.Enabled = false;
-                R_EPC.Enabled = false;
-                R_TID.Enabled = false;
-                R_User.Enabled = false;
-            }
-        }
-        //E200 F351 4818 3C90 07C2 5000 10BC 9D00
-        private void btRead_Click(object sender, EventArgs e)
-        {
-            byte WordPtr, ENum;
-            byte Num = 0;
-            byte Mem = 0;
-            string str = ""; ;
-            byte[] CardData = new byte[320];
-            byte MaskMem = 0;
-            byte[] MaskAdr = new byte[2];
-            byte MaskLen = 0;
-            byte[] MaskData = new byte[100];
-            text_WriteData.Text = "";
-            if (checkBox1.Checked)
-            {
-                if ((maskadr_textbox.Text == "") || (maskLen_textBox.Text == "") || (maskData_textBox.Text == ""))
-                {
-                    return;
-                }
-                ENum = 255;
-                if (R_EPC.Checked) MaskMem = 1;
-                if (R_TID.Checked) MaskMem = 2;
-                if (R_User.Checked) MaskMem = 3;
-                MaskAdr = HexStringToByteArray(maskadr_textbox.Text);
-                MaskLen = Convert.ToByte(maskLen_textBox.Text, 16);
-                MaskData = HexStringToByteArray(maskData_textBox.Text);
-            }
-            else
-            {
-                if (check_selecttag.Checked)
-                    str = text_epc.Text;
-                else
-                    str = "";
-                ENum = Convert.ToByte(str.Length / 4);
-            }
-            byte[] EPC = new byte[ENum * 2];
-            EPC = HexStringToByteArray(str);
-            if (C_Reserve.Checked)
-                Mem = 0;
-            if (C_EPC.Checked)
-                Mem = 1;
-            if (C_TID.Checked)
-                Mem = 2;
-            if (C_User.Checked)
-                Mem = 3;
-            if (text_WordPtr.Text == "" || text_RWlen.Text == "" || text_AccessCode2.Text.Length != 8)
-            {
-                return;
-            }
-            WordPtr = (byte)Convert.ToInt32(text_WordPtr.Text, 16);
-            Num = Convert.ToByte(text_RWlen.Text);
-            fPassWord = HexStringToByteArray(text_AccessCode2.Text);
-            for (int p = 0; p < 10; p++)
-            {
-                fCmdRet = RWDev.ReadData_G2(ref fComAdr, EPC, ENum, Mem, WordPtr, Num, fPassWord, MaskMem, MaskAdr, MaskLen, MaskData, CardData, ref ferrorcode, frmcomportindex);
-                if (fCmdRet == 0) break;
-            }
-            if (fCmdRet != 0)
-            {
-
-                string strLog = "";
-                if (fCmdRet == 0xFC)
-                    strLog = "Read failed " + "Return = 0x" + Convert.ToString(ferrorcode, 16) + "(" + GetErrorCodeDesc(ferrorcode) + ")";
-                else
-                    strLog = "Read failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
-            }
-            else
-            {
-                byte[] daw = new byte[Num * 2];
-                Array.Copy(CardData, daw, Num * 2);
-                text_WriteData.Text = ByteArrayToHexString(daw);
-                string strLog = "Read success ";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-        }
-
-        private void btWrite_Click(object sender, EventArgs e)
-        {
-            byte WordPtr, ENum;
-            byte WNum = 0;
-            byte Mem = 0;
-            string str = ""; ;
-            byte[] CardData = new byte[320];
-            byte MaskMem = 0;
-            byte[] MaskAdr = new byte[2];
-            byte MaskLen = 0;
-            byte[] MaskData = new byte[100];
-            if (checkBox1.Checked)
-            {
-                if ((maskadr_textbox.Text == "") || (maskLen_textBox.Text == "") || (maskData_textBox.Text == ""))
-                {
-                    return;
-                }
-                ENum = 255;
-                if (R_EPC.Checked) MaskMem = 1;
-                if (R_TID.Checked) MaskMem = 2;
-                if (R_User.Checked) MaskMem = 3;
-                MaskAdr = HexStringToByteArray(maskadr_textbox.Text);
-                MaskLen = Convert.ToByte(maskLen_textBox.Text, 16);
-                MaskData = HexStringToByteArray(maskData_textBox.Text);
-            }
-            else
-            {
-                if (check_selecttag.Checked)
-                    str = text_epc.Text;
-                else
-                    str = "";
-                ENum = Convert.ToByte(str.Length / 4);
-            }
-            byte[] EPC = new byte[ENum * 2];
-            EPC = HexStringToByteArray(str);
-            if (C_Reserve.Checked)
-                Mem = 0;
-            if (C_EPC.Checked)
-                Mem = 1;
-            if (C_TID.Checked)
-                Mem = 2;
-            if (C_User.Checked)
-                Mem = 3;
-            if (text_WordPtr.Text == "" || text_AccessCode2.Text.Length != 8)
-            {
-                return;
-            }
-            string epcstr = text_WriteData.Text;
-            if (epcstr.Length % 4 != 0 || epcstr.Length == 0)
-            {
-                MessageBox.Show("Input data by word.", "Write");
-                return;
-            }
-            WNum = Convert.ToByte(epcstr.Length / 4);
-            byte[] Writedata = new byte[WNum * 2 + 1];
-            Writedata = HexStringToByteArray(epcstr);
-            WordPtr = (byte)Convert.ToInt32(text_WordPtr.Text, 16);
-            fPassWord = HexStringToByteArray(text_AccessCode2.Text);
-            if ((checkBox_pc.Checked) && (C_EPC.Checked))
-            {
-                WordPtr = 1;
-                WNum = Convert.ToByte(epcstr.Length / 4 + 1);
-                Writedata = HexStringToByteArray(textBox_pc.Text + epcstr);
-            }
-            for (int p = 0; p < 10; p++)
-            {
-                fCmdRet = RWDev.WriteData_G2(ref fComAdr, EPC, WNum, ENum, Mem, WordPtr, Writedata, fPassWord, MaskMem, MaskAdr, MaskLen, MaskData, ref ferrorcode, frmcomportindex);
-                if (fCmdRet == 0) break;
-            }
-            if (fCmdRet != 0)
-            {
-                string strLog = "";
-                if (fCmdRet == 0xFC)
-                    strLog = "Write failed: " + "Return = 0x" + Convert.ToString(ferrorcode, 16) + "(" + GetErrorCodeDesc(ferrorcode) + ")";
-                else
-                    strLog = "Write failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
-            }
-            else
-            {
-                string strLog = "Write success ";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-        }
-
-        private void checkBox_pc_CheckedChanged(object sender, EventArgs e)
-        {
-            if (checkBox_pc.Checked && C_EPC.Checked)
-            {
-                text_WordPtr.Text = "0002";
-                text_WordPtr.ReadOnly = true;
-                int m, n;
-                n = text_WriteData.Text.Length;
-                if (n % 4 == 0)
-                {
-                    m = n / 4;
-                    m = (m & 0x3F) << 3;
-                    textBox_pc.Text = Convert.ToString(m, 16).PadLeft(2, '0') + "00";
-                }
-            }
-            else
-            {
-                text_WordPtr.ReadOnly = false;
-            }
-        }
-
-        private void text_WriteData_TextChanged(object sender, EventArgs e)
-        {
-            int m, n;
-            n = text_WriteData.Text.Length;
-            if ((checkBox_pc.Checked) && (n % 4 == 0) && (C_EPC.Checked))
-            {
-                m = n / 4;
-                m = (m & 0x3F) << 3;
-                textBox_pc.Text = Convert.ToString(m, 16).PadLeft(2, '0') + "00";
-            }
-        }
-
-        private void C_EPC_CheckedChanged(object sender, EventArgs e)
-        {
-            if (checkBox_pc.Checked)
-            {
-                text_WordPtr.Text = "0002";
-                text_WordPtr.ReadOnly = true;
-            }
-            else
-            {
-                text_WordPtr.ReadOnly = false;
-            }
-        }
-
-        private void btBlockWrite_Click(object sender, EventArgs e)
-        {
-            byte WordPtr, ENum;
-            byte WNum = 0;
-            byte Mem = 0;
-            string str = ""; ;
-            byte[] CardData = new byte[320];
-            byte MaskMem = 0;
-            byte[] MaskAdr = new byte[2];
-            byte MaskLen = 0;
-            byte[] MaskData = new byte[100];
-            if (checkBox1.Checked)
-            {
-                if ((maskadr_textbox.Text == "") || (maskLen_textBox.Text == "") || (maskData_textBox.Text == ""))
-                {
-                    return;
-                }
-                ENum = 255;
-                if (R_EPC.Checked) MaskMem = 1;
-                if (R_TID.Checked) MaskMem = 2;
-                if (R_User.Checked) MaskMem = 3;
-                MaskAdr = HexStringToByteArray(maskadr_textbox.Text);
-                MaskLen = Convert.ToByte(maskLen_textBox.Text, 16);
-                MaskData = HexStringToByteArray(maskData_textBox.Text);
-            }
-            else
-            {
-                if (check_selecttag.Checked)
-                    str = text_epc.Text;
-                else
-                    str = "";
-                ENum = Convert.ToByte(str.Length / 4);
-            }
-            byte[] EPC = new byte[ENum * 2];
-            EPC = HexStringToByteArray(str);
-            if (C_Reserve.Checked)
-                Mem = 0;
-            if (C_EPC.Checked)
-                Mem = 1;
-            if (C_TID.Checked)
-                Mem = 2;
-            if (C_User.Checked)
-                Mem = 3;
-            if (text_WordPtr.Text == "" || text_AccessCode2.Text.Length != 8)
-            {
-                return;
-            }
-            string epcstr = text_WriteData.Text;
-            if (epcstr.Length % 4 != 0 || epcstr.Length == 0)
-            {
-                MessageBox.Show("Input data by word.", "Write");
-                return;
-            }
-            WNum = Convert.ToByte(epcstr.Length / 4);
-            byte[] Writedata = new byte[WNum * 2 + 1];
-            Writedata = HexStringToByteArray(epcstr);
-            WordPtr = (byte)Convert.ToInt32(text_WordPtr.Text, 16);
-            fPassWord = HexStringToByteArray(text_AccessCode2.Text);
-            if ((checkBox_pc.Checked) && (C_EPC.Checked))
-            {
-                WordPtr = 1;
-                WNum = Convert.ToByte(epcstr.Length / 4 + 1);
-                Writedata = HexStringToByteArray(textBox_pc.Text + epcstr);
-            }
-            for (int p = 0; p < 10; p++)
-            {
-                fCmdRet = RWDev.BlockWrite_G2(ref fComAdr, EPC, WNum, ENum, Mem, WordPtr, Writedata, fPassWord, MaskMem, MaskAdr, MaskLen, MaskData, ref ferrorcode, frmcomportindex);
-                if (fCmdRet == 0) break;
-            }
-            if (fCmdRet != 0)
-            {
-                string strLog = "";
-                if (fCmdRet == 0xFC)
-                    strLog = "Block write failed: " + "Return = 0x" + Convert.ToString(ferrorcode, 16) + "(" + GetErrorCodeDesc(ferrorcode) + ")";
-                else
-                    strLog = "Block write failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
-            }
-            else
-            {
-                string strLog = "Block write success";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-        }
-
-        private void btBlockErase_Click(object sender, EventArgs e)
-        {
-            byte WordPtr, ENum;
-            byte Num = 0;
-            byte Mem = 0;
-            string str = ""; ;
-            byte MaskMem = 0;
-            byte[] MaskAdr = new byte[2];
-            byte MaskLen = 0;
-            byte[] MaskData = new byte[100];
-            text_WriteData.Text = "";
-            if (checkBox1.Checked)
-            {
-                if ((maskadr_textbox.Text == "") || (maskLen_textBox.Text == "") || (maskData_textBox.Text == ""))
-                {
-                    return;
-                }
-                ENum = 255;
-                if (R_EPC.Checked) MaskMem = 1;
-                if (R_TID.Checked) MaskMem = 2;
-                if (R_User.Checked) MaskMem = 3;
-                MaskAdr = HexStringToByteArray(maskadr_textbox.Text);
-                MaskLen = Convert.ToByte(maskLen_textBox.Text, 16);
-                MaskData = HexStringToByteArray(maskData_textBox.Text);
-            }
-            else
-            {
-                if (check_selecttag.Checked)
-                    str = text_epc.Text;
-                else
-                    str = "";
-                ENum = Convert.ToByte(str.Length / 4);
-            }
-            byte[] EPC = new byte[ENum * 2];
-            EPC = HexStringToByteArray(str);
-            if (C_Reserve.Checked)
-                Mem = 0;
-            if (C_EPC.Checked)
-                Mem = 1;
-            if (C_TID.Checked)
-                Mem = 2;
-            if (C_User.Checked)
-                Mem = 3;
-            if (text_WordPtr.Text == "" || text_RWlen.Text == "" || text_AccessCode2.Text.Length != 8)
-            {
-                return;
-            }
-            WordPtr = (byte)Convert.ToInt32(text_WordPtr.Text, 16);
-            Num = Convert.ToByte(text_RWlen.Text);
-            fPassWord = HexStringToByteArray(text_AccessCode2.Text);
-            fCmdRet = RWDev.BlockErase_G2(ref fComAdr, EPC, ENum, Mem, WordPtr, Num, fPassWord, MaskMem, MaskAdr, MaskLen, MaskData, ref ferrorcode, frmcomportindex);
-            if (fCmdRet != 0)
-            {
-                string strLog = "";
-                if (fCmdRet == 0xFC)
-                    strLog = "Block erase failed: " + "Return = 0x" + Convert.ToString(ferrorcode, 16) + "(" + GetErrorCodeDesc(ferrorcode) + ")";
-                else
-                    strLog = "Block erase failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
-            }
-            else
-            {
-                string strLog = "Block erase success";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-        }
-
-        private void btSetProtectState_Click(object sender, EventArgs e)
-        {
-            byte select = 0;
-            byte setprotect = 0;
-            string str = "";
-            byte ENum;
-            byte[] CardData = new byte[320];
-            byte MaskMem = 0;
-            byte[] MaskAdr = new byte[2];
-            byte MaskLen = 0;
-            byte[] MaskData = new byte[100];
-            if (checkBox1.Checked)
-            {
-                if ((maskadr_textbox.Text.Length != 4) || (maskLen_textBox.Text.Length != 2) || (maskData_textBox.Text.Length % 2 != 0) && (maskData_textBox.Text.Length == 0))
-                {
-                    MessageBox.Show("Mask data error", "Information");
-                    return;
-                }
-                ENum = 255;
-                if (R_EPC.Checked) MaskMem = 1;
-                if (R_TID.Checked) MaskMem = 2;
-                if (R_User.Checked) MaskMem = 3;
-                MaskAdr = HexStringToByteArray(maskadr_textbox.Text);
-                MaskLen = Convert.ToByte(maskLen_textBox.Text, 16);
-                MaskData = HexStringToByteArray(maskData_textBox.Text);
-            }
-            else
-            {
-                if (check_selecttag.Checked)
-                    str = text_epc.Text;
-                else
-                    str = "";
-                ENum = Convert.ToByte(str.Length / 4);
-            }
-            byte[] EPC = new byte[ENum * 2];
-            EPC = HexStringToByteArray(str);
-            if (Edit_AccessCode6.Text.Length != 8)
-            {
-                MessageBox.Show("Access Password Less Than 8 digit!", "Information");
-                return;
-            }
-            fPassWord = HexStringToByteArray(Edit_AccessCode6.Text);
-            if (P_kill.Checked)
-                select = 0x00;
-            else if (p_pass.Checked)
-                select = 0x01;
-            else if (P_EPC.Checked)
-                select = 0x02;
-            else if (P_TID.Checked)
-                select = 0x03;
-            else if (P_User.Checked)
-                select = 0x04;
-
-            if (NoProect2.Checked)
-                setprotect = 0x00;
-            else if (Proect2.Checked)
-                setprotect = 0x02;
-            else if (Always2.Checked)
-            {
-                setprotect = 0x01;
-                if (MessageBox.Show(this, "Set unlock forever?", "Information", MessageBoxButtons.OKCancel) == DialogResult.Cancel)
-                    return;
-            }
-            else if (AlwaysNot2.Checked)
-            {
-                setprotect = 0x03;
-                if (MessageBox.Show(this, "Set lock forever?", "Information", MessageBoxButtons.OKCancel) == DialogResult.Cancel)
-                    return;
-            }
-            fCmdRet = RWDev.Lock_G2(ref fComAdr, EPC, ENum, select, setprotect, fPassWord, MaskMem, MaskAdr, MaskLen, MaskData, ref ferrorcode, frmcomportindex);
-            if (fCmdRet != 0)
-            {
-                string strLog = "";
-                if (fCmdRet == 0xFC)
-                    strLog = "Lock failed: " + "Return = 0x" + Convert.ToString(ferrorcode, 16) + "(" + GetErrorCodeDesc(ferrorcode) + ")";
-                else
-                    strLog = "Lock failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
-            }
-            else
-            {
-                string strLog = "Lock success ";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-
-        }
-
-        private void btDestroyCard_Click(object sender, EventArgs e)
-        {
-            string str = "";
-            byte ENum;
-            byte[] CardData = new byte[320];
-            byte MaskMem = 0;
-            byte[] MaskAdr = new byte[2];
-            byte MaskLen = 0;
-            byte[] MaskData = new byte[100];
-
-            if (checkBox1.Checked)
-            {
-                if ((maskadr_textbox.Text.Length != 4) || (maskLen_textBox.Text.Length != 2) || (maskData_textBox.Text.Length % 2 != 0) && (maskData_textBox.Text.Length == 0))
-                {
-                    MessageBox.Show("Mask data error!", "Information");
-                    return;
-                }
-                ENum = 255;
-                if (R_EPC.Checked) MaskMem = 1;
-                if (R_TID.Checked) MaskMem = 2;
-                if (R_User.Checked) MaskMem = 3;
-                MaskAdr = HexStringToByteArray(maskadr_textbox.Text);
-                MaskLen = Convert.ToByte(maskLen_textBox.Text, 16);
-                MaskData = HexStringToByteArray(maskData_textBox.Text);
-            }
-            else
-            {
-                if (check_selecttag.Checked)
-                    str = text_epc.Text;
-                else
-                    str = "";
-                ENum = Convert.ToByte(str.Length / 4);
-            }
-            byte[] EPC = new byte[ENum * 2];
-            EPC = HexStringToByteArray(str);
-            if (text_DestroyCode.Text.Length != 8)
-            {
-                MessageBox.Show("Access Password Less Than 8 digit!", "Information");
-                return;
-            }
-            fPassWord = HexStringToByteArray(text_DestroyCode.Text);
-            fCmdRet = RWDev.KillTag_G2(ref fComAdr, EPC, ENum, fPassWord, MaskMem, MaskAdr, MaskLen, MaskData, ref ferrorcode, frmcomportindex);
-            if (fCmdRet != 0)
-            {
-                string strLog = "";
-                if (fCmdRet == 0xFC)
-                    strLog = "Kill tag failed: " + "Return = 0x" + Convert.ToString(ferrorcode, 16) + "(" + GetErrorCodeDesc(ferrorcode) + ")";
-                else
-                    strLog = "Kill tag failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
-            }
-            else
-            {
-                string strLog = "Kill tag success ";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-        }
-
-        private void btWriteEPC_G2_Click(object sender, EventArgs e)
-        {
-            byte[] WriteEPC = new byte[200];
-            byte WriteEPClen;
-            byte ENum;
-            if (text_AccessCode3.Text.Length < 8)
-            {
-                MessageBox.Show("Access Password Less Than 8 digit!", "Information");
-                return;
-            }
-            if ((text_WriteEPC.Text.Length % 4) != 0 || text_WriteEPC.Text.Length == 0)
-            {
-                MessageBox.Show("Please input Data by words in hexadecimal form!'+#13+#10+'For example: 1234、12345678", "information");
-                return;
-            }
-            WriteEPClen = Convert.ToByte(text_WriteEPC.Text.Length / 2);
-            ENum = Convert.ToByte(text_WriteEPC.Text.Length / 4);
-            byte[] EPC = new byte[ENum];
-            EPC = HexStringToByteArray(text_WriteEPC.Text);
-            fPassWord = HexStringToByteArray(text_AccessCode3.Text);
-            fCmdRet = RWDev.WriteEPC_G2(ref fComAdr, fPassWord, EPC, ENum, ref ferrorcode, frmcomportindex);
-            if (fCmdRet != 0)
-            {
-                string strLog = "";
-                if (fCmdRet == 0xFC)
-                    strLog = "Write EPC failed: " + "Return = 0x" + Convert.ToString(ferrorcode, 16) + "(" + GetErrorCodeDesc(ferrorcode) + ")";
-                else
-                    strLog = "Write EPC failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
-            }
-            else
-            {
-                if (comboBox_EPC.Items.IndexOf(text_WriteEPC.Text) == -1)
-                    comboBox_EPC.Items.Add(text_WriteEPC.Text);
-                string strLog = "Write EPC success ";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-
-        }
-
-        private void btSetReadProtect_G2_Click(object sender, EventArgs e)
-        {
-            string str = "";
-            byte ENum;
-            byte MaskMem = 0;
-            byte[] MaskAdr = new byte[2];
-            byte MaskLen = 0;
-            byte[] MaskData = new byte[100];
-            if (checkBox1.Checked)
-            {
-                if ((maskadr_textbox.Text.Length != 4) || (maskLen_textBox.Text.Length != 2) || (maskData_textBox.Text.Length % 2 != 0) && (maskData_textBox.Text.Length == 0))
-                {
-                    MessageBox.Show("Mask data error", "Information");
-                    return;
-                }
-                ENum = 255;
-                if (R_EPC.Checked) MaskMem = 1;
-                if (R_TID.Checked) MaskMem = 2;
-                if (R_User.Checked) MaskMem = 3;
-                MaskAdr = HexStringToByteArray(maskadr_textbox.Text);
-                MaskLen = Convert.ToByte(maskLen_textBox.Text, 16);
-                MaskData = HexStringToByteArray(maskData_textBox.Text);
-            }
-            else
-            {
-                if (check_selecttag.Checked)
-                    str = text_epc.Text;
-                else
-                    str = "";
-                ENum = Convert.ToByte(str.Length / 4);
-            }
-            byte[] EPC = new byte[ENum * 2];
-            EPC = HexStringToByteArray(str);
-            if (text_AccessCode4.Text.Length != 8)
-            {
-                MessageBox.Show("Access Password Less Than 8 digit!Please input again!!", "information");
-                return;
-            }
-            fPassWord = HexStringToByteArray(text_AccessCode4.Text);
-            fCmdRet = RWDev.SetPrivacyByEPC_G2(ref fComAdr, EPC, ENum, fPassWord, MaskMem, MaskAdr, MaskLen, MaskData, ref ferrorcode, frmcomportindex);
-            if (fCmdRet != 0)
-            {
-
-                string strLog = "";
-                if (fCmdRet == 0xFC)
-                    strLog = "Set privacy by EPC failed: " + "Return = 0x" + Convert.ToString(ferrorcode, 16) + "(" + GetErrorCodeDesc(ferrorcode) + ")";
-                else
-                    strLog = "Set privacy by EPC failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
-            }
-            else
-            {
-                string strLog = "Set privacy by EPC success";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-        }
-
-        private void btSetMultiReadProtect_G2_Click(object sender, EventArgs e)
-        {
-            if (text_AccessCode4.Text.Length != 8)
-            {
-                MessageBox.Show("Access Password Less Than 8 digit!Please input again!!", "information");
-                return;
-            }
-            fPassWord = HexStringToByteArray(text_AccessCode4.Text);
-            fCmdRet = RWDev.SetPrivacyWithoutEPC_G2(ref fComAdr, fPassWord, ref ferrorcode, frmcomportindex);
-            if (fCmdRet != 0)
-            {
-
-                string strLog = "";
-                if (fCmdRet == 0xFC)
-                    strLog = "Set privacy without EPC failed: " + "Return = 0x" + Convert.ToString(ferrorcode, 16) + "(" + GetErrorCodeDesc(ferrorcode) + ")";
-                else
-                    strLog = "Set privacy without EPC failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
-            }
-            else
-            {
-                string strLog = "Set privacy without EPC success: ";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-        }
-
-        private void btRemoveReadProtect_G2_Click(object sender, EventArgs e)
-        {
-            if (text_AccessCode4.Text.Length != 8)
-            {
-                MessageBox.Show("Access Password Less Than 8 digit!Please input again!!", "information");
-                return;
-            }
-            fPassWord = HexStringToByteArray(text_AccessCode4.Text);
-            fCmdRet = RWDev.ResetPrivacy_G2(ref fComAdr, fPassWord, ref ferrorcode, frmcomportindex);
-            if (fCmdRet != 0)
-            {
-                string strLog = "";
-                if (fCmdRet == 0xFC)
-                    strLog = "Reset privacy failed: " + "Return = 0x" + Convert.ToString(ferrorcode, 16) + "(" + GetErrorCodeDesc(ferrorcode) + ")";
-                else
-                    strLog = "Reset privacy failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
-            }
-            else
-            {
-                string strLog = "Reset privacy success ";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-        }
-
-        private void btCheckReadProtected_G2_Click(object sender, EventArgs e)
-        {
-            byte readpro = 2;
-            fCmdRet = RWDev.CheckPrivacy_G2(ref fComAdr, ref readpro, ref ferrorcode, frmcomportindex);
-            if (fCmdRet != 0)
-            {
-
-                string strLog = "";
-                if (fCmdRet == 0xFC)
-                    strLog = "Check privacy faile: " + "Return = 0x" + Convert.ToString(ferrorcode, 16) + "(" + GetErrorCodeDesc(ferrorcode) + ")";
-                else
-                    strLog = "Check privacy faile: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
-            }
-            else
-            {
-                string strLog = "";
-                if (readpro == 0)
-                    strLog = " 'Check privacy success'command return=0x00" + "(Single Tag is unprotected)";
-                if (readpro == 1)
-                    strLog = " 'Check privacy success'command return=0x01" + "(Single Tag is protected)";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-        }
-
-        private void btSetEASAlarm_G2_Click(object sender, EventArgs e)
-        {
-            byte EAS = 0;
-            byte ENum;
-            string str = "";
-            byte MaskMem = 0;
-            byte[] MaskAdr = new byte[2];
-            byte MaskLen = 0;
-            byte[] MaskData = new byte[100];
-            text_WriteData.Text = "";
-            if (checkBox1.Checked)
-            {
-                if ((maskadr_textbox.Text == "") || (maskLen_textBox.Text == "") || (maskData_textBox.Text == ""))
-                {
-                    return;
-                }
-                ENum = 255;
-                if (R_EPC.Checked) MaskMem = 1;
-                if (R_TID.Checked) MaskMem = 2;
-                if (R_User.Checked) MaskMem = 3;
-                MaskAdr = HexStringToByteArray(maskadr_textbox.Text);
-                MaskLen = Convert.ToByte(maskLen_textBox.Text, 16);
-                MaskData = HexStringToByteArray(maskData_textBox.Text);
-            }
-            else
-            {
-                if (check_selecttag.Checked)
-                    str = text_epc.Text;
-                else
-                    str = "";
-                ENum = Convert.ToByte(str.Length / 4);
-            }
-            byte[] EPC = new byte[ENum * 2];
-            EPC = HexStringToByteArray(str);
-            if (text_AccessCode5.Text.Length != 8)
-            {
-                MessageBox.Show("Access Password Less Than 8 digit!Please input again!!", "information");
-                return;
-            }
-            fPassWord = HexStringToByteArray(text_AccessCode5.Text);
-            if (Alarm_G2.Checked)
-                EAS = 1;
-            else
-                EAS = 0;
-            fCmdRet = RWDev.EASConfigure_G2(ref fComAdr, EPC, ENum, fPassWord, EAS, MaskMem, MaskAdr, MaskLen, MaskData, ref ferrorcode, frmcomportindex);
-            if (fCmdRet != 0)
-            {
-                string strLog = "EAS Configure failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
-            }
-            else
-            {
-                string strLog = "";
-                if (Alarm_G2.Checked)
-                    strLog = " 'EAS Configure' command return=0x00" + "(Set EAS Alarm successfully)";
-                else
-                    strLog = " 'EAS Configure' command return=0x00" + "(Clear EAS Alarm successfully)";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-
-        }
-
-        private void btCheckEASAlarm_Click(object sender, EventArgs e)
-        {
-            timer_EAS.Enabled = !timer_EAS.Enabled;
-            if (!timer_EAS.Enabled)
-            {
-                pictureBox2.Visible = false;
-                btCheckEASAlarm.Text = "Detect";
-                btCheckEASAlarm.BackColor = Color.Transparent;
-            }
-            else
-            {
-                fIsInventoryScan = false;
-                btCheckEASAlarm.Text = "Stop";
-                btCheckEASAlarm.BackColor = Color.Indigo;
-            }
-        }
-
-        private void timer_EAS_Tick(object sender, EventArgs e)
-        {
-            if (fIsInventoryScan)
-                return;
-            fIsInventoryScan = true;
-            fCmdRet = RWDev.EASAlarm_G2(ref fComAdr, ref ferrorcode, frmcomportindex);
-            if (fCmdRet != 0)
-            {
-                string strLog = "No EAS Alarm";
-                WriteLog(lrtxtLog, strLog, 1);
-                pictureBox2.Visible = false;
-            }
-            else
-            {
-                pictureBox2.Visible = true;
-                string strLog = "EAS Alarm";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-            fIsInventoryScan = false;
-        }
-
-        private void btInventory6B_Click(object sender, EventArgs e)
-        {
-            Timer_Test_6B.Enabled = !Timer_Test_6B.Enabled;
-            if (!Timer_Test_6B.Enabled)
-            {
-                btInventory6B.Text = "Start";
-                btInventory6B.BackColor = Color.Transparent;
-            }
-            else
-            {
-                fisinventoryscan_6B = false;
-                ListView_ID_6B.Items.Clear();
-                btInventory6B.BackColor = Color.Indigo;
-                btInventory6B.Text = "Stop";
-            }
-        }
-        public void ChangeSubItem1(ListViewItem ListItem, int subItemIndex, string ItemText, string ant, string RSSI)
-        {
-            if (subItemIndex == 1)
-            {
-                if (ListItem.SubItems[subItemIndex].Text != ItemText)
-                {
-                    ListItem.SubItems[subItemIndex].Text = ItemText;
-                    ListItem.SubItems[subItemIndex + 2].Text = "1";
-                    ListItem.SubItems[subItemIndex + 1].Text = ant;
-                }
-                else
-                {
-                    ListItem.SubItems[subItemIndex + 2].Text = Convert.ToString(Convert.ToUInt32(ListItem.SubItems[subItemIndex + 2].Text) + 1);
-                    if ((Convert.ToUInt32(ListItem.SubItems[subItemIndex + 2].Text) > 9999))
-                        ListItem.SubItems[subItemIndex + 2].Text = "1";
-                    ListItem.SubItems[subItemIndex + 1].Text = Convert.ToString(Convert.ToInt32(ListItem.SubItems[subItemIndex + 1].Text, 2) | Convert.ToInt32(ant, 2), 2).PadLeft(4, '0');
-
-                }
-                ListItem.SubItems[subItemIndex + 3].Text = RSSI;
-            }
-        }
-        private void Inventory_6B()
-        {
-            int CardNum = 0;
-            byte[] ID_6B = new byte[2000];
-            byte[] ID2_6B = new byte[5000];
-            bool isonlistview;
-            string temps;
-            string s, ss, sID;
-            ListViewItem aListItem = new ListViewItem();
-            int i, j;
-            byte Condition = 0;
-            byte StartAddress;
-            byte mask = 0;
-            byte[] ConditionContent = new byte[300];
-            byte ant = 0;
-            if (rb_single.Checked)
-            {
-                fCmdRet = RWDev.InventorySingle_6B(ref fComAdr, ref ant, ID_6B, frmcomportindex);
-                if (fCmdRet == 0)
-                {
-                    byte[] daw = new byte[10];
-                    Array.Copy(ID_6B, daw, 10);
-                    temps = ByteArrayToHexString(daw);
-                    string RSSI = daw[9].ToString();
-                    temps = temps.Substring(2, 16);
-
-                    if (!list.Contains(temps))
-                    {
-                        CardNum1 = CardNum1 + 1;
-                        list.Add(temps);
-                    }
-                    string sant = Convert.ToString(ant, 2).PadLeft(4, '0');
-                    isonlistview = false;
-                    for (i = 0; i < ListView_ID_6B.Items.Count; i++)     //判断是否在ListView列表内
-                    {
-                        if (temps == ListView_ID_6B.Items[i].SubItems[1].Text)
-                        {
-                            aListItem = ListView_ID_6B.Items[i];
-                            ChangeSubItem1(aListItem, 1, temps, sant, RSSI);
-                            isonlistview = true;
-                            break;
-                        }
-                    }
-                    if (!isonlistview)
-                    {
-                        aListItem = ListView_ID_6B.Items.Add((ListView_ID_6B.Items.Count + 1).ToString());
-                        aListItem.SubItems.Add("");
-                        aListItem.SubItems.Add("");
-                        aListItem.SubItems.Add("");
-                        aListItem.SubItems.Add("");
-                        aListItem.SubItems.Add("");
-                        s = temps;
-                        ChangeSubItem1(aListItem, 1, s, sant, RSSI);
-                    }
-                }
-            }
-            if (rb_mutiple.Checked)
-            {
-                Condition = 1;
-                ss = "0000000000000000";//4种条件这里选择的是非全0的标签
-                byte[] daw = HexStringToByteArray(ss);
-                mask = 0xFF;
-                StartAddress = 0;
-                CardNum = 0;
-                fCmdRet = RWDev.InventoryMultiple_6B(ref fComAdr, Condition, StartAddress, mask, daw, ref ant, ID2_6B, ref CardNum, frmcomportindex);
-                if ((fCmdRet == 0x15) | (fCmdRet == 0x16) | (fCmdRet == 0x17) | (fCmdRet == 0x18) | (fCmdRet == 0xFB))
-                {
-                    byte[] daw1 = new byte[CardNum * 10];
-                    Array.Copy(ID2_6B, daw1, CardNum * 10);
-                    temps = ByteArrayToHexString(daw1);
-                    string sant = Convert.ToString(ant, 2).PadLeft(4, '0');
-                    for (i = 0; i < CardNum; i++)
-                    {
-                        sID = temps.Substring(20 * i + 2, 16);
-                        string RSSI = temps.Substring(20 * i + 18, 2);
-                        RSSI = Convert.ToByte(RSSI, 16).ToString();
-                        if ((sID.Length) != 16)
-                            return;
-                        if (CardNum == 0)
-                            return;
-                        isonlistview = false;
-                        for (j = 0; j < ListView_ID_6B.Items.Count; j++)     //判断是否在Listview列表内
-                        {
-                            if (sID == ListView_ID_6B.Items[j].SubItems[1].Text)
-                            {
-                                aListItem = ListView_ID_6B.Items[j];
-                                ChangeSubItem1(aListItem, 1, sID, sant, RSSI);
-                                isonlistview = true;
-                                break;
-                            }
-                        }
-                        if (!isonlistview)
-                        {
-                            aListItem = ListView_ID_6B.Items.Add((ListView_ID_6B.Items.Count + 1).ToString());
-                            aListItem.SubItems.Add("");
-                            aListItem.SubItems.Add("");
-                            aListItem.SubItems.Add("");
-                            aListItem.SubItems.Add("");
-                            aListItem.SubItems.Add("");
-                            s = sID;
-                            ChangeSubItem1(aListItem, 1, s, sant, RSSI);
-                        }
-                    }
-                }
-            }
-            WriteLog(lrtxtLog, "18000-6B Query", 0);
-        }
-        private void Timer_Test_6B_Tick(object sender, EventArgs e)
-        {
-            if (fisinventoryscan_6B)
-                return;
-            fisinventoryscan_6B = true;
-            Inventory_6B();
-            fisinventoryscan_6B = false;
-        }
-
-        private void ListView_ID_6B_DoubleClick(object sender, EventArgs e)
-        {
-            if (this.ListView_ID_6B.SelectedIndices.Count > 0 && this.ListView_ID_6B.SelectedIndices[0] != -1)
-            {
-                text_6BUID.Text = ListView_ID_6B.SelectedItems[0].SubItems[1].Text;
-            }
-        }
-        //E004000085D94502
-        private void btRead6B_Click(object sender, EventArgs e)
-        {
-            string temp, temps;
-            byte[] CardData = new byte[320];
-            byte[] ID_6B = new byte[8];
-            byte Num, StartAddress;
-            if (text_6BUID.Text == "")
-            {
-                MessageBox.Show("Select one tag in the list");
-                return;
-            }
-            temp = text_6BUID.Text;
-            ID_6B = HexStringToByteArray(temp);
-            if (text_R6BAddr.Text == "")
-                return;
-            StartAddress = Convert.ToByte(text_R6BAddr.Text, 16);
-            if (text_R6BLen.Text == "")
-                return;
-            Num = Convert.ToByte(text_R6BLen.Text, 16);
-            fCmdRet = RWDev.ReadData_6B(ref fComAdr, ID_6B, StartAddress, Num, CardData, ref ferrorcode, frmcomportindex);
-            if (fCmdRet != 0)
-            {
-                string strLog = "";
-                if (fCmdRet == 0xFC)
-                    strLog = "Read data failed: " + "tag return error=0x" + Convert.ToString(ferrorcode, 16) + "(" + GetErrorCodeDesc(ferrorcode) + ")";
-                else
-                    strLog = "Read data failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
-            }
-            else
-            {
-                byte[] data = new byte[Num];
-                Array.Copy(CardData, data, Num);
-                temps = ByteArrayToHexString(data);
-                text_R6B.Text = temps;
-                string strLog = "Read data success ";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-        }
-
-        private void btWrite6B_Click(object sender, EventArgs e)
-        {
-            string temp;
-            byte[] CardData = new byte[320];
-            byte[] ID_6B = new byte[8];
-            byte StartAddress;
-            byte Writedatalen;
-            int writtenbyte = 0;
-            if (text_6BUID.Text == "")
-            {
-                MessageBox.Show("Select one tag in the list");
-                return;
-            }
-            // text_6BUID.Text = "E004000085D94502";
-            temp = text_6BUID.Text;
-            ID_6B = HexStringToByteArray(temp);
-            if (text_W6BAddr.Text == "")
-                return;
-            StartAddress = Convert.ToByte(text_W6BAddr.Text, 16);
-            if (text_W6BLen.Text == "")
-                return;
-            Writedatalen = Convert.ToByte(text_W6BLen.Text, 16);
-
-            if ((text_W6B.Text == "") | ((text_W6B.Text.Length / 2) != Writedatalen) | ((text_W6B.Text.Length % 2) != 0))
-                return;
-            byte[] Writedata = new byte[Writedatalen];
-            Writedata = HexStringToByteArray(text_W6B.Text);
-            fCmdRet = RWDev.WriteData_6B(ref fComAdr, ID_6B, StartAddress, Writedata, Writedatalen, ref writtenbyte, ref ferrorcode, frmcomportindex);
-            if (fCmdRet != 0)
-            {
-                string strLog = "";
-                if (fCmdRet == 0xFC)
-                    strLog = "Write data failed: " + "tag return error=0x" + Convert.ToString(ferrorcode, 16) + "(" + GetErrorCodeDesc(ferrorcode) + ")";
-                else
-                    strLog = "Write data failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
-            }
-            else
-            {
-                string strLog = "Write data success ";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-
-        }
-
-        private void text_W6BLen_TextChanged(object sender, EventArgs e)
-        {
-            text_W6B.MaxLength = Convert.ToInt32(text_W6BLen.Text, 16) * 2;
-        }
-
-        private void btLock6B_Click(object sender, EventArgs e)
-        {
-            byte Address;
-            string temps;
-            byte[] ID_6B = new byte[8];
-            if (text_6BUID.Text == "")
-            {
-                MessageBox.Show("请在列表选择一张标签");
-                return;
-            }
-            temps = text_6BUID.Text;
-            ID_6B = HexStringToByteArray(temps);
-            if (text_lock6b.Text == "")
-                return;
-            Address = Convert.ToByte(text_lock6b.Text, 16);
-            if (MessageBox.Show(this, "Lock forever?", "information", MessageBoxButtons.OKCancel) == DialogResult.Cancel)
-                return;
-            fCmdRet = RWDev.Lock_6B(ref fComAdr, ID_6B, Address, ref ferrorcode, frmcomportindex);
-            if (fCmdRet != 0)
-            {
-                string strLog = "";
-                if (fCmdRet == 0xFC)
-                    strLog = "Lock failed: " + "tag return error=0x" + Convert.ToString(ferrorcode, 16) + "(" + GetErrorCodeDesc(ferrorcode) + ")";
-                else
-                    strLog = "Lock failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
-            }
-            else
-            {
-                string strLog = "Lock success ";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-
-        }
-
-        private void btCheckLock6B_Click(object sender, EventArgs e)
-        {
-            byte Address, ReLockState = 2;
-            string temps;
-            byte[] ID_6B = new byte[8];
-            if (text_6BUID.Text == "")
-            {
-                MessageBox.Show("Select one tag in the list");
-                return;
-            }
-            temps = text_6BUID.Text;
-            ID_6B = HexStringToByteArray(temps);
-            if (text_checkaddr.Text == "")
-                return;
-            Address = Convert.ToByte(text_checkaddr.Text, 16);
-            fCmdRet = RWDev.CheckLock_6B(ref fComAdr, ID_6B, Address, ref ReLockState, ref ferrorcode, frmcomportindex);
-            if (fCmdRet != 0)
-            {
-                string strLog = "";
-                if (fCmdRet == 0xFC)
-                    strLog = "Detect lock failed: " + "tag return error=0x" + Convert.ToString(ferrorcode, 16) + "(" + GetErrorCodeDesc(ferrorcode) + ")";
-                else
-                    strLog = "Detect lock failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
-            }
-            else
-            {
-                string strLog = "";
-                if (ReLockState == 0)
-                    text_Statu6B.Text = "Unlocked";
-                if (ReLockState == 1)
-                    text_Statu6B.Text = "Locked";
-                strLog = "Detect lock success ";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-
-        }
-
-        private void btGetSeriaPort_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btSetSerialPort_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btGetCnt_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btSetCnt_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btGetNet_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btSetNet_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btLoadDefault_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btSave_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btGotoAT_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btExitAT_Click(object sender, EventArgs e)
-        {
-
-        }
-        /// <summary>
-        /// 将Device List中所记录设备显示至DeviceListView控件;
-        /// </summary>
-        private void ReflashDeviceListView(List<DeviceClass> deviceList)
-        {
-            this.DeviceListView.Items.Clear();
-            foreach (DeviceClass device in deviceList)
-            {
-                IPAddress ipAddr = getIPAddress(device.DeviceIP);
-                ListViewItem deviceListViewItem = new ListViewItem(new string[] { device.DeviceName, ipAddr.ToString(), device.DeviceMac });
-                deviceListViewItem.ImageIndex = 0;
-                this.DeviceListView.Items.Add(deviceListViewItem);
-            }
-        }
-
-        /// <summary>
-        /// 将Device List中所记录设备显示至DeviceListView控件;
-        /// </summary>
-        private void ClearDeviceListView()
-        {
-            DevControl.tagErrorCode eCode;
-            List<DeviceClass> deviceList = DevList;
-
-            foreach (DeviceClass device in deviceList)
-            {
-                eCode = DevControl.DM_FreeDevice(device.DevHandle);
-                Debug.Assert(eCode == DevControl.tagErrorCode.DM_ERR_OK);
-            }
-            //清空设备列表，并清空对应显示控件；
-            DevList.Clear();
-            ReflashDeviceListView(DevList);
-        }
-
-        /// <summary>
-        /// 搜索设备，然后将记录搜索结果的DevList显示至DeviceListView控件;
-        /// </summary>
-        private bool SearchDevice(uint targetIP)
-        {
-            ClearDeviceListView();
-            DevControl.tagErrorCode eCode = DevControl.DM_SearchDevice(targetIP, 1500);
-            if (eCode == DevControl.tagErrorCode.DM_ERR_OK)
-            {
-                ReflashDeviceListView(DevList);
-                return true;
-            }
-            else
-            {
-                //异常处理；
-                string errMsg = ErrorHandling.HandleError(eCode);
-                System.Windows.Forms.MessageBox.Show(errMsg);
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// 配置选定设备，开启对应配置窗体;
-        /// </summary>
-        private void ConfigSelectedDevice()
-        {
-            if (this.DeviceListView.SelectedIndices.Count > 0
-                && this.DeviceListView.SelectedIndices[0] != -1)
-            {
-                //通过用户在显示控件中选择的索引值，在查找其所对应的设备对象；
-                DeviceClass currentDevice = DevList[DeviceListView.SelectedIndices[0]];
-
-                LoginForm loginform = new LoginForm();
-                DialogResult result = loginform.ShowDialog();
-                if (result == DialogResult.OK)
-                {
-                    DevControl.tagErrorCode eCode = currentDevice.Login(loginform.UserName, loginform.Password);
-                    if (eCode == DevControl.tagErrorCode.DM_ERR_OK)
-                    {
-                        //记录当前选择设备对象，作为父窗体属性传递至新开启的子配置窗体；
-                        this.SelectedDevice = currentDevice;
-                        ConfigForm deviceConfigForm = new ConfigForm(this.SelectedDevice);
-                        deviceConfigForm.ShowDialog(this);
-                        deviceConfigForm.Dispose();
-                    }
-                    else
-                    {
-                        //异常处理；
-                        string errMsg = ErrorHandling.HandleError(eCode);
-                        System.Windows.Forms.MessageBox.Show(errMsg);
-                    }
-                }
-
-                loginform.Dispose();
-            }
-        }
-        private void searchToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            //使用广播搜索设备；
-            SearchDevice(DeviceClass.Broadcast);
-        }
-
-        private void configToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ConfigSelectedDevice();
-        }
-
-        private void clearToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ClearDeviceListView();
-        }
-
-        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            //关闭主窗体并退出程序；
-            this.Close();
-        }
-
-        private void iEToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            //开启IE访问目标设备；
-            try
-            {
-                if (DeviceListView.SelectedIndices.Count > 0
-                    && DeviceListView.SelectedIndices[0] != -1)
-                {
-                    DeviceClass currentDevice = DevList[DeviceListView.SelectedIndices[0]];
-                    System.Diagnostics.Process.Start("iexplore.exe", "HTTP://" + getIPAddress(currentDevice.DeviceIP).ToString());
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.WriteException(ex);
-            }
-        }
-
-        private void telnetToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            //开启TELNET客户端访问目标设备；
-            try
-            {
-                if (DeviceListView.SelectedIndices.Count > 0
-                    && DeviceListView.SelectedIndices[0] != -1)
-                {
-                    DeviceClass currentDevice = DevList[DeviceListView.SelectedIndices[0]];
-                    System.Diagnostics.Process.Start("telnet.exe", getIPAddress(currentDevice.DeviceIP).ToString());
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.WriteException(ex);
-            }
-        }
-
-        private void pingToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                if (DeviceListView.SelectedIndices.Count > 0
-                    && DeviceListView.SelectedIndices[0] != -1)
-                {
-                    DeviceClass currentDevice = DevList[DeviceListView.SelectedIndices[0]];
-                    System.Diagnostics.Process.Start("ping.exe", getIPAddress(currentDevice.DeviceIP).ToString() + " -t");
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.WriteException(ex);
             }
         }
 
@@ -3877,339 +1773,6 @@ namespace UHFReader288MPDemo
             if (eCode != DevControl.tagErrorCode.DM_ERR_OK)
             {
                 ErrorHandling.HandleError(eCode);
-            }
-        }
-
-        private void DeviceListView_DoubleClick(object sender, EventArgs e)
-        {
-            ConfigSelectedDevice();
-        }
-
-        private void btFlashROM_Click(object sender, EventArgs e)
-        {
-            if (MessageBox.Show(this, " if change to flush mode,need restart power to restore.are you sure do this?", "Information", MessageBoxButtons.OKCancel) == DialogResult.Cancel)
-                return;
-            fCmdRet = RWDev.SetFlashRom(ref fComAdr, frmcomportindex);
-            if (fCmdRet != 0)
-            {
-                string strLog = "Change to flush mode failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
-            }
-            else
-            {
-                string strLog = "Change to flush mode success ";
-                WriteLog(lrtxtLog, strLog, 0);
-                if (frmcomportindex > 0 && frmcomportindex < 256)
-                {
-                    btDisConnect232_Click(null, null);
-                }
-            }
-        }
-
-        private void tabPage8_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        public class ctcplist//存储100客户端信息.
-        {
-            public Socket[] tempSocket = new Socket[100];
-            public string[] ip = new string[100];
-            public int[] port = new int[100];
-        }
-        ctcplist tcplist = new ctcplist();
-        Thread listenThread = null;//监听进程
-        Socket newsock = null;
-        private void StartListening() //main listening thread
-        {
-            int port = Convert.ToInt32(stcpport.Text);
-            IPEndPoint ipep = new IPEndPoint(IPAddress.Any, port);//绑定端口
-            newsock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);//tcp协议
-            newsock.Bind(ipep);
-            newsock.Listen(10);
-            while (true)
-            {
-                try
-                {
-                    Socket client = newsock.Accept();//等待TCP客户端的链接请求
-                                                     //查找空缺，插入信息
-                    int m = 0;
-                    for (m = 0; m < 100; m++)
-                    {
-                        if (tcplist.ip[m] == null)
-                        {
-                            int nport = ((System.Net.IPEndPoint)client.RemoteEndPoint).Port;
-                            IPAddress ip = ((System.Net.IPEndPoint)client.RemoteEndPoint).Address;
-                            tcplist.tempSocket[m] = client;
-                            tcplist.ip[m] = ip.ToString();
-                            tcplist.port[m] = nport;
-                            this.Invoke((EventHandler)delegate
-                            {
-                                listtcp.Items.Add(ip.ToString() + ":" + nport.ToString());
-                            });
-
-                            break;
-                        }
-                    }
-                    ParameterizedThreadStart ParStart = new ParameterizedThreadStart(ServiceClient);
-                    Thread clientService = new Thread(ParStart);
-                    clientService.IsBackground = true;
-                    object o = client;
-                    clientService.Start(o);
-                }
-                catch (System.Exception ex)
-                {
-                    break;
-                }
-            }
-        }
-
-        private void btListen_Click(object sender, EventArgs e)
-        {
-            //创建监听进程
-            stcpport.Enabled = false;
-            btListen.Enabled = false;
-            listenThread = new Thread(new ThreadStart(StartListening));
-            listenThread.IsBackground = true;
-            listenThread.Start();
-        }
-        public static string ByteArrayToHexString2(byte[] data)
-        {
-            StringBuilder sb = new StringBuilder(data.Length * 3);
-            foreach (byte b in data)
-                sb.Append(Convert.ToString(b, 16).PadLeft(2, '0').PadLeft(3, ' '));
-            return sb.ToString().ToUpper();
-
-        }
-        public void ServiceClient(object ParObject)
-        {
-            Socket tempSocket = (Socket)ParObject;
-            IPEndPoint newclient = (IPEndPoint)tempSocket.RemoteEndPoint;
-
-            //  NetworkStream ns = new NetworkStream(tempSocket);
-            //  StreamReader sr = new StreamReader(ns);
-            byte[] myReadBuffer = new byte[1024];
-            IPAddress ip = (newclient).Address;
-            int nport = (newclient).Port;
-            int count = 0;
-            string temp = "";
-            while (true)
-            {
-                try
-                {
-                    count = tempSocket.Receive(myReadBuffer);
-                    if (count > 0)
-                    {
-                        byte[] data = new byte[count];
-                        Array.Copy(myReadBuffer, data, count);
-                        temp = ByteArrayToHexString2(data);
-                        this.Invoke((EventHandler)delegate
-                        {
-                            stcprecv.AppendText(Environment.NewLine + ip.ToString() + ":" + nport.ToString() + " " + temp);
-                            stcprecv.Select(stcprecv.TextLength, 0);
-                            stcprecv.ScrollToCaret();
-                        });
-                    }
-                    else
-                    {
-                        this.Invoke((EventHandler)delegate
-                        {
-                            int m = 0;
-                            for (m = 0; m < 100; m++)
-                            {
-                                if (tcplist.ip[m] == ip.ToString() && (tcplist.port[m] == nport))//找到
-                                {
-                                    int n = listtcp.Items.IndexOf(ip.ToString() + ":" + nport.ToString());
-                                    listtcp.Items.RemoveAt(n);
-                                    tcplist.tempSocket[m].Close();
-                                    tcplist.ip[m] = null;
-                                    tcplist.port[m] = 0;
-                                    tcplist.tempSocket[m] = null;
-                                    break;
-                                }
-                            }
-                        });
-                        break;
-                    }
-                }
-                catch
-                {
-                    //查找断开连接的设备IP
-                    this.Invoke((EventHandler)delegate
-                    {
-                        int m = 0;
-                        for (m = 0; m < 100; m++)
-                        {
-                            if (tcplist.ip[m] == ip.ToString() && (tcplist.port[m] == nport))//找到
-                            {
-                                int n = listtcp.Items.IndexOf(ip.ToString() + ":" + nport.ToString());
-                                listtcp.Items.RemoveAt(n);
-                                tcplist.tempSocket[m].Close();
-                                tcplist.ip[m] = null;
-                                tcplist.port[m] = 0;
-                                tcplist.tempSocket[m] = null;
-                                break;
-                            }
-                        }
-                    });
-                    break;
-                }
-            }
-        }
-
-        private void btStop_Click(object sender, EventArgs e)
-        {
-            int m = 0;
-            for (m = 0; m < 100; m++)
-            {
-                if (tcplist.tempSocket[m] != null)//找到
-                {
-
-                    int n = listtcp.Items.IndexOf(tcplist.ip[m] + ":" + tcplist.port[m].ToString());
-                    listtcp.Items.RemoveAt(n);
-                    tcplist.tempSocket[m].Close();
-                    tcplist.ip[m] = null;
-                    tcplist.port[m] = 0;
-                    tcplist.tempSocket[m] = null;
-                }
-            }
-
-            if (newsock != null)
-                newsock.Close();
-            if (listenThread != null)
-                listenThread.Abort();
-
-            stcpport.Enabled = true;
-            btListen.Enabled = true;
-        }
-
-        Socket m_client;
-        Thread clientThread = null;//接收数据线程
-        private void bttcpconnect_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                string ip = tcpremoteIp.IpAddressStr;
-                int nipport = Convert.ToInt32(remotePort.Text);
-                m_client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                IPEndPoint ie = new IPEndPoint(IPAddress.Parse(ip), nipport);
-                m_client.Connect(ie);
-                if (m_client.Connected)
-                {
-                    tcpremoteIp.Enabled = false;
-                    remotePort.Enabled = false;
-                    bttcpconnect.Enabled = false;//连接成功创建接收数据线程
-                    bttcpsend.Enabled = true;
-                    clientThread = new Thread(new ThreadStart(StartRead));
-                    clientThread.IsBackground = true;
-                    clientThread.Start();
-                }
-                else
-                {
-                    tcpremoteIp.Enabled = true;
-                    remotePort.Enabled = true;
-                    bttcpconnect.Enabled = true;
-                    bttcpsend.Enabled = false;
-                }
-
-            }
-            catch (SocketException ex)
-            {
-                tcpremoteIp.Enabled = true;
-                remotePort.Enabled = true;
-                bttcpconnect.Enabled = true;
-                bttcpsend.Enabled = false;
-            }
-        }
-        private void StartRead()
-        {
-            byte[] buffs = new byte[2048];
-            IPEndPoint newclient = (IPEndPoint)m_client.RemoteEndPoint;
-            IPAddress ip = (newclient).Address;
-            int nport = (newclient).Port;
-            while (true)
-            {
-                try
-                {
-                    int count = m_client.Receive(buffs);
-                    if (count > 0)
-                    {
-                        byte[] data = new byte[count];
-                        Array.Copy(buffs, data, count);
-                        string temp = ByteArrayToHexString2(data);
-                        this.Invoke((EventHandler)delegate
-                        {
-                            ctctrecv.AppendText(Environment.NewLine + ip.ToString() + ":" + nport.ToString() + " " + temp);
-                            ctctrecv.Select(stcprecv.TextLength, 0);
-                            ctctrecv.ScrollToCaret();
-                        });
-                    }
-                }
-                catch (System.Exception ex)
-                {
-                    if (m_client.Connected)
-                    {
-                        m_client.Shutdown(SocketShutdown.Both);
-                        m_client.Close();
-                    }
-                    this.Invoke((EventHandler)delegate
-                    {
-                        tcpremoteIp.Enabled = true;
-                        remotePort.Enabled = true;
-                        bttcpconnect.Enabled = true;
-                    });
-                    break;
-                }
-            }
-        }
-
-        private void bttcpsend_Click(object sender, EventArgs e)
-        {
-            if (m_client.Connected)
-            {
-                string temp = ctctsend.Text.Replace(" ", "");
-                if (temp == "") return;
-                if (temp.Length % 2 != 0)
-                    temp = temp + "0";
-                byte[] buff = new byte[1024];
-                buff = HexStringToByteArray(temp);
-                int m = m_client.Send(buff);
-            }
-        }
-
-        private void bttcpdisconnect_Click(object sender, EventArgs e)
-        {
-            if (m_client.Connected)
-            {
-                m_client.Shutdown(SocketShutdown.Both);
-                m_client.Close();
-                clientThread.Abort();
-                tcpremoteIp.Enabled = true;
-                remotePort.Enabled = true;
-                bttcpconnect.Enabled = true;
-                bttcpsend.Enabled = false;
-            }
-        }
-
-        private void com_S_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (com_S.SelectedIndex > 1)
-            {
-                check_num.Enabled = true;
-            }
-            else
-            {
-                check_num.Enabled = false;
-            }
-            if (com_S.SelectedIndex == 4)
-            {
-                group_ant1.Enabled = false;
-                com_scantime.Enabled = false;
-            }
-            else
-            {
-                group_ant1.Enabled = true;
-                com_scantime.Enabled = true;
             }
         }
 
@@ -4228,12 +1791,10 @@ namespace UHFReader288MPDemo
             if (fCmdRet == 0)
             {
                 string strLog = "Set save length success ";
-                WriteLog(lrtxtLog, strLog, 0);
             }
             else
             {
                 string strLog = "Set save length failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 0);
             }
         }
 
@@ -4248,141 +1809,16 @@ namespace UHFReader288MPDemo
                 else
                     rb496.Checked = true;
                 string strLog = "Get save length success ";
-                WriteLog(lrtxtLog, strLog, 0);
             }
             else
             {
                 string strLog = "Get save length failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 0);
             }
         }
 
-        private void btReadBuff_Click(object sender, EventArgs e)
-        {
-            int Totallen = 0;
-            int CardNum = 0;
-            byte[] pEPCList = new byte[30000];
-            //lxLed_BNum.Text = "0";
-            //lxLed_Bcmdsud.Text = "0";
-            //lxLed_Btoltag.Text = "0";
-            //lxLed_Btoltime.Text = "0";
-            //lxLed_cmdTime.Text = "0";
-            dataGridView3.Rows.Clear();
-            string temp = "";
-            fCmdRet = RWDev.ReadBuffer_G2(ref fComAdr, ref Totallen, ref CardNum, pEPCList, frmcomportindex);
-            if (fCmdRet == 1)
-            {
-                int m = 0;
-                byte[] daw = new byte[Totallen];
-                Array.Copy(pEPCList, daw, Totallen);
-                for (int i = 0; i < CardNum; i++)
-                {
-                    string ant = Convert.ToString(daw[m], 2).PadLeft(4, '0');
-                    int len = daw[m + 1];
-                    byte[] EPC = new byte[len];
-                    Array.Copy(daw, m + 2, EPC, 0, len);
-                    string sEPC = ByteArrayToHexString(EPC);
-                    string RSSI = daw[m + 2 + len].ToString();
-                    string sCount = daw[m + 3 + len].ToString();
-                    m = m + 4 + len;
-                    string[] arr = new string[6];
-                    arr[0] = (dataGridView3.RowCount + 1).ToString();
-                    arr[1] = sEPC;
-                    arr[2] = len.ToString();
-                    arr[3] = ant;
-                    arr[4] = RSSI;
-                    arr[5] = sCount;
-                    dataGridView3.Rows.Insert(dataGridView3.RowCount, arr);
-                }
-                lxLed_BNum.Text = dataGridView3.RowCount.ToString();
-                string strLog = "Read buffer success ";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-            else
-            {
-                lxLed_BNum.Text = "0";
-                string strLog = "Read buffer failed! ";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-        }
-
-        private void btClearBuff_Click(object sender, EventArgs e)
-        {
-            fCmdRet = RWDev.ClearBuffer_G2(ref fComAdr, frmcomportindex);
-            if (fCmdRet == 0)
-            {
-                string strLog = "Clear buffer success ";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-            else
-            {
-                string strLog = "Clear buffer failed";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-        }
-
-        private void btRandCbuff_Click(object sender, EventArgs e)
-        {
-            btReadBuff_Click(null, null);
-            btClearBuff_Click(null, null);
-        }
-
-        private void btQueryBuffNum_Click(object sender, EventArgs e)
-        {
-            int Count = 0;
-            //lxLed_Bcmdsud.Text = "0";
-            //lxLed_cmdTime.Text = "0";
-            lxLed_BNum.Text = "0";
-            //lxLed_Btoltag.Text = "0";
-            //lxLed_Btoltime.Text = "0";
-            fCmdRet = RWDev.GetBufferCnt_G2(ref fComAdr, ref Count, frmcomportindex);
-            if (fCmdRet == 0)
-            {
-                lxLed_BNum.Text = Count.ToString();
-                string strLog = "Get buffer tag number success ";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-            else
-            {
-                string strLog = "Get buffer tag number failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-        }
         private Thread ReadThread = null;
         private volatile bool fIsBuffScan = false;
-        private void btStartBuff_Click(object sender, EventArgs e)
-        {
-            if (btStartBuff.Text == "Start")
-            {
-                if (rb_bepc.Checked)
-                    TIDFlag = 0;
-                else
-                    TIDFlag = 1;
-                total_time = System.Environment.TickCount;
-                total_tagnum = 0;
-                btStartBuff.BackColor = Color.Indigo;
-                btStartBuff.Text = "Stop";
-                toStopThread = false;
-                if (fIsBuffScan == false)
-                {
-                    ReadThread = new Thread(new ThreadStart(ReadProcess));
-                    ReadThread.Start();
-                }
-                timer_Buff.Enabled = true;
-            }
-            else
-            {
-                btStartBuff.BackColor = Color.Transparent;
-                btStartBuff.Text = "Start";
-                if (fIsBuffScan)
-                {
-                    toStopThread = true;//标志，接收数据线程判断stop为true，正常情况下会自动退出线程            
-                    ReadThread.Abort();
-                    fIsBuffScan = false;
-                }
-                timer_Buff.Enabled = false;
-            }
-        }
+        /***
         private void GetBuffData()
         {
             int TagNum = 0;
@@ -4436,174 +1872,8 @@ namespace UHFReader288MPDemo
             }
             fIsBuffScan = false;
         }
-        private void timer_Buff_Tick(object sender, EventArgs e)
-        {
-            lxLed_Btoltime.Text = (System.Environment.TickCount - total_time).ToString();
-        }
-
-
-        private void btExtRead_Click(object sender, EventArgs e)
-        {
-            byte ENum;
-            byte Num = 0;
-            byte Mem = 0;
-            byte[] WordPtr = new byte[2];
-            string str = ""; ;
-            byte[] CardData = new byte[320];
-            byte MaskMem = 0;
-            byte[] MaskAdr = new byte[2];
-            byte MaskLen = 0;
-            byte[] MaskData = new byte[100];
-            text_WriteData.Text = "";
-            if (checkBox1.Checked)
-            {
-                if ((maskadr_textbox.Text == "") || (maskLen_textBox.Text == "") || (maskData_textBox.Text == ""))
-                {
-                    return;
-                }
-                ENum = 255;
-                if (R_EPC.Checked) MaskMem = 1;
-                if (R_TID.Checked) MaskMem = 2;
-                if (R_User.Checked) MaskMem = 3;
-                MaskAdr = HexStringToByteArray(maskadr_textbox.Text);
-                MaskLen = Convert.ToByte(maskLen_textBox.Text, 16);
-                MaskData = HexStringToByteArray(maskData_textBox.Text);
-            }
-            else
-            {
-                if (check_selecttag.Checked)
-                    str = text_epc.Text;
-                else
-                    str = "";
-                ENum = Convert.ToByte(str.Length / 4);
-            }
-            byte[] EPC = new byte[ENum * 2];
-            EPC = HexStringToByteArray(str);
-            if (C_Reserve.Checked)
-                Mem = 0;
-            if (C_EPC.Checked)
-                Mem = 1;
-            if (C_TID.Checked)
-                Mem = 2;
-            if (C_User.Checked)
-                Mem = 3;
-            if (text_WordPtr.Text == "" || text_RWlen.Text == "" || text_AccessCode2.Text.Length != 8)
-            {
-                return;
-            }
-            WordPtr = HexStringToByteArray(text_WordPtr.Text);
-            Num = Convert.ToByte(text_RWlen.Text);
-            fPassWord = HexStringToByteArray(text_AccessCode2.Text);
-            for (int p = 0; p < 10; p++)
-            {
-                fCmdRet = RWDev.ExtReadData_G2(ref fComAdr, EPC, ENum, Mem, WordPtr, Num, fPassWord, MaskMem, MaskAdr, MaskLen, MaskData, CardData, ref ferrorcode, frmcomportindex);
-                if (fCmdRet == 0) break;
-            }
-            if (fCmdRet != 0)
-            {
-
-                string strLog = "";
-                if (fCmdRet == 0xFC)
-                    strLog = "Extense read failed: " + "Return = 0x" + Convert.ToString(ferrorcode, 16) + "(" + GetErrorCodeDesc(ferrorcode) + ")";
-                else
-                    strLog = "Extense read failed:  " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
-            }
-            else
-            {
-                byte[] daw = new byte[Num * 2];
-                Array.Copy(CardData, daw, Num * 2);
-                text_WriteData.Text = ByteArrayToHexString(daw);
-                string strLog = "Extense read success ";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-        }
-
-        private void btExtWrite_Click(object sender, EventArgs e)
-        {
-            byte ENum;
-            byte WNum = 0;
-            byte Mem = 0;
-            string str = "";
-            byte[] WordPtr = new byte[2];
-            byte[] CardData = new byte[320];
-            byte MaskMem = 0;
-            byte[] MaskAdr = new byte[2];
-            byte MaskLen = 0;
-            byte[] MaskData = new byte[100];
-            if (checkBox1.Checked)
-            {
-                if ((maskadr_textbox.Text == "") || (maskLen_textBox.Text == "") || (maskData_textBox.Text == ""))
-                {
-                    return;
-                }
-                ENum = 255;
-                if (R_EPC.Checked) MaskMem = 1;
-                if (R_TID.Checked) MaskMem = 2;
-                if (R_User.Checked) MaskMem = 3;
-                MaskAdr = HexStringToByteArray(maskadr_textbox.Text);
-                MaskLen = Convert.ToByte(maskLen_textBox.Text, 16);
-                MaskData = HexStringToByteArray(maskData_textBox.Text);
-            }
-            else
-            {
-                if (check_selecttag.Checked)
-                    str = text_epc.Text;
-                else
-                    str = "";
-                ENum = Convert.ToByte(str.Length / 4);
-            }
-            byte[] EPC = new byte[ENum * 2];
-            EPC = HexStringToByteArray(str);
-            if (C_Reserve.Checked)
-                Mem = 0;
-            if (C_EPC.Checked)
-                Mem = 1;
-            if (C_TID.Checked)
-                Mem = 2;
-            if (C_User.Checked)
-                Mem = 3;
-            if (text_WordPtr.Text == "" || text_AccessCode2.Text.Length != 8)
-            {
-                return;
-            }
-            string epcstr = text_WriteData.Text;
-            if (epcstr.Length % 4 != 0 || epcstr.Length == 0)
-            {
-                MessageBox.Show("Input data by word", "Write");
-                return;
-            }
-            WNum = Convert.ToByte(epcstr.Length / 4);
-            byte[] Writedata = new byte[WNum * 2 + 1];
-            Writedata = HexStringToByteArray(epcstr);
-            WordPtr = HexStringToByteArray(text_WordPtr.Text);
-            fPassWord = HexStringToByteArray(text_AccessCode2.Text);
-            if ((checkBox_pc.Checked) && (C_EPC.Checked))
-            {
-                WordPtr = HexStringToByteArray("0001");
-                WNum = Convert.ToByte(epcstr.Length / 4 + 1);
-                Writedata = HexStringToByteArray(textBox_pc.Text + epcstr);
-            }
-            for (int p = 0; p < 10; p++)
-            {
-                fCmdRet = RWDev.ExtWriteData_G2(ref fComAdr, EPC, WNum, ENum, Mem, WordPtr, Writedata, fPassWord, MaskMem, MaskAdr, MaskLen, MaskData, ref ferrorcode, frmcomportindex);
-                if (fCmdRet == 0) break;
-            }
-            if (fCmdRet != 0)
-            {
-                string strLog = "";
-                if (fCmdRet == 0xFC)
-                    strLog = "Extense write failed: " + "Return = 0x" + Convert.ToString(ferrorcode, 16) + "(" + GetErrorCodeDesc(ferrorcode) + ")";
-                else
-                    strLog = "Extense write failed:  " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
-            }
-            else
-            {
-                string strLog = "Extense write success ";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-        }
+        
+         ***/
 
         private void btSetMaxtime_Click(object sender, EventArgs e)
         {
@@ -4613,12 +1883,10 @@ namespace UHFReader288MPDemo
             if (fCmdRet != 0)
             {
                 string strLog = "Set inventory scan time failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
             }
             else
             {
                 string strLog = "Set inventory scan time success ";
-                WriteLog(lrtxtLog, strLog, 0);
             }
         }
 
@@ -4638,12 +1906,10 @@ namespace UHFReader288MPDemo
             if (fCmdRet != 0)
             {
                 string strLog = "Set read mode failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
             }
             else
             {
                 string strLog = "Set read mode success ";
-                WriteLog(lrtxtLog, strLog, 0);
             }
         }
 
@@ -4707,12 +1973,10 @@ namespace UHFReader288MPDemo
             if (fCmdRet != 0)
             {
                 string strLog = "Set read parameter failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
             }
             else
             {
                 string strLog = "Set read parameter success ";
-                WriteLog(lrtxtLog, strLog, 0);
             }
 
         }
@@ -4724,7 +1988,6 @@ namespace UHFReader288MPDemo
             if (fCmdRet != 0)
             {
                 string strLog = "Get read parameter failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
             }
             else
             {
@@ -4780,32 +2043,6 @@ namespace UHFReader288MPDemo
                 txt_mtidaddr.Text = Convert.ToString(Parameter[42], 16).PadLeft(2, '0');
                 txt_Mtidlen.Text = Convert.ToString(Parameter[43], 16).PadLeft(2, '0');
                 string strLog = "Get read parameter success ";
-                WriteLog(lrtxtLog, strLog, 0);
-            }
-        }
-
-        private void btStartMactive_Click(object sender, EventArgs e)
-        {
-            //total_time = System.Environment.TickCount;
-            //lxLed_Mtag.Text = "0";
-            //lxLed_Mtime.Text = "0";
-
-            timer_RealTime.Enabled = !timer_RealTime.Enabled;
-            if (!timer_RealTime.Enabled)
-            {
-                btStartMactive.Text = "Start";
-                btStartMactive.BackColor = Color.Transparent;
-            }
-            else
-            {
-                fInventory_EPC_List = "";
-                total_time = System.Environment.TickCount;
-                lxLed_Mtag.Text = "0";
-                lxLed_Mtime.Text = "0";
-                dataGridView4.Rows.Clear();
-                btStartMactive.BackColor = Color.Indigo;
-                fIsInventoryScan = false;
-                btStartMactive.Text = "Stop";
             }
         }
 
@@ -4858,29 +2095,7 @@ namespace UHFReader288MPDemo
                         lenstr = Convert.ToString(Convert.ToInt32(temp1.Substring(10, 2), 16), 10);
                         EPCStr = temp1.Substring(12, temp1.Length - 18);
                         RSSI = temp1.Substring(temp1.Length - 6, 2);
-                        bool isonlistview = false;
-                        for (int i = 0; i < dataGridView4.RowCount; i++)
-                        {
-                            if ((dataGridView4.Rows[i].Cells[1].Value != null) && (EPCStr == dataGridView4.Rows[i].Cells[1].Value.ToString()))
-                            {
-                                rows = dataGridView4.Rows[i];
-                                rows.Cells[3].Value = AntStr;
-                                rows.Cells[4].Value = RSSI;
-                                isonlistview = true;
-                                break;
-                            }
-                        }
-                        if (!isonlistview)
-                        {
-                            string[] arr = new string[6];
-                            arr[0] = (dataGridView4.RowCount + 1).ToString();
-                            arr[1] = EPCStr;
-                            arr[2] = lenstr;
-                            arr[3] = AntStr;
-                            arr[4] = RSSI;
-                            dataGridView4.Rows.Insert(dataGridView4.RowCount, arr);
-                        }
-                        lxLed_Mtime.Text = (System.Environment.TickCount - total_time).ToString();
+                        
                     }
                 }
                 catch (System.Exception ex)
@@ -4888,7 +2103,7 @@ namespace UHFReader288MPDemo
                     ex.ToString();
                 }
             }
-            lxLed_Mtag.Text = dataGridView4.RowCount.ToString();
+            
         }
         private void timer_RealTime_Tick(object sender, EventArgs e)
         {
@@ -4931,12 +2146,10 @@ namespace UHFReader288MPDemo
             if (fCmdRet != 0)
             {
                 string strLog = "Set failed： " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
             }
             else
             {
                 string strLog = "Set success ";
-                WriteLog(lrtxtLog, strLog, 0);
             }
         }
 
@@ -4947,7 +2160,6 @@ namespace UHFReader288MPDemo
             if (fCmdRet != 0)
             {
                 string strLog = "Get failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
             }
             else
             {
@@ -4962,7 +2174,6 @@ namespace UHFReader288MPDemo
                     rb_wp2.Checked = true;
                 }
                 string strLog = "Get success ";
-                WriteLog(lrtxtLog, strLog, 0);
             }
         }
 
@@ -4974,12 +2185,10 @@ namespace UHFReader288MPDemo
             if (fCmdRet != 0)
             {
                 string strLog = "Set failed： " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
             }
             else
             {
                 string strLog = "Set success ";
-                WriteLog(lrtxtLog, strLog, 0);
             }
         }
 
@@ -4990,71 +2199,12 @@ namespace UHFReader288MPDemo
             if (fCmdRet != 0)
             {
                 string strLog = "Get failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
             }
             else
             {
                 com_retrytimes.SelectedIndex = Convert.ToInt32(Times);
                 string strLog = "Get success ";
-                WriteLog(lrtxtLog, strLog, 0);
             }
-        }
-
-        private void rb_epc_CheckedChanged(object sender, EventArgs e)
-        {
-            gbp_MixRead.Enabled = false;
-            com_S.Items.Clear();
-            com_S.Items.Add("0");
-            com_S.Items.Add("1");
-            com_S.Items.Add("2");
-            com_S.Items.Add("3");
-            com_S.Items.Add("Auto");
-            com_S.SelectedIndex = 4;
-        }
-
-        private void rb_mix_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void rb_mix_CheckedChanged(object sender, EventArgs e)
-        {
-            gbp_MixRead.Enabled = true;
-            com_S.Items.Clear();
-            com_S.Items.Add("0");
-            com_S.Items.Add("1");
-            com_S.Items.Add("2");
-            com_S.Items.Add("3");
-            com_S.SelectedIndex = 0;
-            com_MixMem.Enabled = true;
-            text_readpsd.Enabled = true;
-            gbp_MixRead.Text = "Mix";
-        }
-
-        private void rb_tid_CheckedChanged(object sender, EventArgs e)
-        {
-            gbp_MixRead.Enabled = true;
-            com_S.Items.Clear();
-            com_S.Items.Add("0");
-            com_S.Items.Add("1");
-            com_S.Items.Add("2");
-            com_S.Items.Add("3");
-            com_S.SelectedIndex = 0;
-            com_MixMem.Enabled = false;
-            text_readpsd.Enabled = false;
-            gbp_MixRead.Text = "TID";
-        }
-
-        private void rb_fastid_CheckedChanged(object sender, EventArgs e)
-        {
-            gbp_MixRead.Enabled = false;
-            com_S.Items.Clear();
-            com_S.Items.Add("0");
-            com_S.Items.Add("1");
-            com_S.Items.Add("2");
-            com_S.Items.Add("3");
-            com_S.Items.Add("Auto");
-            com_S.SelectedIndex = 4;
         }
 
         private void bt_setDRM_Click(object sender, EventArgs e)
@@ -5066,12 +2216,10 @@ namespace UHFReader288MPDemo
             if (fCmdRet != 0)
             {
                 string strLog = "Set DRM failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
             }
             else
             {
                 string strLog = "Set DRM success ";
-                WriteLog(lrtxtLog, strLog, 0);
             }
         }
 
@@ -5082,14 +2230,12 @@ namespace UHFReader288MPDemo
             if (fCmdRet != 0)
             {
                 string strLog = "Get DRM failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
             }
             else
             {
                 if (DRM == 0) DRM_CLOSE.Checked = true;
                 if (DRM == 1) DRM_OPEN.Checked = true;
                 string strLog = "Get DRM success ";
-                WriteLog(lrtxtLog, strLog, 0);
             }
         }
 
@@ -5109,7 +2255,6 @@ namespace UHFReader288MPDemo
             if (fCmdRet != 0)
             {
                 string strLog = "Get Temperature failed: " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
             }
             else
             {
@@ -5118,7 +2263,6 @@ namespace UHFReader288MPDemo
                 temp += (Temperature.ToString() + "°C");
                 txtReaderTemperature.Text = temp;
                 string strLog = "Get Temperature success ";
-                WriteLog(lrtxtLog, strLog, 0);
             }
         }
 
@@ -5138,13 +2282,11 @@ namespace UHFReader288MPDemo
             if (fCmdRet != 0)
             {
                 string strLog = "Get failed:  " + GetReturnCodeDesc(fCmdRet);
-                WriteLog(lrtxtLog, strLog, 1);
             }
             else
             {
                 textReturnLoss.Text = ReturnLoss.ToString() + "dB";
                 string strLog = "Get success ";
-                WriteLog(lrtxtLog, strLog, 0);
             }
         }
 
@@ -5218,13 +2360,10 @@ namespace UHFReader288MPDemo
             }
         }
 
-
         //JW - Periodic Checker on a separate thread
-
         private void Periodic_Checker()
         {
-            bool connected = false;
-            while(true)
+            while (true)
             {
                 //Initiate Connection with Database and obtain all EPC on the database
                 Console.WriteLine("Syncing with Database . . . ");
@@ -5237,394 +2376,253 @@ namespace UHFReader288MPDemo
                     if (conn.State == ConnectionState.Open)
                     {
                         connected = true;
-                    }
-                }
-                catch(Exception e)
-                {
-                    MessageBox.Show("Error: Unable to connect to Database.");
-                }
-                
-                if(connected)
-                {
-                    var cmd = new NpgsqlCommand("SELECT epc FROM RFID_inventory;", conn);
-                    reader = cmd.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        if (inventory_list.Contains(reader.GetString(0).Trim(' ')))
+                        var cmd = new NpgsqlCommand("SELECT epc FROM RFID_inventory;", conn);
+                        reader = cmd.ExecuteReader();
+                        while (reader.Read())
                         {
-                        }
-
-                        else
-                        {
-                            inventory_list.Add(reader.GetString(0).Trim(' '));
-                        }
-                    }
-                    reader.Close();
-                    conn.Close();
-
-                    //Put thread to sleep, in milliseconds
-                    Thread.Sleep(10 * 1000);
-                    //disable epc_checker, check if the items have been checked out
-                    run_epc_checker = false;
-                    int i = 0, u = 0;
-                    int time_diff, minimum_idle_time = 30;
-                    bool remove_epc = false;
-                    for (i = 0; i < Full_list.Count; i = i + 4)
-                    {
-                        bool status_error = false;
-                        DateTime time_now = DateTime.Now;
-                        time_diff = Convert.ToInt32(time_now.Subtract(Convert.ToDateTime(Full_list[i + 2])).TotalSeconds);
-                        Console.WriteLine(Full_list[i] + " has a time difference of: " + time_diff);
-                        if (time_diff > minimum_idle_time)
-                        {
-                            //item is considered to be checked out, check the manual entry
-                            conn.Open();
-                            cmd = new NpgsqlCommand("SELECT * FROM rfid_inventory where epc = '" + Full_list[i] + "';", conn);
-                            reader = cmd.ExecuteReader();
-                            while (reader.Read())
+                            if (inventory_list.Contains(reader.GetString(0).Trim(' ')))
                             {
-                                if (reader["item_status_manual"].ToString() == "Available")
-                                {
-                                    //manual entry indicates that it is available, then there is an error as the antenna is not able to pick up the signal
-                                    //it could only mean the item is checked out or hidden in the room and the signal cannot be picked up
-                                    status_error = true;
-                                    cmd.Cancel();
-                                }
                             }
-                            conn.Close();
 
-                            conn.Open();
-                            if (status_error)
-                            {
-                                cmd = new NpgsqlCommand("UPDATE rfid_inventory SET item_status_automated = 'Error: status do not tally.', tagtime = '" + Full_list[i + 2] + "' WHERE epc = '" + Full_list[i] + "';", conn);
-                                cmd.ExecuteNonQuery();
-                                remove_epc = true;
-                                remove_list.Add(Full_list[i]);
-                            }
                             else
                             {
-                                cmd = new NpgsqlCommand("UPDATE rfid_inventory SET item_status_automated = 'Checked Out', tagtime = '" + Full_list[i + 2] + "' WHERE epc = '" + Full_list[i] + "';", conn);
-                                cmd.ExecuteNonQuery();
-                                remove_epc = true;
-                                remove_list.Add(Full_list[i]);
+                                inventory_list.Add(reader.GetString(0).Trim(' '));
                             }
-                            conn.Close();
                         }
-                        else
-                        {
-                            //item is available
-                            conn.Open();
-                            cmd = new NpgsqlCommand("UPDATE RFID_Inventory SET item_status_automated = 'Available', tagtime = '" + Full_list[i + 2] + "' WHERE epc = '" + Full_list[i] + "';", conn);
-                            cmd.ExecuteNonQuery();
-                            Console.WriteLine(Full_list[i] + " is available");
-                            conn.Close();
-                        }
-                    }
+                        reader.Close();
+                        conn.Close();
 
-                    if (remove_epc)
-                    {
-                        List<string> temp_list= new List<string>();
-                        for(i = 0; i < remove_list.Count; i++)
+                        Console.WriteLine("Synced. Thread going to sleep.");
+
+                        //Put thread to sleep, in milliseconds
+                        Thread.Sleep(10 * 1000);
+                        //disable epc_checker, check if the items have been checked out
+                        DateTime time_start = DateTime.Now;
+                        run_epc_checker = false;
+                        int i = 0, u = 0;
+                        int time_diff, minimum_idle_time = 30;
+                        bool remove_epc = false;
+                        for (i = 0; i < Full_list.Count; i = i + 4)
                         {
-                            for(u = 0; u < Full_list.Count; u += 4)
+                            bool status_error = false;
+                            DateTime time_now = DateTime.Now;
+                            time_diff = Convert.ToInt32(time_now.Subtract(Convert.ToDateTime(Full_list[i + 2])).TotalSeconds);
+                            Console.WriteLine(Full_list[i] + " has a time difference of: " + time_diff);
+                            if (time_diff > minimum_idle_time)
                             {
-                                if(remove_list[i] == Full_list[u])
+                                //item is considered to be checked out, check the manual entry
+                                conn.Open();
+                                cmd = new NpgsqlCommand("SELECT * FROM rfid_inventory where epc = '" + Full_list[i] + "';", conn);
+                                reader = cmd.ExecuteReader();
+                                while (reader.Read())
                                 {
+                                    if (reader["item_status_manual"].ToString() == "Available")
+                                    {
+                                        //manual entry indicates that it is available, then there is an error as the antenna is not able to pick up the signal
+                                        //it could only mean the item is checked out or hidden in the room and the signal cannot be picked up
+                                        status_error = true;
+                                        cmd.Cancel();
+                                    }
+                                }
+                                conn.Close();
 
+                                conn.Open();
+                                if (status_error)
+                                {
+                                    cmd = new NpgsqlCommand("UPDATE rfid_inventory SET item_status_automated = 'Error: status do not tally.', tagtime = '" + Full_list[i + 2] + "' WHERE epc = '" + Full_list[i] + "';", conn);
+                                    cmd.ExecuteNonQuery();
+                                    remove_epc = true;
+                                    remove_list.Add(Full_list[i]);
                                 }
                                 else
                                 {
-                                    temp_list.Add(Full_list[u]);
-                                    temp_list.Add(Full_list[u+1]);
-                                    temp_list.Add(Full_list[u+2]);
-                                    temp_list.Add(Full_list[u+3]);
+                                    cmd = new NpgsqlCommand("UPDATE rfid_inventory SET item_status_automated = 'Checked Out', tagtime = '" + Full_list[i + 2] + "' WHERE epc = '" + Full_list[i] + "';", conn);
+                                    cmd.ExecuteNonQuery();
+                                    remove_epc = true;
+                                    remove_list.Add(Full_list[i]);
                                 }
+                                conn.Close();
+                            }
+                            else
+                            {
+                                //item is available
+                                conn.Open();
+                                cmd = new NpgsqlCommand("UPDATE RFID_Inventory SET item_status_automated = 'Available', tagtime = '" + Full_list[i + 2] + "' WHERE epc = '" + Full_list[i] + "';", conn);
+                                cmd.ExecuteNonQuery();
+                                conn.Close();
                             }
                         }
 
-                        Full_list.Clear();
-                        for(i=0; i < temp_list.Count; i += 4)
+                        if (remove_epc)
                         {
-                            Full_list.Add(temp_list[i]);
-                            Full_list.Add(temp_list[i+1]);
-                            Full_list.Add(temp_list[i+2]);
-                            Full_list.Add(temp_list[i+3]);
+                            for (i = 0; i < remove_list.Count; i++)
+                            {
+                                int index_to_remove = Full_list.IndexOf(remove_list[i]);
+                                Full_list.RemoveRange(index_to_remove, 4);
+                            }
+                            remove_list.Clear();
                         }
-                        temp_list.Clear();
-                        remove_list.Clear();
+                        remove_epc = false;
+                        DateTime time_end = DateTime.Now;
+                        int runtime_ms = Convert.ToInt32(time_end.Subtract(time_start).TotalMilliseconds);
+                        Console.WriteLine("Program ran for: " + runtime_ms + " milliseconds");
+                        Console.WriteLine("Printing Full List:");
+                        Console.WriteLine("Full List has a total number of: " + Full_list.Count);
+                        Console.WriteLine("-------------------");
+                        for (i = 0; i < Full_list.Count; i += 4)
+                        {
+                            Console.WriteLine(Full_list[i] + " " + Full_list[i + 1] + " " + Full_list[i + 2] + " " + Full_list[i + 3]);
+                        }
+                        run_epc_checker = true;
                     }
-                    run_epc_checker = true;
+                    else
+                    {
+                        connected = false;
+                        Console.WriteLine("Disconnected");
+                    }
+                }
+                catch(Exception e)
+                {   
+                    connected = false;
                 }
                 
             }
         }
-
-        /***
-         
-        public static void EPC_Checker(List<string> Raw_Entry_List)
-        {
-            if(run_epc_checker == true)
-            {
-                bool inList = false;
-
-                switch (Raw_Entry_List[3])
-                {
-                    case "1000":
-                        Raw_Entry_List[3] = "4";
-                        break;
-                    case "0100":
-                        Raw_Entry_List[3] = "3";
-                        break;
-                    case "0010":
-                        Raw_Entry_List[3] = "2";
-                        break;
-                    case "0001":
-                        Raw_Entry_List[3] = "1";
-                        break;
-                }
-
-                for (int i = 0; i < (Full_list.Count); i = i + 4)
-                {
-                    if ((Full_list[i] == Raw_Entry_List[0]) && (Full_list[i+3] == Raw_Entry_List[3]))
-                    {
-                        Full_list[i + 1] = Raw_Entry_List[1];
-                        Full_list[i + 2] = Raw_Entry_List[2];
-                        inList = true;
-                    }
-                    else
-                    {
-                        //no match
-                    }
-                }
-
-                if (!inList)
-                {
-                    Full_list.Add(Raw_Entry_List[0]);
-                    Full_list.Add(Raw_Entry_List[1]);
-                    Full_list.Add(Raw_Entry_List[2]);
-                    Full_list.Add(Raw_Entry_List[3]);
-                }
-            }
-            else
-            {
-
-            }
-            
-        }
-
-        //JW - Function which checks if item is available or not
-
-        private void Periodic_Checker()
-        {
-            List<string> managed_list = new List<string>();
-            while (true)
-            {
-                // Updating Inventory List
-                Console.WriteLine("Syncing with Database . . .");
-                string connstring = String.Format("Host=localhost;Port=5432;User Id=Admin;Password=password;Database=Inventory;");
-                NpgsqlConnection conn = new NpgsqlConnection(connstring);
-                NpgsqlDataReader reader;
-                conn.Open();
-                var cmd = new NpgsqlCommand("SELECT epc FROM public.rfid_inventory;", conn);
-                reader = cmd.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    if (inventory_list.Contains(reader.GetString(0).Trim(' ')))
-                    {
-
-                    }
-
-                    else
-                    {
-                        inventory_list.Add(reader.GetString(0).Trim(' '));
-                    }
-                }
-                reader.Close();
-                conn.Close();
-
-                //The sleep command below indicates how frequent the checker is activated.
-                Thread.Sleep(1000 * 10); //sleep time
-                Console.WriteLine("DEBUG: Inventory list's count: " + inventory_list.Count);
-                Console.WriteLine("Thread is awake");
-
-                //copy full list to managed list
-                run_epc_checker = false;
-                int i;
-
-                for(i = 0; i < Full_list.Count; i++)
-                {
-                    managed_list.Add(Full_list[i]);
-                }
-
-                //DEBUG
-                for(i = 0; i < managed_list.Count; i = i + 4)
-                {
-                    Console.WriteLine("EPC: " + managed_list[i] + " RSSI: " + managed_list[i+1] + " Date/Time: " + managed_list[i+2] + " Antenna: " + managed_list[i+3]);
-                }
-
-                //Update Signals Received
-                conn.Open();
-                cmd = new NpgsqlCommand("SELECT EXISTS (SELECT 1 FROM public.rfid_signals);", conn);
-                bool isFilled = bool.Parse(cmd.ExecuteScalar().ToString());
-                for(i = 0; i < managed_list.Count; i = i + 4)
-                {
-                    if (inventory_list.Contains(managed_list[i]))
-                    {
-                        if (isFilled)
-                        {
-                            //Table is not empty
-                            //Update the Signal Strengths
-                            //Obtain which antenna has picked up the signals
-                            cmd = new NpgsqlCommand("SELECT COUNT(*) FROM RFID_Signals WHERE epc = '"+managed_list[i]+"' AND antenna_no = '"+managed_list[i+3]+"';", conn);
-                            string query_result = cmd.ExecuteScalar().ToString();
-                            if(query_result == "1")
-                            {
-                                //Entry already exists
-                                Console.WriteLine("exists");
-                                cmd = new NpgsqlCommand("UPDATE rfid_signals SET rssi = '"+managed_list[i+1]+"', last_signal = '"+managed_list[i+2]+"' WHERE epc = '"+managed_list[i]+"' AND antenna_no = '"+managed_list[i+3]+"';", conn);
-                                cmd.ExecuteNonQuery();
-                            }
-                            if (query_result == "0")
-                            {
-                                //Entry does not exists
-                                Console.WriteLine("Don't exist");
-                                cmd = new NpgsqlCommand("INSERT INTO rfid_signals VALUES('"+managed_list[i]+"', '"+managed_list[i+3]+"', '"+managed_list[i+1]+"', '"+managed_list[i+2]+"');", conn);
-                                cmd.ExecuteNonQuery();
-                            }
-                        }
-                        else
-                        {
-                            //Table is empty
-                            cmd = new NpgsqlCommand("INSERT INTO rfid_signals VALUES('" + managed_list[i] + "', '" + managed_list[i + 3] + "', '" + managed_list[i + 1] + "', '" + managed_list[i + 2] + "');", conn);
-                            cmd.ExecuteNonQuery();
-                        }
-                        
-                    }
-                    else
-                    {
-                        //item is not in the inventory list, do not care about the stray signal
-                    }
-                }
-                conn.Close();
-
-                //Check automatically if item is checked out
-                int time_diff;
-                int minimum_idle_time = 30; //Time before an item is considered checked out
-                List<string> Remove_List = new List<string>();
-                for(i = 2; i < managed_list.Count; i = i + 4)
-                {
-                    DateTime time_now = DateTime.Now;
-                    time_diff = Convert.ToInt32(time_now.Subtract(Convert.ToDateTime(managed_list[i])).TotalSeconds);
-                    Console.WriteLine("DEBUG: Time diff is " + time_diff);
-                    if(time_diff >= minimum_idle_time)
-                    {
-                        //Get the EPC of interest
-                        Remove_List.Add(managed_list[i - 2]);
-                    }
-                    else if (inventory_list.Contains(managed_list[i-2]))
-                    {
-                        //Get item status of mentioned EPC. 
-                        //If Available, then do nothing
-                        //If Unavailable/Checked out, but the signal is read, it means the item is back in the storeroom
-                        conn.Open();
-                        cmd = new NpgsqlCommand("SELECT item_status_automated FROM rfid_inventory WHERE epc = '" + managed_list[i - 2] + "';", conn);
-                        string item_status = cmd.ExecuteScalar().ToString();
-                        if(item_status == "Available")
-                        {
-                            // do nothing, as item is available
-                        }
-                        else if (item_status == "Checked Out")
-                        {
-                            // set the column to be available
-                            cmd = new NpgsqlCommand("UPDATE rfid_inventory SET item_status_automated = 'Available' WHERE epc = '" + managed_list[i - 2] + "';", conn);
-                            cmd.ExecuteNonQuery();
-                        }
-                        conn.Close();
-                    }
-                }
-
-                //Check out the items which signals have not been read for awhile
-                int u = 0;
-                conn.Open();
-                while (u < Remove_List.Count)
-                {
-                    for(i = 0; i < managed_list.Count; i = i + 4)
-                    {
-                        if(managed_list[i] == Remove_List[u])
-                        {
-                            Console.WriteLine("EPC " + managed_list[i] + " has been checked out automatically.");
-                            cmd = new NpgsqlCommand("UPDATE rfid_inventory SET item_status_automated = 'Checked Out' WHERE epc = '" + managed_list[i] + "';", conn);
-                            cmd.ExecuteNonQuery();
-                            managed_list.RemoveRange(i, 4);
-                            break;
-                        }
-                    }
-                    u++;
-                }
-                conn.Close();
-
-                run_epc_checker = true;
-                Console.WriteLine("Thread is going to sleep.");
-                Console.WriteLine("---------------------------");
-                Remove_List.Clear();
-                managed_list.Clear();
-            }    
-        }
-        ***/
 
         private DataSet dataset_query = new DataSet();
         private DataTable datatable_query = new DataTable();
 
-        private void BN_Open_FullDB_Click(object sender, EventArgs e)
+        private void status_checker_Tick(object sender, EventArgs e)
         {
-            
-            string connstring = String.Format("Host=localhost;Port=5432;User Id=Admin;Password=password;Database=Inventory;");
-            NpgsqlConnection conn = new NpgsqlConnection(connstring);
-            conn.Open();
-            string command = "SELECT * FROM rfid_inventory;";
-            NpgsqlDataAdapter dataadapter_query = new NpgsqlDataAdapter(command, conn);
-            dataset_query.Reset();
-            dataadapter_query.Fill(dataset_query);
-            datatable_query = dataset_query.Tables[0];
-            View_InvList.DataSource = datatable_query;
-            conn.Close();
-            
-        }
-
-        private void BN_Search_Click(object sender, EventArgs e)
-        {
-            string epc_search = textBox1.Text;
-            string sn_search = textBox2.Text;
-            string connstring = String.Format("Host=localhost;Port=5432;User Id=Admin;Password=password;Database=Inventory;");
-            NpgsqlConnection conn = new NpgsqlConnection(connstring);
-            conn.Open();
-
-            if (epc_search == null)
+            if (connected)
             {
-                string command = "SELECT * FROM rfid_inventory WHERE item_sn = '" + sn_search + "';";
-                NpgsqlDataAdapter dataadapter_query = new NpgsqlDataAdapter(command, conn);
-                dataset_query.Reset();
-                dataadapter_query.Fill(dataset_query);
-                datatable_query = dataset_query.Tables[0];
-                View_InvList.DataSource = datatable_query;
-                conn.Close();
+                tb_db_connection.BackColor = Color.Green;
+                tb_db_connection.Text = "Connected";
+            }
+            if (!connected)
+            {
+                tb_db_connection.BackColor = Color.Red;
+                tb_db_connection.Text = "Disconnected";
+            }
+            if (hw_connected)
+            {
+                tb_hw_connected.BackColor = Color.Green;
+                tb_hw_connected.Text = "Connected";
+            }
+            if (!hw_connected)
+            {
+                tb_hw_connected.BackColor = Color.Red;
+                tb_hw_connected.Text = "Disconnected";
             }
 
-            else if(sn_search == null)
+            if(startup)
             {
-                string command = "SELECT * FROM rfid_inventory WHERE epc = '" + epc_search + "';";
-                NpgsqlDataAdapter dataadapter_query = new NpgsqlDataAdapter(command, conn);
-                dataset_query.Reset();
-                dataadapter_query.Fill(dataset_query);
-                datatable_query = dataset_query.Tables[0];
-                View_InvList.DataSource = datatable_query;
+                tb_scanning.BackColor = Color.Red;
+                tb_scanning.Text = "Disconnected";
+            }
+
+            else if (!startup)
+            {
+                if (toStopThread)
+                {
+                    tb_scanning.BackColor = Color.Red;
+                    tb_scanning.Text = "Disconnected";
+                }
+
+                if (!toStopThread)
+                {
+                    tb_scanning.BackColor = Color.Green;
+                    tb_scanning.Text = "Operational";
+                }
+            }
+        }
+
+        private void alarm_checker_Tick(object sender, EventArgs e)
+        {
+            Console.WriteLine("Syncing with Database . . . ");
+            string connstring = String.Format("Host=localhost;Port=5432;User Id=Admin;Password=password;Database=Inventory;");
+            NpgsqlConnection conn = new NpgsqlConnection(connstring);
+            try
+            {
+                conn.Open();
+                var cmd = new NpgsqlCommand("SELECT COUNT(*) from rfid_inventory WHERE item_status_automated = 'Error: status do not tally.';", conn);
+                int alarm_no = Convert.ToInt32(cmd.ExecuteScalar());
                 conn.Close();
+                lbl_alarm.Text = alarm_no.ToString();
+                if (alarm_no > 0)
+                {
+                    lbl_alarm.BackColor = Color.Red;
+                }
+                else
+                {
+                    lbl_alarm.BackColor = Color.LightGreen;
+                }
+            }
+            catch(Exception em)
+            {
+                lbl_alarm.Text = "Error";
+            }
+        }
+        
+        private void lbl_alarm_Click(object sender, EventArgs e)
+        {
+            Inventory_Monitoring.Form2 f2 = new Inventory_Monitoring.Form2();
+            f2.ShowDialog();
+        }
+
+        public string command_line;
+
+        private void date_query_ValueChanged(object sender, EventArgs e)
+        {
+            if(date_query.Value == DateTimePicker.MinimumDateTime)
+            {
+                date_query.Value = DateTime.Now;
+                date_query.CustomFormat = " ";
+                date_query.Format = DateTimePickerFormat.Custom;
             }
 
             else
             {
-                string command = "SELECT * FROM rfid_inventory WHERE item_sn = '" + sn_search + "' AND epc = '" + epc_search + "';";
+                date_query.CustomFormat = "M/d/yyyy";
+                date_query.Format = DateTimePickerFormat.Custom;
+                date_query.Text = date_query.Value.ToString();
+            }
+        }
+
+        private void date_checkin_query_ValueChanged(object sender, EventArgs e)
+        {
+            if (date_checkin_query.Value == DateTimePicker.MinimumDateTime)
+            {
+                date_checkin_query.Value = DateTime.Now;
+                date_checkin_query.CustomFormat = " ";
+                date_checkin_query.Format = DateTimePickerFormat.Custom;
+            }
+
+            else
+            {
+                date_checkin_query.CustomFormat = "M/d/yyyy";
+                date_checkin_query.Format = DateTimePickerFormat.Custom;
+                date_checkin_query.Text = date_checkin_query.Value.ToString();
+            }
+            
+        }
+
+        private void timer_datetime_Tick(object sender, EventArgs e)
+        {
+            string time_now = DateTime.Now.ToString("T");
+            string date_today = DateTime.Now.ToString("MM/dd/yyyy dddd");
+            lbl_currenttime.Text = time_now;
+            lbl_currentdate.Text = date_today;
+        }
+
+        private void BN_Open_FullDB_Click(object sender, EventArgs e)
+        {
+            string connstring = String.Format("Host=localhost;Port=5432;User Id=Admin;Password=password;Database=Inventory;");
+            NpgsqlConnection conn = new NpgsqlConnection(connstring);
+            try
+            {
+                conn.Open();
+                string command = "SELECT * FROM rfid_inventory;";
                 NpgsqlDataAdapter dataadapter_query = new NpgsqlDataAdapter(command, conn);
                 dataset_query.Reset();
                 dataadapter_query.Fill(dataset_query);
@@ -5632,6 +2630,209 @@ namespace UHFReader288MPDemo
                 View_InvList.DataSource = datatable_query;
                 conn.Close();
             }
+            catch (Exception em)
+            {
+                MessageBox.Show("Connection to the database is not established.");
+            }
+        }
+
+        private void bn_Search_Click(object sender, EventArgs e)
+        {
+            string epc = tb_query_epc.Text;
+            string sn = tb_query_sn.Text;
+
+            string connstring = String.Format("Host=localhost;Port=5432;User Id=Admin;Password=password;Database=Inventory;");
+            NpgsqlConnection conn = new NpgsqlConnection(connstring);
+            try
+            {
+                conn.Open();
+                command_line += ";";
+                NpgsqlDataAdapter dataadapter_query = new NpgsqlDataAdapter(command_line, conn);
+                tb_command_builder.Text = "Query completed.";
+                Console.WriteLine(command_line);
+                dataset_query.Reset();
+                dataadapter_query.Fill(dataset_query);
+                datatable_query = dataset_query.Tables[0];
+                View_InvList.DataSource = datatable_query;
+                conn.Close();
+            }
+            catch (Exception em)
+            {
+                MessageBox.Show("Error: Unable to connect with the database.");
+            }
+        }
+
+        private void bn_build_command_Click(object sender, EventArgs e)
+        {
+            command_line = "SELECT * FROM rfid_inventory ";
+            int checker = 0;
+
+            if (tb_query_epc.Text.Length > 0)
+            {
+                if (checker == 0)
+                {
+                    command_line += "WHERE ";
+                    command_line += "EPC = '" + tb_query_epc.Text + "' ";
+                    checker++;
+                }
+                else
+                {
+                    command_line += "AND ";
+                    command_line += "EPC = '" + tb_query_epc.Text + "' ";
+                }
+            }
+
+            if (tb_query_sn.Text.Length > 0)
+            {
+                if (checker == 0)
+                {
+                    command_line += "WHERE ";
+                    command_line += "item_sn = '" + tb_query_sn.Text + "' ";
+                    checker++;
+                }
+                else
+                {
+                    command_line += "AND ";
+                    command_line += "item_sn = '" + tb_query_sn.Text + "' ";
+                }
+            }
+
+            if (date_query.Text.Length > 1)
+            {
+                if (checker == 0)
+                {
+                    command_line += "WHERE ";
+                    command_line += "time_check_out LIKE '%" + date_query.Text + "%' ";
+                    checker++;
+                }
+                else
+                {
+                    command_line += "AND ";
+                    command_line += "time_check_out LIKE '%" + date_query.Text + "%' ";
+                }
+            }
+
+            if (date_checkin_query.Text.Length > 1)
+            {
+                if (checker == 0)
+                {
+                    command_line += "WHERE ";
+                    command_line += "time_checked_in LIKE '%" + date_checkin_query.Text + "%' ";
+                    checker++;
+                }
+                else
+                {
+                    command_line += "AND ";
+                    command_line += "time_checked_in LIKE '%" + date_checkin_query.Text + "%' ";
+                }
+            }
+
+            if (tb_user_checkout.Text.Length > 1)
+            {
+                if (checker == 0)
+                {
+                    command_line += "WHERE ";
+                    command_line += "personnel_checked_out LIKE '%" + tb_user_checkout.Text + "%' ";
+                    checker++;
+                }
+                else
+                {
+                    command_line += "AND ";
+                    command_line += "personnel_checked_out LIKE '%" + tb_user_checkout.Text + "%' ";
+                }
+            }
+
+            if (tb_user_checkin.Text.Length > 1)
+            {
+                if (checker == 0)
+                {
+                    command_line += "WHERE ";
+                    command_line += "personnel_checked_in LIKE '%" + tb_user_checkin.Text + "%' ";
+                    checker++;
+                }
+                else
+                {
+                    command_line += "AND ";
+                    command_line += "personnel_checked_in LIKE '%" + tb_user_checkin.Text + "%' ";
+                }
+            }
+
+            if (tb_query_model.Text.Length > 1)
+            {
+                if (checker == 0)
+                {
+                    command_line += "WHERE ";
+                    command_line += "tagname LIKE '%" + tb_query_model.Text + "%' ";
+                    checker++;
+                }
+                else
+                {
+                    command_line += "AND ";
+                    command_line += "tagname LIKE '%" + tb_query_model.Text + "%' ";
+                }
+            }
+
+            if (tb_item_location.Text.Length > 1)
+            {
+                if (checker == 0)
+                {
+                    command_line += "WHERE ";
+                    command_line += "tagloc LIKE '%" + tb_item_location.Text + "%' ";
+                    checker++;
+                }
+                else
+                {
+                    command_line += "AND ";
+                    command_line += "tagloc LIKE '%" + tb_item_location.Text + "%' ";
+                }
+            }
+
+            if (cb_item_condition.Text.Length > 1)
+            {
+                if (checker == 0)
+                {
+                    command_line += "WHERE ";
+                    command_line += "item_condition = '" + cb_item_condition.Text + "' ";
+                    checker++;
+                }
+                else
+                {
+                    command_line += "AND ";
+                    command_line += "item_condition = '" + cb_item_condition.Text + "' ";
+                }
+            }
+
+            if (tb_item_remarks.Text.Length > 1)
+            {
+                if (checker == 0)
+                {
+                    command_line += "WHERE ";
+                    command_line += "tagdesc LIKE '%" + tb_item_remarks.Text + "%' ";
+                    checker++;
+                }
+                else
+                {
+                    command_line += "AND ";
+                    command_line += "tagdesc LIKE '%" + tb_item_remarks.Text + "%' ";
+                }
+            }
+
+            tb_command_builder.Text = "Command built.";
+        }
+
+        private void btn_clear_Click(object sender, EventArgs e)
+        {
+            date_query.Value = DateTimePicker.MinimumDateTime;
+            date_checkin_query.Value = DateTimePicker.MinimumDateTime;
+            command_line = "";
+            tb_query_epc.Clear();
+            tb_query_sn.Clear();
+            tb_user_checkout.Clear();
+            tb_user_checkin.Clear();
+            tb_query_model.Clear();
+            tb_item_location.Clear();
+            cb_item_condition.SelectedIndex = -1;
+            tb_item_remarks.Clear();
         }
     }
 }
