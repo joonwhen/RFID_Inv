@@ -188,8 +188,9 @@
             this.MRB_6B = new System.Windows.Forms.RadioButton();
             this.MRB_G2 = new System.Windows.Forms.RadioButton();
             this.Main_Page2 = new System.Windows.Forms.TabPage();
-            this.bn_Search = new System.Windows.Forms.Button();
-            this.BN_Open_FullDB = new System.Windows.Forms.Button();
+            this.gb_current_datetime = new System.Windows.Forms.GroupBox();
+            this.lbl_currentdate = new System.Windows.Forms.Label();
+            this.lbl_currenttime = new System.Windows.Forms.Label();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
             this.lbl_alarm = new System.Windows.Forms.Label();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
@@ -201,6 +202,27 @@
             this.btIventoryG2 = new System.Windows.Forms.Button();
             this.DIS_InvList = new System.Windows.Forms.GroupBox();
             this.gb_command_builder = new System.Windows.Forms.GroupBox();
+            this.BN_Open_FullDB = new System.Windows.Forms.Button();
+            this.bn_Search = new System.Windows.Forms.Button();
+            this.btn_clear = new System.Windows.Forms.Button();
+            this.bn_build_command = new System.Windows.Forms.Button();
+            this.tb_command_builder = new System.Windows.Forms.TextBox();
+            this.tb_item_remarks = new System.Windows.Forms.TextBox();
+            this.lbl_item_remarks = new System.Windows.Forms.Label();
+            this.cb_item_condition = new System.Windows.Forms.ComboBox();
+            this.lbl_item_condition = new System.Windows.Forms.Label();
+            this.tb_item_location = new System.Windows.Forms.TextBox();
+            this.lbl_item_location = new System.Windows.Forms.Label();
+            this.lbl_model = new System.Windows.Forms.Label();
+            this.tb_query_model = new System.Windows.Forms.TextBox();
+            this.lbl_user_checkin = new System.Windows.Forms.Label();
+            this.tb_user_checkin = new System.Windows.Forms.TextBox();
+            this.lbl_user_checkout = new System.Windows.Forms.Label();
+            this.lbl_checkin_date = new System.Windows.Forms.Label();
+            this.tb_user_checkout = new System.Windows.Forms.TextBox();
+            this.date_checkin_query = new System.Windows.Forms.DateTimePicker();
+            this.lbl_checkout_date = new System.Windows.Forms.Label();
+            this.date_query = new System.Windows.Forms.DateTimePicker();
             this.lbl_sn = new System.Windows.Forms.Label();
             this.tb_query_sn = new System.Windows.Forms.TextBox();
             this.lbl_epc = new System.Windows.Forms.Label();
@@ -219,12 +241,7 @@
             this.timer_RealTime = new System.Windows.Forms.Timer(this.components);
             this.status_checker = new System.Windows.Forms.Timer(this.components);
             this.alarm_checker = new System.Windows.Forms.Timer(this.components);
-            this.tb_command_builder = new System.Windows.Forms.TextBox();
-            this.bn_build_command = new System.Windows.Forms.Button();
-            this.date_query = new System.Windows.Forms.DateTimePicker();
-            this.lbl_checkout_date = new System.Windows.Forms.Label();
-            this.lbl_checkin_date = new System.Windows.Forms.Label();
-            this.date_checkin_query = new System.Windows.Forms.DateTimePicker();
+            this.timer_datetime = new System.Windows.Forms.Timer(this.components);
             this.Maintab.SuspendLayout();
             this.Main_Page1.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -261,6 +278,7 @@
             this.groupBox28.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.Main_Page2.SuspendLayout();
+            this.gb_current_datetime.SuspendLayout();
             this.groupBox6.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.groupBox5.SuspendLayout();
@@ -281,7 +299,7 @@
             this.Maintab.Multiline = true;
             this.Maintab.Name = "Maintab";
             this.Maintab.SelectedIndex = 0;
-            this.Maintab.Size = new System.Drawing.Size(1079, 652);
+            this.Maintab.Size = new System.Drawing.Size(1079, 611);
             this.Maintab.TabIndex = 3;
             this.Maintab.SelectedIndexChanged += new System.EventHandler(this.Maintab_SelectedIndexChanged);
             // 
@@ -292,7 +310,7 @@
             this.Main_Page1.Location = new System.Drawing.Point(4, 27);
             this.Main_Page1.Name = "Main_Page1";
             this.Main_Page1.Padding = new System.Windows.Forms.Padding(3);
-            this.Main_Page1.Size = new System.Drawing.Size(1071, 621);
+            this.Main_Page1.Size = new System.Drawing.Size(1071, 580);
             this.Main_Page1.TabIndex = 0;
             this.Main_Page1.Text = "   Command  ";
             this.Main_Page1.UseVisualStyleBackColor = true;
@@ -306,7 +324,7 @@
             this.tabControl1.Location = new System.Drawing.Point(1, 4);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(1065, 615);
+            this.tabControl1.Size = new System.Drawing.Size(1065, 574);
             this.tabControl1.TabIndex = 0;
             this.tabControl1.SelectedIndexChanged += new System.EventHandler(this.Maintab_SelectedIndexChanged);
             // 
@@ -339,7 +357,7 @@
             this.tabPage_Basic.Location = new System.Drawing.Point(4, 27);
             this.tabPage_Basic.Name = "tabPage_Basic";
             this.tabPage_Basic.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage_Basic.Size = new System.Drawing.Size(1057, 584);
+            this.tabPage_Basic.Size = new System.Drawing.Size(1057, 543);
             this.tabPage_Basic.TabIndex = 0;
             this.tabPage_Basic.Text = "  Basic  ";
             this.tabPage_Basic.UseVisualStyleBackColor = true;
@@ -1658,7 +1676,7 @@
             this.tabPage_Module.Controls.Add(this.panel9);
             this.tabPage_Module.Location = new System.Drawing.Point(4, 27);
             this.tabPage_Module.Name = "tabPage_Module";
-            this.tabPage_Module.Size = new System.Drawing.Size(1057, 584);
+            this.tabPage_Module.Size = new System.Drawing.Size(1057, 543);
             this.tabPage_Module.TabIndex = 2;
             this.tabPage_Module.Text = "Advanced Settings";
             this.tabPage_Module.UseVisualStyleBackColor = true;
@@ -2092,8 +2110,7 @@
             // Main_Page2
             // 
             this.Main_Page2.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.Main_Page2.Controls.Add(this.bn_Search);
-            this.Main_Page2.Controls.Add(this.BN_Open_FullDB);
+            this.Main_Page2.Controls.Add(this.gb_current_datetime);
             this.Main_Page2.Controls.Add(this.groupBox6);
             this.Main_Page2.Controls.Add(this.groupBox4);
             this.Main_Page2.Controls.Add(this.DIS_InvList);
@@ -2101,35 +2118,46 @@
             this.Main_Page2.Location = new System.Drawing.Point(4, 27);
             this.Main_Page2.Name = "Main_Page2";
             this.Main_Page2.Padding = new System.Windows.Forms.Padding(3);
-            this.Main_Page2.Size = new System.Drawing.Size(1071, 621);
+            this.Main_Page2.Size = new System.Drawing.Size(1071, 580);
             this.Main_Page2.TabIndex = 1;
             this.Main_Page2.Text = "Inventory Check";
             this.Main_Page2.UseVisualStyleBackColor = true;
             // 
-            // bn_Search
+            // gb_current_datetime
             // 
-            this.bn_Search.Location = new System.Drawing.Point(31, 558);
-            this.bn_Search.Name = "bn_Search";
-            this.bn_Search.Size = new System.Drawing.Size(62, 23);
-            this.bn_Search.TabIndex = 41;
-            this.bn_Search.Text = "Search";
-            this.bn_Search.UseVisualStyleBackColor = true;
-            this.bn_Search.Click += new System.EventHandler(this.bn_Search_Click);
+            this.gb_current_datetime.Controls.Add(this.lbl_currentdate);
+            this.gb_current_datetime.Controls.Add(this.lbl_currenttime);
+            this.gb_current_datetime.Location = new System.Drawing.Point(8, 6);
+            this.gb_current_datetime.Name = "gb_current_datetime";
+            this.gb_current_datetime.Size = new System.Drawing.Size(132, 96);
+            this.gb_current_datetime.TabIndex = 42;
+            this.gb_current_datetime.TabStop = false;
+            this.gb_current_datetime.Text = "Date and Time:";
             // 
-            // BN_Open_FullDB
+            // lbl_currentdate
             // 
-            this.BN_Open_FullDB.Location = new System.Drawing.Point(117, 558);
-            this.BN_Open_FullDB.Name = "BN_Open_FullDB";
-            this.BN_Open_FullDB.Size = new System.Drawing.Size(145, 23);
-            this.BN_Open_FullDB.TabIndex = 33;
-            this.BN_Open_FullDB.Text = "Open Full Inventory List";
-            this.BN_Open_FullDB.UseVisualStyleBackColor = true;
-            this.BN_Open_FullDB.Click += new System.EventHandler(this.BN_Open_FullDB_Click);
+            this.lbl_currentdate.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_currentdate.Location = new System.Drawing.Point(0, 54);
+            this.lbl_currentdate.Name = "lbl_currentdate";
+            this.lbl_currentdate.Size = new System.Drawing.Size(132, 24);
+            this.lbl_currentdate.TabIndex = 2;
+            this.lbl_currentdate.Text = "placeholder";
+            this.lbl_currentdate.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // lbl_currenttime
+            // 
+            this.lbl_currenttime.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_currenttime.Location = new System.Drawing.Point(0, 24);
+            this.lbl_currenttime.Name = "lbl_currenttime";
+            this.lbl_currenttime.Size = new System.Drawing.Size(132, 24);
+            this.lbl_currenttime.TabIndex = 1;
+            this.lbl_currenttime.Text = "placeholder";
+            this.lbl_currenttime.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // groupBox6
             // 
             this.groupBox6.Controls.Add(this.lbl_alarm);
-            this.groupBox6.Location = new System.Drawing.Point(531, 6);
+            this.groupBox6.Location = new System.Drawing.Point(722, 6);
             this.groupBox6.Name = "groupBox6";
             this.groupBox6.Size = new System.Drawing.Size(96, 96);
             this.groupBox6.TabIndex = 40;
@@ -2151,7 +2179,7 @@
             // 
             this.groupBox4.Controls.Add(this.groupBox5);
             this.groupBox4.Controls.Add(this.btIventoryG2);
-            this.groupBox4.Location = new System.Drawing.Point(8, 6);
+            this.groupBox4.Location = new System.Drawing.Point(146, 6);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Size = new System.Drawing.Size(272, 96);
             this.groupBox4.TabIndex = 39;
@@ -2164,7 +2192,7 @@
             this.groupBox5.Controls.Add(this.check_ant2);
             this.groupBox5.Controls.Add(this.check_ant3);
             this.groupBox5.Controls.Add(this.check_ant4);
-            this.groupBox5.Location = new System.Drawing.Point(120, 20);
+            this.groupBox5.Location = new System.Drawing.Point(120, 18);
             this.groupBox5.Name = "groupBox5";
             this.groupBox5.Size = new System.Drawing.Size(146, 64);
             this.groupBox5.TabIndex = 40;
@@ -2236,29 +2264,235 @@
             this.DIS_InvList.Controls.Add(this.panel_datagrid);
             this.DIS_InvList.Location = new System.Drawing.Point(8, 108);
             this.DIS_InvList.Name = "DIS_InvList";
-            this.DIS_InvList.Size = new System.Drawing.Size(1055, 410);
+            this.DIS_InvList.Size = new System.Drawing.Size(1055, 409);
             this.DIS_InvList.TabIndex = 34;
             this.DIS_InvList.TabStop = false;
             this.DIS_InvList.Text = "Query:";
             // 
             // gb_command_builder
             // 
+            this.gb_command_builder.Controls.Add(this.BN_Open_FullDB);
+            this.gb_command_builder.Controls.Add(this.bn_Search);
+            this.gb_command_builder.Controls.Add(this.btn_clear);
+            this.gb_command_builder.Controls.Add(this.bn_build_command);
+            this.gb_command_builder.Controls.Add(this.tb_command_builder);
+            this.gb_command_builder.Controls.Add(this.tb_item_remarks);
+            this.gb_command_builder.Controls.Add(this.lbl_item_remarks);
+            this.gb_command_builder.Controls.Add(this.cb_item_condition);
+            this.gb_command_builder.Controls.Add(this.lbl_item_condition);
+            this.gb_command_builder.Controls.Add(this.tb_item_location);
+            this.gb_command_builder.Controls.Add(this.lbl_item_location);
+            this.gb_command_builder.Controls.Add(this.lbl_model);
+            this.gb_command_builder.Controls.Add(this.tb_query_model);
+            this.gb_command_builder.Controls.Add(this.lbl_user_checkin);
+            this.gb_command_builder.Controls.Add(this.tb_user_checkin);
+            this.gb_command_builder.Controls.Add(this.lbl_user_checkout);
             this.gb_command_builder.Controls.Add(this.lbl_checkin_date);
+            this.gb_command_builder.Controls.Add(this.tb_user_checkout);
             this.gb_command_builder.Controls.Add(this.date_checkin_query);
             this.gb_command_builder.Controls.Add(this.lbl_checkout_date);
             this.gb_command_builder.Controls.Add(this.date_query);
-            this.gb_command_builder.Controls.Add(this.bn_build_command);
-            this.gb_command_builder.Controls.Add(this.tb_command_builder);
             this.gb_command_builder.Controls.Add(this.lbl_sn);
             this.gb_command_builder.Controls.Add(this.tb_query_sn);
             this.gb_command_builder.Controls.Add(this.lbl_epc);
             this.gb_command_builder.Controls.Add(this.tb_query_epc);
-            this.gb_command_builder.Location = new System.Drawing.Point(3, 185);
+            this.gb_command_builder.Location = new System.Drawing.Point(3, 182);
             this.gb_command_builder.Name = "gb_command_builder";
-            this.gb_command_builder.Size = new System.Drawing.Size(1049, 219);
+            this.gb_command_builder.Size = new System.Drawing.Size(807, 219);
             this.gb_command_builder.TabIndex = 42;
             this.gb_command_builder.TabStop = false;
             this.gb_command_builder.Text = "Query Setup:";
+            // 
+            // BN_Open_FullDB
+            // 
+            this.BN_Open_FullDB.Location = new System.Drawing.Point(645, 190);
+            this.BN_Open_FullDB.Name = "BN_Open_FullDB";
+            this.BN_Open_FullDB.Size = new System.Drawing.Size(145, 23);
+            this.BN_Open_FullDB.TabIndex = 94;
+            this.BN_Open_FullDB.Text = "Open Full Inventory List";
+            this.BN_Open_FullDB.UseVisualStyleBackColor = true;
+            this.BN_Open_FullDB.Click += new System.EventHandler(this.BN_Open_FullDB_Click);
+            // 
+            // bn_Search
+            // 
+            this.bn_Search.Location = new System.Drawing.Point(577, 190);
+            this.bn_Search.Name = "bn_Search";
+            this.bn_Search.Size = new System.Drawing.Size(62, 23);
+            this.bn_Search.TabIndex = 93;
+            this.bn_Search.Text = "Search";
+            this.bn_Search.UseVisualStyleBackColor = true;
+            this.bn_Search.Click += new System.EventHandler(this.bn_Search_Click);
+            // 
+            // btn_clear
+            // 
+            this.btn_clear.Location = new System.Drawing.Point(79, 189);
+            this.btn_clear.Name = "btn_clear";
+            this.btn_clear.Size = new System.Drawing.Size(62, 23);
+            this.btn_clear.TabIndex = 92;
+            this.btn_clear.Text = "Clear";
+            this.btn_clear.UseVisualStyleBackColor = true;
+            this.btn_clear.Click += new System.EventHandler(this.btn_clear_Click);
+            // 
+            // bn_build_command
+            // 
+            this.bn_build_command.Location = new System.Drawing.Point(11, 189);
+            this.bn_build_command.Name = "bn_build_command";
+            this.bn_build_command.Size = new System.Drawing.Size(62, 23);
+            this.bn_build_command.TabIndex = 91;
+            this.bn_build_command.Text = "Build";
+            this.bn_build_command.UseVisualStyleBackColor = true;
+            this.bn_build_command.Click += new System.EventHandler(this.bn_build_command_Click);
+            // 
+            // tb_command_builder
+            // 
+            this.tb_command_builder.Location = new System.Drawing.Point(11, 158);
+            this.tb_command_builder.Multiline = true;
+            this.tb_command_builder.Name = "tb_command_builder";
+            this.tb_command_builder.Size = new System.Drawing.Size(779, 25);
+            this.tb_command_builder.TabIndex = 90;
+            // 
+            // tb_item_remarks
+            // 
+            this.tb_item_remarks.Location = new System.Drawing.Point(624, 97);
+            this.tb_item_remarks.Multiline = true;
+            this.tb_item_remarks.Name = "tb_item_remarks";
+            this.tb_item_remarks.Size = new System.Drawing.Size(166, 57);
+            this.tb_item_remarks.TabIndex = 89;
+            // 
+            // lbl_item_remarks
+            // 
+            this.lbl_item_remarks.AutoSize = true;
+            this.lbl_item_remarks.Location = new System.Drawing.Point(543, 116);
+            this.lbl_item_remarks.Name = "lbl_item_remarks";
+            this.lbl_item_remarks.Size = new System.Drawing.Size(75, 13);
+            this.lbl_item_remarks.TabIndex = 88;
+            this.lbl_item_remarks.Text = "Item Remarks:";
+            // 
+            // cb_item_condition
+            // 
+            this.cb_item_condition.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cb_item_condition.FormattingEnabled = true;
+            this.cb_item_condition.Items.AddRange(new object[] {
+            "Spoilt",
+            "Tested Working",
+            "Untested"});
+            this.cb_item_condition.Location = new System.Drawing.Point(624, 71);
+            this.cb_item_condition.Name = "cb_item_condition";
+            this.cb_item_condition.Size = new System.Drawing.Size(166, 21);
+            this.cb_item_condition.TabIndex = 87;
+            // 
+            // lbl_item_condition
+            // 
+            this.lbl_item_condition.AutoSize = true;
+            this.lbl_item_condition.Location = new System.Drawing.Point(541, 74);
+            this.lbl_item_condition.Name = "lbl_item_condition";
+            this.lbl_item_condition.Size = new System.Drawing.Size(77, 13);
+            this.lbl_item_condition.TabIndex = 86;
+            this.lbl_item_condition.Text = "Item Condition:";
+            // 
+            // tb_item_location
+            // 
+            this.tb_item_location.Location = new System.Drawing.Point(624, 45);
+            this.tb_item_location.Name = "tb_item_location";
+            this.tb_item_location.Size = new System.Drawing.Size(166, 20);
+            this.tb_item_location.TabIndex = 85;
+            // 
+            // lbl_item_location
+            // 
+            this.lbl_item_location.AutoSize = true;
+            this.lbl_item_location.Location = new System.Drawing.Point(544, 48);
+            this.lbl_item_location.Name = "lbl_item_location";
+            this.lbl_item_location.Size = new System.Drawing.Size(74, 13);
+            this.lbl_item_location.TabIndex = 84;
+            this.lbl_item_location.Text = "Item Location:";
+            // 
+            // lbl_model
+            // 
+            this.lbl_model.AutoSize = true;
+            this.lbl_model.Location = new System.Drawing.Point(556, 22);
+            this.lbl_model.Name = "lbl_model";
+            this.lbl_model.Size = new System.Drawing.Size(62, 13);
+            this.lbl_model.TabIndex = 82;
+            this.lbl_model.Text = "Item Model:";
+            // 
+            // tb_query_model
+            // 
+            this.tb_query_model.Location = new System.Drawing.Point(624, 19);
+            this.tb_query_model.Name = "tb_query_model";
+            this.tb_query_model.Size = new System.Drawing.Size(166, 20);
+            this.tb_query_model.TabIndex = 83;
+            // 
+            // lbl_user_checkin
+            // 
+            this.lbl_user_checkin.AutoSize = true;
+            this.lbl_user_checkin.Location = new System.Drawing.Point(255, 100);
+            this.lbl_user_checkin.Name = "lbl_user_checkin";
+            this.lbl_user_checkin.Size = new System.Drawing.Size(80, 13);
+            this.lbl_user_checkin.TabIndex = 78;
+            this.lbl_user_checkin.Text = "Checked In By:";
+            // 
+            // tb_user_checkin
+            // 
+            this.tb_user_checkin.Location = new System.Drawing.Point(341, 97);
+            this.tb_user_checkin.Name = "tb_user_checkin";
+            this.tb_user_checkin.Size = new System.Drawing.Size(166, 20);
+            this.tb_user_checkin.TabIndex = 77;
+            // 
+            // lbl_user_checkout
+            // 
+            this.lbl_user_checkout.AutoSize = true;
+            this.lbl_user_checkout.Location = new System.Drawing.Point(247, 74);
+            this.lbl_user_checkout.Name = "lbl_user_checkout";
+            this.lbl_user_checkout.Size = new System.Drawing.Size(88, 13);
+            this.lbl_user_checkout.TabIndex = 63;
+            this.lbl_user_checkout.Text = "Checked Out By:";
+            // 
+            // lbl_checkin_date
+            // 
+            this.lbl_checkin_date.AutoSize = true;
+            this.lbl_checkin_date.Location = new System.Drawing.Point(260, 48);
+            this.lbl_checkin_date.Name = "lbl_checkin_date";
+            this.lbl_checkin_date.Size = new System.Drawing.Size(75, 13);
+            this.lbl_checkin_date.TabIndex = 48;
+            this.lbl_checkin_date.Text = "Checkin Date:";
+            // 
+            // tb_user_checkout
+            // 
+            this.tb_user_checkout.Location = new System.Drawing.Point(341, 71);
+            this.tb_user_checkout.Name = "tb_user_checkout";
+            this.tb_user_checkout.Size = new System.Drawing.Size(166, 20);
+            this.tb_user_checkout.TabIndex = 62;
+            // 
+            // date_checkin_query
+            // 
+            this.date_checkin_query.CustomFormat = " ";
+            this.date_checkin_query.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.date_checkin_query.Location = new System.Drawing.Point(341, 45);
+            this.date_checkin_query.Name = "date_checkin_query";
+            this.date_checkin_query.Size = new System.Drawing.Size(166, 20);
+            this.date_checkin_query.TabIndex = 47;
+            this.date_checkin_query.Value = new System.DateTime(2021, 1, 1, 0, 0, 0, 0);
+            this.date_checkin_query.ValueChanged += new System.EventHandler(this.date_checkin_query_ValueChanged);
+            // 
+            // lbl_checkout_date
+            // 
+            this.lbl_checkout_date.AutoSize = true;
+            this.lbl_checkout_date.Location = new System.Drawing.Point(253, 22);
+            this.lbl_checkout_date.Name = "lbl_checkout_date";
+            this.lbl_checkout_date.Size = new System.Drawing.Size(82, 13);
+            this.lbl_checkout_date.TabIndex = 46;
+            this.lbl_checkout_date.Text = "Checkout Date:";
+            // 
+            // date_query
+            // 
+            this.date_query.CustomFormat = " ";
+            this.date_query.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.date_query.Location = new System.Drawing.Point(341, 19);
+            this.date_query.Name = "date_query";
+            this.date_query.Size = new System.Drawing.Size(166, 20);
+            this.date_query.TabIndex = 45;
+            this.date_query.Value = new System.DateTime(2021, 1, 1, 0, 0, 0, 0);
+            this.date_query.ValueChanged += new System.EventHandler(this.date_query_ValueChanged);
             // 
             // lbl_sn
             // 
@@ -2325,7 +2559,7 @@
             this.groupBox2.Controls.Add(this.tb_hw_connected);
             this.groupBox2.Controls.Add(this.label1);
             this.groupBox2.Controls.Add(this.lbl_db_conn);
-            this.groupBox2.Location = new System.Drawing.Point(286, 6);
+            this.groupBox2.Location = new System.Drawing.Point(824, 6);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(239, 96);
             this.groupBox2.TabIndex = 38;
@@ -2416,69 +2650,17 @@
             this.alarm_checker.Interval = 10000;
             this.alarm_checker.Tick += new System.EventHandler(this.alarm_checker_Tick);
             // 
-            // tb_command_builder
+            // timer_datetime
             // 
-            this.tb_command_builder.Location = new System.Drawing.Point(11, 150);
-            this.tb_command_builder.Multiline = true;
-            this.tb_command_builder.Name = "tb_command_builder";
-            this.tb_command_builder.Size = new System.Drawing.Size(464, 25);
-            this.tb_command_builder.TabIndex = 42;
-            // 
-            // bn_build_command
-            // 
-            this.bn_build_command.Location = new System.Drawing.Point(11, 181);
-            this.bn_build_command.Name = "bn_build_command";
-            this.bn_build_command.Size = new System.Drawing.Size(62, 23);
-            this.bn_build_command.TabIndex = 42;
-            this.bn_build_command.Text = "Build";
-            this.bn_build_command.UseVisualStyleBackColor = true;
-            this.bn_build_command.Click += new System.EventHandler(this.bn_build_command_Click);
-            // 
-            // date_query
-            // 
-            this.date_query.CustomFormat = " ";
-            this.date_query.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.date_query.Location = new System.Drawing.Point(324, 45);
-            this.date_query.Name = "date_query";
-            this.date_query.Size = new System.Drawing.Size(166, 20);
-            this.date_query.TabIndex = 45;
-            this.date_query.Value = new System.DateTime(2021, 3, 10, 16, 50, 47, 0);
-            this.date_query.ValueChanged += new System.EventHandler(this.date_query_ValueChanged);
-            // 
-            // lbl_checkout_date
-            // 
-            this.lbl_checkout_date.AutoSize = true;
-            this.lbl_checkout_date.Location = new System.Drawing.Point(236, 48);
-            this.lbl_checkout_date.Name = "lbl_checkout_date";
-            this.lbl_checkout_date.Size = new System.Drawing.Size(82, 13);
-            this.lbl_checkout_date.TabIndex = 46;
-            this.lbl_checkout_date.Text = "Checkout Date:";
-            // 
-            // lbl_checkin_date
-            // 
-            this.lbl_checkin_date.AutoSize = true;
-            this.lbl_checkin_date.Location = new System.Drawing.Point(243, 22);
-            this.lbl_checkin_date.Name = "lbl_checkin_date";
-            this.lbl_checkin_date.Size = new System.Drawing.Size(75, 13);
-            this.lbl_checkin_date.TabIndex = 48;
-            this.lbl_checkin_date.Text = "Checkin Date:";
-            // 
-            // date_checkin_query
-            // 
-            this.date_checkin_query.CustomFormat = " ";
-            this.date_checkin_query.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.date_checkin_query.Location = new System.Drawing.Point(324, 19);
-            this.date_checkin_query.Name = "date_checkin_query";
-            this.date_checkin_query.Size = new System.Drawing.Size(166, 20);
-            this.date_checkin_query.TabIndex = 47;
-            this.date_checkin_query.Value = new System.DateTime(2021, 3, 10, 16, 50, 47, 0);
-            this.date_checkin_query.ValueChanged += new System.EventHandler(this.date_checkin_query_ValueChanged);
+            this.timer_datetime.Enabled = true;
+            this.timer_datetime.Interval = 1000;
+            this.timer_datetime.Tick += new System.EventHandler(this.timer_datetime_Tick);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1079, 654);
+            this.ClientSize = new System.Drawing.Size(1079, 609);
             this.Controls.Add(this.Maintab);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
@@ -2549,6 +2731,7 @@
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             this.Main_Page2.ResumeLayout(false);
+            this.gb_current_datetime.ResumeLayout(false);
             this.groupBox6.ResumeLayout(false);
             this.groupBox4.ResumeLayout(false);
             this.groupBox5.ResumeLayout(false);
@@ -2732,7 +2915,6 @@
         private System.Windows.Forms.Button btIventoryG2;
         public System.Windows.Forms.CheckBox check_ant3;
         private System.Windows.Forms.GroupBox DIS_InvList;
-        private System.Windows.Forms.Button BN_Open_FullDB;
         private System.Windows.Forms.DataGridView View_InvList;
         private System.Windows.Forms.Timer status_checker;
         private System.Windows.Forms.GroupBox groupBox2;
@@ -2748,18 +2930,36 @@
         private System.Windows.Forms.Timer alarm_checker;
         private System.Windows.Forms.Label lbl_alarm;
         private System.Windows.Forms.Panel panel_datagrid;
-        private System.Windows.Forms.Button bn_Search;
         private System.Windows.Forms.GroupBox gb_command_builder;
         private System.Windows.Forms.Label lbl_epc;
         private System.Windows.Forms.TextBox tb_query_epc;
         private System.Windows.Forms.Label lbl_sn;
         private System.Windows.Forms.TextBox tb_query_sn;
-        private System.Windows.Forms.Button bn_build_command;
-        private System.Windows.Forms.TextBox tb_command_builder;
         private System.Windows.Forms.DateTimePicker date_query;
         private System.Windows.Forms.Label lbl_checkin_date;
         private System.Windows.Forms.DateTimePicker date_checkin_query;
         private System.Windows.Forms.Label lbl_checkout_date;
+        private System.Windows.Forms.Label lbl_user_checkout;
+        private System.Windows.Forms.TextBox tb_user_checkout;
+        private System.Windows.Forms.Timer timer_datetime;
+        private System.Windows.Forms.GroupBox gb_current_datetime;
+        private System.Windows.Forms.Label lbl_currenttime;
+        private System.Windows.Forms.Label lbl_currentdate;
+        private System.Windows.Forms.TextBox tb_item_remarks;
+        private System.Windows.Forms.Label lbl_item_remarks;
+        private System.Windows.Forms.ComboBox cb_item_condition;
+        private System.Windows.Forms.Label lbl_item_condition;
+        private System.Windows.Forms.TextBox tb_item_location;
+        private System.Windows.Forms.Label lbl_item_location;
+        private System.Windows.Forms.Label lbl_model;
+        private System.Windows.Forms.TextBox tb_query_model;
+        private System.Windows.Forms.Label lbl_user_checkin;
+        private System.Windows.Forms.TextBox tb_user_checkin;
+        private System.Windows.Forms.Button BN_Open_FullDB;
+        private System.Windows.Forms.Button bn_Search;
+        private System.Windows.Forms.Button btn_clear;
+        private System.Windows.Forms.Button bn_build_command;
+        private System.Windows.Forms.TextBox tb_command_builder;
     }
 }
 

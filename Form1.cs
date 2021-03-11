@@ -130,6 +130,9 @@ namespace UHFReader288MPDemo
             Thread Checker_thr = new Thread(Periodic_Checker);
             Checker_thr.Start();
 
+            date_checkin_query.Value = DateTimePicker.MinimumDateTime;
+            date_query.Value = DateTimePicker.MinimumDateTime;
+
             //初始化设备控制模块；
             DevControl.tagErrorCode eCode = DevControl.DM_Init(searchCallBack, IntPtr.Zero);
             if (eCode != DevControl.tagErrorCode.DM_ERR_OK)
@@ -2489,29 +2492,6 @@ namespace UHFReader288MPDemo
         private DataSet dataset_query = new DataSet();
         private DataTable datatable_query = new DataTable();
 
-        private void BN_Open_FullDB_Click(object sender, EventArgs e)
-        {
-            
-            string connstring = String.Format("Host=localhost;Port=5432;User Id=Admin;Password=password;Database=Inventory;");
-            NpgsqlConnection conn = new NpgsqlConnection(connstring);
-            try
-            {
-                conn.Open();
-                string command = "SELECT * FROM rfid_inventory;";
-                NpgsqlDataAdapter dataadapter_query = new NpgsqlDataAdapter(command, conn);
-                dataset_query.Reset();
-                dataadapter_query.Fill(dataset_query);
-                datatable_query = dataset_query.Tables[0];
-                View_InvList.DataSource = datatable_query;
-                conn.Close();
-            }
-            catch(Exception em)
-            {
-                MessageBox.Show("Connection to the database is not established.");
-            }
-            
-        }
-
         private void status_checker_Tick(object sender, EventArgs e)
         {
             if (connected)
@@ -2590,7 +2570,71 @@ namespace UHFReader288MPDemo
             f2.ShowDialog();
         }
 
-        public string command_line = "";
+        public string command_line;
+
+        private void date_query_ValueChanged(object sender, EventArgs e)
+        {
+            if(date_query.Value == DateTimePicker.MinimumDateTime)
+            {
+                date_query.Value = DateTime.Now;
+                date_query.CustomFormat = " ";
+                date_query.Format = DateTimePickerFormat.Custom;
+            }
+
+            else
+            {
+                date_query.CustomFormat = "M/d/yyyy";
+                date_query.Format = DateTimePickerFormat.Custom;
+                date_query.Text = date_query.Value.ToString();
+            }
+        }
+
+        private void date_checkin_query_ValueChanged(object sender, EventArgs e)
+        {
+            if (date_checkin_query.Value == DateTimePicker.MinimumDateTime)
+            {
+                date_checkin_query.Value = DateTime.Now;
+                date_checkin_query.CustomFormat = " ";
+                date_checkin_query.Format = DateTimePickerFormat.Custom;
+            }
+
+            else
+            {
+                date_checkin_query.CustomFormat = "M/d/yyyy";
+                date_checkin_query.Format = DateTimePickerFormat.Custom;
+                date_checkin_query.Text = date_checkin_query.Value.ToString();
+            }
+            
+        }
+
+        private void timer_datetime_Tick(object sender, EventArgs e)
+        {
+            string time_now = DateTime.Now.ToString("T");
+            string date_today = DateTime.Now.ToString("MM/dd/yyyy dddd");
+            lbl_currenttime.Text = time_now;
+            lbl_currentdate.Text = date_today;
+        }
+
+        private void BN_Open_FullDB_Click(object sender, EventArgs e)
+        {
+            string connstring = String.Format("Host=localhost;Port=5432;User Id=Admin;Password=password;Database=Inventory;");
+            NpgsqlConnection conn = new NpgsqlConnection(connstring);
+            try
+            {
+                conn.Open();
+                string command = "SELECT * FROM rfid_inventory;";
+                NpgsqlDataAdapter dataadapter_query = new NpgsqlDataAdapter(command, conn);
+                dataset_query.Reset();
+                dataadapter_query.Fill(dataset_query);
+                datatable_query = dataset_query.Tables[0];
+                View_InvList.DataSource = datatable_query;
+                conn.Close();
+            }
+            catch (Exception em)
+            {
+                MessageBox.Show("Connection to the database is not established.");
+            }
+        }
 
         private void bn_Search_Click(object sender, EventArgs e)
         {
@@ -2616,7 +2660,6 @@ namespace UHFReader288MPDemo
             {
                 MessageBox.Show("Error: Unable to connect with the database.");
             }
-
         }
 
         private void bn_build_command_Click(object sender, EventArgs e)
@@ -2624,12 +2667,12 @@ namespace UHFReader288MPDemo
             command_line = "SELECT * FROM rfid_inventory ";
             int checker = 0;
 
-            if(tb_query_epc.Text.Length > 0)
+            if (tb_query_epc.Text.Length > 0)
             {
-                if(checker == 0)
+                if (checker == 0)
                 {
                     command_line += "WHERE ";
-                    command_line += "EPC = '" + tb_query_epc.Text + "' "; 
+                    command_line += "EPC = '" + tb_query_epc.Text + "' ";
                     checker++;
                 }
                 else
@@ -2639,7 +2682,7 @@ namespace UHFReader288MPDemo
                 }
             }
 
-            if(tb_query_sn.Text.Length > 0)
+            if (tb_query_sn.Text.Length > 0)
             {
                 if (checker == 0)
                 {
@@ -2684,21 +2727,112 @@ namespace UHFReader288MPDemo
                 }
             }
 
+            if (tb_user_checkout.Text.Length > 1)
+            {
+                if (checker == 0)
+                {
+                    command_line += "WHERE ";
+                    command_line += "personnel_checked_out LIKE '%" + tb_user_checkout.Text + "%' ";
+                    checker++;
+                }
+                else
+                {
+                    command_line += "AND ";
+                    command_line += "personnel_checked_out LIKE '%" + tb_user_checkout.Text + "%' ";
+                }
+            }
+
+            if (tb_user_checkin.Text.Length > 1)
+            {
+                if (checker == 0)
+                {
+                    command_line += "WHERE ";
+                    command_line += "personnel_checked_in LIKE '%" + tb_user_checkin.Text + "%' ";
+                    checker++;
+                }
+                else
+                {
+                    command_line += "AND ";
+                    command_line += "personnel_checked_in LIKE '%" + tb_user_checkin.Text + "%' ";
+                }
+            }
+
+            if (tb_query_model.Text.Length > 1)
+            {
+                if (checker == 0)
+                {
+                    command_line += "WHERE ";
+                    command_line += "tagname LIKE '%" + tb_query_model.Text + "%' ";
+                    checker++;
+                }
+                else
+                {
+                    command_line += "AND ";
+                    command_line += "tagname LIKE '%" + tb_query_model.Text + "%' ";
+                }
+            }
+
+            if (tb_item_location.Text.Length > 1)
+            {
+                if (checker == 0)
+                {
+                    command_line += "WHERE ";
+                    command_line += "tagloc LIKE '%" + tb_item_location.Text + "%' ";
+                    checker++;
+                }
+                else
+                {
+                    command_line += "AND ";
+                    command_line += "tagloc LIKE '%" + tb_item_location.Text + "%' ";
+                }
+            }
+
+            if (cb_item_condition.Text.Length > 1)
+            {
+                if (checker == 0)
+                {
+                    command_line += "WHERE ";
+                    command_line += "item_condition = '" + cb_item_condition.Text + "' ";
+                    checker++;
+                }
+                else
+                {
+                    command_line += "AND ";
+                    command_line += "item_condition = '" + cb_item_condition.Text + "' ";
+                }
+            }
+
+            if (tb_item_remarks.Text.Length > 1)
+            {
+                if (checker == 0)
+                {
+                    command_line += "WHERE ";
+                    command_line += "tagdesc LIKE '%" + tb_item_remarks.Text + "%' ";
+                    checker++;
+                }
+                else
+                {
+                    command_line += "AND ";
+                    command_line += "tagdesc LIKE '%" + tb_item_remarks.Text + "%' ";
+                }
+            }
+
             tb_command_builder.Text = "Command built.";
         }
 
-        private void date_query_ValueChanged(object sender, EventArgs e)
+        private void btn_clear_Click(object sender, EventArgs e)
         {
-            date_query.CustomFormat = "M/d/yyyy";
-            date_query.Format = DateTimePickerFormat.Custom;
-            date_query.Text = date_query.Value.ToString();
-        }
-
-        private void date_checkin_query_ValueChanged(object sender, EventArgs e)
-        {
-            date_checkin_query.CustomFormat = "M/d/yyyy";
-            date_checkin_query.Format = DateTimePickerFormat.Custom;
-            date_checkin_query.Text = date_checkin_query.Value.ToString();
+            date_query.Value = DateTimePicker.MinimumDateTime;
+            date_checkin_query.Value = DateTimePicker.MinimumDateTime;
+            command_line = "";
+            tb_query_epc.Clear();
+            tb_query_sn.Clear();
+            tb_user_checkout.Clear();
+            tb_user_checkin.Clear();
+            tb_query_model.Clear();
+            tb_item_location.Clear();
+            cb_item_condition.SelectedIndex = -1;
+            tb_item_remarks.Clear();
         }
     }
 }
