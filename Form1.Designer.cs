@@ -242,6 +242,10 @@
             this.status_checker = new System.Windows.Forms.Timer(this.components);
             this.alarm_checker = new System.Windows.Forms.Timer(this.components);
             this.timer_datetime = new System.Windows.Forms.Timer(this.components);
+            this.groupBox7 = new System.Windows.Forms.GroupBox();
+            this.rb_active = new System.Windows.Forms.RadioButton();
+            this.rb_passive = new System.Windows.Forms.RadioButton();
+            this.button_mode_set = new System.Windows.Forms.Button();
             this.Maintab.SuspendLayout();
             this.Main_Page1.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -287,6 +291,7 @@
             this.panel_datagrid.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.View_InvList)).BeginInit();
             this.groupBox2.SuspendLayout();
+            this.groupBox7.SuspendLayout();
             this.SuspendLayout();
             // 
             // Maintab
@@ -2110,6 +2115,7 @@
             // Main_Page2
             // 
             this.Main_Page2.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.Main_Page2.Controls.Add(this.groupBox7);
             this.Main_Page2.Controls.Add(this.gb_current_datetime);
             this.Main_Page2.Controls.Add(this.groupBox6);
             this.Main_Page2.Controls.Add(this.groupBox4);
@@ -2656,6 +2662,50 @@
             this.timer_datetime.Interval = 1000;
             this.timer_datetime.Tick += new System.EventHandler(this.timer_datetime_Tick);
             // 
+            // groupBox7
+            // 
+            this.groupBox7.Controls.Add(this.button_mode_set);
+            this.groupBox7.Controls.Add(this.rb_passive);
+            this.groupBox7.Controls.Add(this.rb_active);
+            this.groupBox7.Location = new System.Drawing.Point(424, 6);
+            this.groupBox7.Name = "groupBox7";
+            this.groupBox7.Size = new System.Drawing.Size(106, 96);
+            this.groupBox7.TabIndex = 43;
+            this.groupBox7.TabStop = false;
+            this.groupBox7.Text = "Mode Selection:";
+            // 
+            // rb_active
+            // 
+            this.rb_active.AutoSize = true;
+            this.rb_active.Location = new System.Drawing.Point(9, 20);
+            this.rb_active.Name = "rb_active";
+            this.rb_active.Size = new System.Drawing.Size(85, 17);
+            this.rb_active.TabIndex = 3;
+            this.rb_active.TabStop = true;
+            this.rb_active.Text = "Active Mode";
+            this.rb_active.UseVisualStyleBackColor = true;
+            // 
+            // rb_passive
+            // 
+            this.rb_passive.AutoSize = true;
+            this.rb_passive.Location = new System.Drawing.Point(9, 42);
+            this.rb_passive.Name = "rb_passive";
+            this.rb_passive.Size = new System.Drawing.Size(92, 17);
+            this.rb_passive.TabIndex = 4;
+            this.rb_passive.TabStop = true;
+            this.rb_passive.Text = "Passive Mode";
+            this.rb_passive.UseVisualStyleBackColor = true;
+            // 
+            // button_mode_set
+            // 
+            this.button_mode_set.Location = new System.Drawing.Point(15, 64);
+            this.button_mode_set.Name = "button_mode_set";
+            this.button_mode_set.Size = new System.Drawing.Size(75, 23);
+            this.button_mode_set.TabIndex = 5;
+            this.button_mode_set.Text = "Set";
+            this.button_mode_set.UseVisualStyleBackColor = true;
+            this.button_mode_set.Click += new System.EventHandler(this.button_mode_set_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -2743,6 +2793,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.View_InvList)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
+            this.groupBox7.ResumeLayout(false);
+            this.groupBox7.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -2960,6 +3012,10 @@
         private System.Windows.Forms.Button btn_clear;
         private System.Windows.Forms.Button bn_build_command;
         private System.Windows.Forms.TextBox tb_command_builder;
+        private System.Windows.Forms.GroupBox groupBox7;
+        private System.Windows.Forms.RadioButton rb_passive;
+        private System.Windows.Forms.RadioButton rb_active;
+        private System.Windows.Forms.Button button_mode_set;
     }
 }
 
