@@ -188,6 +188,10 @@
             this.MRB_6B = new System.Windows.Forms.RadioButton();
             this.MRB_G2 = new System.Windows.Forms.RadioButton();
             this.Main_Page2 = new System.Windows.Forms.TabPage();
+            this.groupBox7 = new System.Windows.Forms.GroupBox();
+            this.button_mode_set = new System.Windows.Forms.Button();
+            this.rb_passive = new System.Windows.Forms.RadioButton();
+            this.rb_active = new System.Windows.Forms.RadioButton();
             this.gb_current_datetime = new System.Windows.Forms.GroupBox();
             this.lbl_currentdate = new System.Windows.Forms.Label();
             this.lbl_currenttime = new System.Windows.Forms.Label();
@@ -242,10 +246,14 @@
             this.status_checker = new System.Windows.Forms.Timer(this.components);
             this.alarm_checker = new System.Windows.Forms.Timer(this.components);
             this.timer_datetime = new System.Windows.Forms.Timer(this.components);
-            this.groupBox7 = new System.Windows.Forms.GroupBox();
-            this.rb_active = new System.Windows.Forms.RadioButton();
-            this.rb_passive = new System.Windows.Forms.RadioButton();
-            this.button_mode_set = new System.Windows.Forms.Button();
+            this.groupBox8 = new System.Windows.Forms.GroupBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.tb_efx_epc = new System.Windows.Forms.TextBox();
+            this.cb_efx_status = new System.Windows.Forms.ComboBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.btn_efx = new System.Windows.Forms.Button();
+            this.efx_warning = new System.Windows.Forms.Label();
+            this.efx_authorise = new System.Windows.Forms.Button();
             this.Maintab.SuspendLayout();
             this.Main_Page1.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -282,6 +290,7 @@
             this.groupBox28.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.Main_Page2.SuspendLayout();
+            this.groupBox7.SuspendLayout();
             this.gb_current_datetime.SuspendLayout();
             this.groupBox6.SuspendLayout();
             this.groupBox4.SuspendLayout();
@@ -291,7 +300,7 @@
             this.panel_datagrid.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.View_InvList)).BeginInit();
             this.groupBox2.SuspendLayout();
-            this.groupBox7.SuspendLayout();
+            this.groupBox8.SuspendLayout();
             this.SuspendLayout();
             // 
             // Maintab
@@ -2129,6 +2138,50 @@
             this.Main_Page2.Text = "Inventory Check";
             this.Main_Page2.UseVisualStyleBackColor = true;
             // 
+            // groupBox7
+            // 
+            this.groupBox7.Controls.Add(this.button_mode_set);
+            this.groupBox7.Controls.Add(this.rb_passive);
+            this.groupBox7.Controls.Add(this.rb_active);
+            this.groupBox7.Location = new System.Drawing.Point(424, 6);
+            this.groupBox7.Name = "groupBox7";
+            this.groupBox7.Size = new System.Drawing.Size(106, 96);
+            this.groupBox7.TabIndex = 43;
+            this.groupBox7.TabStop = false;
+            this.groupBox7.Text = "Mode Selection:";
+            // 
+            // button_mode_set
+            // 
+            this.button_mode_set.Location = new System.Drawing.Point(15, 64);
+            this.button_mode_set.Name = "button_mode_set";
+            this.button_mode_set.Size = new System.Drawing.Size(75, 23);
+            this.button_mode_set.TabIndex = 5;
+            this.button_mode_set.Text = "Set";
+            this.button_mode_set.UseVisualStyleBackColor = true;
+            this.button_mode_set.Click += new System.EventHandler(this.button_mode_set_Click);
+            // 
+            // rb_passive
+            // 
+            this.rb_passive.AutoSize = true;
+            this.rb_passive.Location = new System.Drawing.Point(9, 42);
+            this.rb_passive.Name = "rb_passive";
+            this.rb_passive.Size = new System.Drawing.Size(92, 17);
+            this.rb_passive.TabIndex = 4;
+            this.rb_passive.TabStop = true;
+            this.rb_passive.Text = "Passive Mode";
+            this.rb_passive.UseVisualStyleBackColor = true;
+            // 
+            // rb_active
+            // 
+            this.rb_active.AutoSize = true;
+            this.rb_active.Location = new System.Drawing.Point(9, 20);
+            this.rb_active.Name = "rb_active";
+            this.rb_active.Size = new System.Drawing.Size(85, 17);
+            this.rb_active.TabIndex = 3;
+            this.rb_active.TabStop = true;
+            this.rb_active.Text = "Active Mode";
+            this.rb_active.UseVisualStyleBackColor = true;
+            // 
             // gb_current_datetime
             // 
             this.gb_current_datetime.Controls.Add(this.lbl_currentdate);
@@ -2266,6 +2319,7 @@
             // 
             // DIS_InvList
             // 
+            this.DIS_InvList.Controls.Add(this.groupBox8);
             this.DIS_InvList.Controls.Add(this.gb_command_builder);
             this.DIS_InvList.Controls.Add(this.panel_datagrid);
             this.DIS_InvList.Location = new System.Drawing.Point(8, 108);
@@ -2662,49 +2716,89 @@
             this.timer_datetime.Interval = 1000;
             this.timer_datetime.Tick += new System.EventHandler(this.timer_datetime_Tick);
             // 
-            // groupBox7
+            // groupBox8
             // 
-            this.groupBox7.Controls.Add(this.button_mode_set);
-            this.groupBox7.Controls.Add(this.rb_passive);
-            this.groupBox7.Controls.Add(this.rb_active);
-            this.groupBox7.Location = new System.Drawing.Point(424, 6);
-            this.groupBox7.Name = "groupBox7";
-            this.groupBox7.Size = new System.Drawing.Size(106, 96);
-            this.groupBox7.TabIndex = 43;
-            this.groupBox7.TabStop = false;
-            this.groupBox7.Text = "Mode Selection:";
+            this.groupBox8.Controls.Add(this.efx_authorise);
+            this.groupBox8.Controls.Add(this.efx_warning);
+            this.groupBox8.Controls.Add(this.btn_efx);
+            this.groupBox8.Controls.Add(this.cb_efx_status);
+            this.groupBox8.Controls.Add(this.label7);
+            this.groupBox8.Controls.Add(this.label6);
+            this.groupBox8.Controls.Add(this.tb_efx_epc);
+            this.groupBox8.Location = new System.Drawing.Point(816, 182);
+            this.groupBox8.Name = "groupBox8";
+            this.groupBox8.Size = new System.Drawing.Size(236, 213);
+            this.groupBox8.TabIndex = 43;
+            this.groupBox8.TabStop = false;
+            this.groupBox8.Text = "Error Fixing:";
             // 
-            // rb_active
+            // label6
             // 
-            this.rb_active.AutoSize = true;
-            this.rb_active.Location = new System.Drawing.Point(9, 20);
-            this.rb_active.Name = "rb_active";
-            this.rb_active.Size = new System.Drawing.Size(85, 17);
-            this.rb_active.TabIndex = 3;
-            this.rb_active.TabStop = true;
-            this.rb_active.Text = "Active Mode";
-            this.rb_active.UseVisualStyleBackColor = true;
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(15, 51);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(31, 13);
+            this.label6.TabIndex = 95;
+            this.label6.Text = "EPC:";
             // 
-            // rb_passive
+            // tb_efx_epc
             // 
-            this.rb_passive.AutoSize = true;
-            this.rb_passive.Location = new System.Drawing.Point(9, 42);
-            this.rb_passive.Name = "rb_passive";
-            this.rb_passive.Size = new System.Drawing.Size(92, 17);
-            this.rb_passive.TabIndex = 4;
-            this.rb_passive.TabStop = true;
-            this.rb_passive.Text = "Passive Mode";
-            this.rb_passive.UseVisualStyleBackColor = true;
+            this.tb_efx_epc.Location = new System.Drawing.Point(50, 48);
+            this.tb_efx_epc.Name = "tb_efx_epc";
+            this.tb_efx_epc.Size = new System.Drawing.Size(166, 20);
+            this.tb_efx_epc.TabIndex = 96;
             // 
-            // button_mode_set
+            // cb_efx_status
             // 
-            this.button_mode_set.Location = new System.Drawing.Point(15, 64);
-            this.button_mode_set.Name = "button_mode_set";
-            this.button_mode_set.Size = new System.Drawing.Size(75, 23);
-            this.button_mode_set.TabIndex = 5;
-            this.button_mode_set.Text = "Set";
-            this.button_mode_set.UseVisualStyleBackColor = true;
-            this.button_mode_set.Click += new System.EventHandler(this.button_mode_set_Click);
+            this.cb_efx_status.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cb_efx_status.FormattingEnabled = true;
+            this.cb_efx_status.Items.AddRange(new object[] {
+            "Available",
+            "Checked Out"});
+            this.cb_efx_status.Location = new System.Drawing.Point(84, 82);
+            this.cb_efx_status.Name = "cb_efx_status";
+            this.cb_efx_status.Size = new System.Drawing.Size(132, 21);
+            this.cb_efx_status.TabIndex = 96;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(15, 85);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(63, 13);
+            this.label7.TabIndex = 95;
+            this.label7.Text = "Item Status:";
+            // 
+            // btn_efx
+            // 
+            this.btn_efx.Location = new System.Drawing.Point(18, 126);
+            this.btn_efx.Name = "btn_efx";
+            this.btn_efx.Size = new System.Drawing.Size(198, 23);
+            this.btn_efx.TabIndex = 95;
+            this.btn_efx.Text = "Fix Errors";
+            this.btn_efx.UseVisualStyleBackColor = true;
+            this.btn_efx.Click += new System.EventHandler(this.btn_efx_Click);
+            // 
+            // efx_warning
+            // 
+            this.efx_warning.AutoSize = true;
+            this.efx_warning.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.efx_warning.ForeColor = System.Drawing.Color.Red;
+            this.efx_warning.Location = new System.Drawing.Point(15, 25);
+            this.efx_warning.Name = "efx_warning";
+            this.efx_warning.Size = new System.Drawing.Size(186, 13);
+            this.efx_warning.TabIndex = 98;
+            this.efx_warning.Text = "WARNING: Use this section carefully.";
+            // 
+            // efx_authorise
+            // 
+            this.efx_authorise.Location = new System.Drawing.Point(18, 160);
+            this.efx_authorise.Name = "efx_authorise";
+            this.efx_authorise.Size = new System.Drawing.Size(198, 23);
+            this.efx_authorise.TabIndex = 99;
+            this.efx_authorise.Text = "Authorise Error Fixing";
+            this.efx_authorise.UseVisualStyleBackColor = true;
+            this.efx_authorise.Click += new System.EventHandler(this.efx_authorise_Click);
             // 
             // Form1
             // 
@@ -2781,6 +2875,8 @@
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             this.Main_Page2.ResumeLayout(false);
+            this.groupBox7.ResumeLayout(false);
+            this.groupBox7.PerformLayout();
             this.gb_current_datetime.ResumeLayout(false);
             this.groupBox6.ResumeLayout(false);
             this.groupBox4.ResumeLayout(false);
@@ -2793,8 +2889,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.View_InvList)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
-            this.groupBox7.ResumeLayout(false);
-            this.groupBox7.PerformLayout();
+            this.groupBox8.ResumeLayout(false);
+            this.groupBox8.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -3016,6 +3112,14 @@
         private System.Windows.Forms.RadioButton rb_passive;
         private System.Windows.Forms.RadioButton rb_active;
         private System.Windows.Forms.Button button_mode_set;
+        private System.Windows.Forms.GroupBox groupBox8;
+        private System.Windows.Forms.Button btn_efx;
+        private System.Windows.Forms.ComboBox cb_efx_status;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.TextBox tb_efx_epc;
+        private System.Windows.Forms.Label efx_warning;
+        private System.Windows.Forms.Button efx_authorise;
     }
 }
 
