@@ -85,6 +85,7 @@ namespace UHFReader288MPDemo
         public static List<string> remove_list = new List<string>();
         public static List<string> item_status_list = new List<string>();
         public static List<string> temp_list = new List<string>();
+        public static List<string> ignore_list = new List<string>();
         //JW - Condition to run epc checker
         public static bool run_epc_checker = true;
         public static bool hw_connected = false;
@@ -2402,6 +2403,7 @@ namespace UHFReader288MPDemo
                         conn.Close();
                         if (active_mode)
                         {
+                            ignore_list_timer.Enabled = false;
                             //Put thread to sleep, in milliseconds
                             Thread.Sleep(10 * 1000);
                             //disable epc_checker, check if the items have been checked out
@@ -2485,6 +2487,7 @@ namespace UHFReader288MPDemo
                         }
                         else
                         {
+                            ignore_list_timer.Enabled = true;
                             //passive mode
                             run_epc_checker = false;
                             int new_total_entry_count = 0;
@@ -2554,23 +2557,36 @@ namespace UHFReader288MPDemo
 
                             //Check if any item passes by the Antenna
                             
-                            //if full list has an entries
+                            //if full list has any entries
                             if(Full_list.Any())
                             {
                                 int i;
                                 for( i = 0; i < Full_list.Count; i += 4)
                                 {
-                                    Console.WriteLine("Full List Number: " + Full_list.Count.ToString());
-                                    temp_list.Add(Full_list[i]);
-                                    conn.Open();
-                                    cmd = new NpgsqlCommand("SELECT * FROM RFID_inventory WHERE epc = '"+ Full_list[i] +"';", conn);
-                                    reader = cmd.ExecuteReader();
-                                    while (reader.Read())
+                                    if(ignore_list.Contains(Full_list[i]))
                                     {
-                                        temp_list.Add(reader["item_status_manual"].ToString());
-                                        temp_list.Add(reader["item_status_automated"].ToString());
+
                                     }
-                                    conn.Close();
+                                    
+                                    else
+                                    {
+                                        temp_list.Add(Full_list[i]);
+                                        ignore_list.Add(Full_list[i]);
+                                        conn.Open();
+                                        cmd = new NpgsqlCommand("SELECT * FROM RFID_inventory WHERE epc = '" + Full_list[i] + "';", conn);
+                                        reader = cmd.ExecuteReader();
+                                        while (reader.Read())
+                                        {
+                                            temp_list.Add(reader["item_status_manual"].ToString());
+                                            temp_list.Add(reader["item_status_automated"].ToString());
+                                        }
+                                        conn.Close();
+                                    }
+                                }
+
+                                for (i = 0; i < temp_list.Count; i += 3)
+                                {
+                                    Console.WriteLine(temp_list[i] + " " + temp_list[i + 1] + " " + temp_list[i + 2]);
                                 }
 
                                 int ioi;
@@ -2616,135 +2632,39 @@ namespace UHFReader288MPDemo
                             }
                             else
                             {
-                                //No signal received
+                                //No signal received, check if there are any status difference then
+                                /***int i;
+                                for (i = 0; i < item_status_list.Count; i += 3)
+                                {
+                                    conn.Open();
+                                    cmd = new NpgsqlCommand("SELECT * FROM RFID_inventory WHERE epc = '" + item_status_list[i] + "';", conn);
+                                    reader = cmd.ExecuteReader();
+                                    while (reader.Read())
+                                    {
+                                        temp_list.Add(item_status_list[i]);
+                                        temp_list.Add(reader["item_status_manual"].ToString());
+                                        temp_list.Add(reader["item_status_automated"].ToString());
+                                    }
+                                    conn.Close();
+                                }
+
+                                for(i = 0; i < temp_list.Count; i += 3)
+                                {
+                                    if(temp_list[i+1] != temp_list[i+2])
+                                    {
+                                        conn.Open();
+                                        cmd = new NpgsqlCommand("UPDATE RFID_inventory SET item_status_automated = 'Error: status do not tally.' WHERE epc = '" + item_status_list[i] + "';", conn);
+                                        cmd.ExecuteNonQuery();
+                                        conn.Close();
+                                    }
+                                }
+                                ***/
                             }
+
                             temp_list.Clear();
                             run_epc_checker = true;
                             
                             // end of passive mode
-
-                            /***
-                             * 
-                             *
-                             
-                            if (passive_init)
-                            {
-                                Console.WriteLine("Once");
-                                conn.Open();
-                                cmd = new NpgsqlCommand("SELECT * FROM RFID_inventory;", conn);
-                                reader = cmd.ExecuteReader();
-                                while (reader.Read())
-                                {
-                                    if (item_status_list.Contains(reader["epc"].ToString()))
-                                    {
-                                        //if epc exist on the item_status_list, then don't bother
-                                    }
-                                    else
-                                    {
-                                        //if epc is not added on the item_status_list, add it.
-                                        //this is only to initiate the list, it will not get updated unless an item has been checked-in or checked-out
-                                        item_status_list.Add(reader["epc"].ToString());
-                                        item_status_list.Add(reader["item_status_manual"].ToString());
-                                    }
-                                }
-                                conn.Close();
-                                passive_init = false;
-                            }
-
-                            int i, u;
-
-                            //check if there any signals received
-                            if (Full_list.Any())
-                            {
-                                //Relevant Signal Received
-                                for(i = 0; i < Full_list.Count; i += 4)
-                                { 
-                                    //signal is part of the tracked items database
-                                    //get the latest settings from database
-                                    conn.Open();
-                                    cmd = new NpgsqlCommand("SELECT * FROM RFID_inventory WHERE epc = '"+Full_list[i]+"';", conn);
-                                    reader = cmd.ExecuteReader();
-                                    while (reader.Read())
-                                    {
-                                        DateTime time_now = DateTime.Now;
-                                        temp_list.Add(reader["epc"].ToString());
-                                        temp_list.Add(reader["item_status_manual"].ToString());
-                                        temp_list.Add(reader["item_status_automated"].ToString());
-                                        temp_list.Add(time_now.ToString());
-                                    }
-                                    conn.Close();
-                                }
-                            }
-                            else
-                            {
-                                //no signal received
-                            }
-
-                            //check the status of the original signal against the new signal
-                            for(i = 0; i < temp_list.Count; i += 4)
-                            {
-                                for(u = 0; u < item_status_list.Count ; u += 2)
-                                {
-                                    //Console.WriteLine(" New: " + temp_list[i+1] + " Old: " + item_status_list[u+1]);
-                                    if (temp_list[i+1] == item_status_list[u+1])
-                                    {
-                                        //status did change, item has passed by the antenna, but user did not check in or out manually.
-                                        conn.Open();
-                                        cmd = new NpgsqlCommand("UPDATE rfid_inventory SET item_status_automated = 'Error: status do not tally.' WHERE epc = '" + temp_list[i] + "';", conn);
-                                        cmd.ExecuteNonQuery();
-                                        conn.Close();
-                                        //Console.WriteLine("no check in");
-                                    }
-                                    else
-                                    {
-                                        //status did change, item has passed by the antenna, user did check in or out manually.
-                                        if(temp_list[i+1] == "Available")
-                                        {
-                                            // Available 
-                                            conn.Open();
-                                            cmd = new NpgsqlCommand("UPDATE rfid_inventory SET item_status_automated = 'Available' WHERE epc = '" + temp_list[i] + "';", conn);
-                                            cmd.ExecuteNonQuery();
-                                            conn.Close();
-                                            item_status_list[u + 1] = "Available";
-                                            Console.WriteLine("Available");
-                                        }
-                                        if(temp_list[i+1] == "Checked Out")
-                                        {
-                                            //Checked Out
-                                            conn.Open();
-                                            cmd = new NpgsqlCommand("UPDATE rfid_inventory SET item_status_automated = 'Checked Out' WHERE epc = '" + temp_list[i] + "';", conn);
-                                            cmd.ExecuteNonQuery();
-                                            conn.Close();
-                                            item_status_list[u + 1] = "Checked Out";
-                                            Console.WriteLine("Checked Out");
-                                        }
-                                        if(temp_list[i+2] == "Error: status do not tally.")
-                                        {
-                                            //Automated status has error
-                                            string manual_override = "";
-                                            conn.Open();
-                                            cmd = new NpgsqlCommand("SELECT * FROM RFID_inventory WHERE epc = '" + temp_list[i] + "';", conn);
-                                            reader = cmd.ExecuteReader();
-                                            while (reader.Read())
-                                            {
-                                                manual_override = reader["item_status_manual"].ToString();
-                                            }
-                                            conn.Close();
-                                            conn.Open();
-                                            cmd = new NpgsqlCommand("UPDATE rfid_inventory SET item_status_automated = '"+ manual_override + "' WHER    E epc = '" + temp_list[i] + "';", conn);
-                                            cmd.ExecuteNonQuery();
-                                            conn.Close();
-                                            item_status_list[u + 1] = manual_override;
-                                            Console.WriteLine("Overwritten with: " + manual_override);
-                                        }
-                                    }
-                                }
-                            }
-                             ***/
-
-                            temp_list.Clear();
-                            run_epc_checker = true;
-                            //end of passive mode
                         }
                     }
                     else
@@ -2831,7 +2751,7 @@ namespace UHFReader288MPDemo
             }
             catch(Exception em)
             {
-                lbl_alarm.Text = "Error";
+                lbl_alarm.Text = "DC";
             }
         }
         
@@ -3106,7 +3026,6 @@ namespace UHFReader288MPDemo
             tb_item_remarks.Clear();
         }
 
-
         private void button_mode_set_Click(object sender, EventArgs e)
         {
             Full_list.Clear();
@@ -3114,6 +3033,7 @@ namespace UHFReader288MPDemo
             remove_list.Clear();
             item_status_list.Clear();
             temp_list.Clear();
+            ignore_list.Clear();
 
             if(rb_active.Checked)
             {
@@ -3188,6 +3108,17 @@ namespace UHFReader288MPDemo
                     }
                 }
             }
+        }
+
+        private void ignore_list_timer_Tick(object sender, EventArgs e)
+        {
+            int i = 0;
+            for(i = 0; i < ignore_list.Count; i++)
+            {
+                Console.WriteLine("Remove List: " + ignore_list[i]);
+            }
+            ignore_list.Clear();
+            Console.WriteLine("Cleared");
         }
     }
 }
