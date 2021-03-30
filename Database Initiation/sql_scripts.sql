@@ -3,7 +3,8 @@ CREATE TABLE item_inventory (
 	Item_Name varchar(255) NOT NULL,
 	Item_Location varchar(255) NOT NULL,
 	Item_Serial_Number varchar(255) NOT NULL,
-	Item_Condition varchar(255) NOT NULL);
+	Item_Condition varchar(255) NOT NULL,
+    Item_Description varchar(255) NOT NULL);
 
 CREATE TABLE item_status (
     EPC varchar(255) NOT NULL,
