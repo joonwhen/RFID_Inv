@@ -2168,13 +2168,13 @@
             this.rb_passive.Name = "rb_passive";
             this.rb_passive.Size = new System.Drawing.Size(92, 17);
             this.rb_passive.TabIndex = 4;
-            this.rb_passive.TabStop = true;
             this.rb_passive.Text = "Passive Mode";
             this.rb_passive.UseVisualStyleBackColor = true;
             // 
             // rb_active
             // 
             this.rb_active.AutoSize = true;
+            this.rb_active.Checked = true;
             this.rb_active.Location = new System.Drawing.Point(9, 20);
             this.rb_active.Name = "rb_active";
             this.rb_active.Size = new System.Drawing.Size(85, 17);
