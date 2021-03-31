@@ -2451,67 +2451,52 @@ namespace UHFReader288MPDemo
                             //active mode
                             int sleep_seconds = 10;
                             int minimum_idle_time = 30;
+                            int i;
                             Thread.Sleep(1000 * sleep_seconds);
                             run_epc_checker = false;
-                            int i = 0;
-                            int ioi;
 
-                            //set the latest read signal onto the database
-                            if(Full_list.Any())
+                            //update database with latest signal information
+                            conn.Open();
+                            for(i = 0; i < Full_list.Count(); i += 4)
                             {
-                                conn.Open();
-                                for (i = 0; i < Full_list.Count(); i += 4)
-                                {
-                                    cmd = new NpgsqlCommand("UPDATE item_status SET automated_status = 'Available' , last_read_time = '" + Full_list[i + 2] + "' WHERE epc = '" + Full_list[i] + "';", conn);
-                                    cmd.ExecuteNonQuery();
-                                    Console.WriteLine("Full List: " + Full_list[i] + " " + Full_list[i + 2]);
-                                }
-                                conn.Close();
+                                cmd = new NpgsqlCommand("UPDATE item_status SET automated_status = 'Available', last_read_time = '"+ Full_list[i+2] +"' WHERE epc = '"+ Full_list[i] +"';", conn);
+                                cmd.ExecuteNonQuery();
                             }
-                            
-                            //check if the time from last signal has been minimum idle time.
+                            conn.Close();
+
+                            //get latest information from the database
                             conn.Open();
                             cmd = new NpgsqlCommand("SELECT * FROM item_status;", conn);
                             reader = cmd.ExecuteReader();
-                            while (reader.Read())
+                            while(reader.Read())
                             {
                                 temp_list.Add(reader["epc"].ToString());
                                 temp_list.Add(reader["last_read_time"].ToString());
                             }
                             reader.Close();
                             conn.Close();
-                            Console.WriteLine("Debug: A");
-                            if(temp_list.Any())
+
+                            // check last read signal against current time
+                            DateTime time_now = DateTime.Now;
+                            for(i = 0; i < temp_list.Count(); i += 2)
                             {
-                                for( i = 0; i < temp_list.Count(); i += 2)
+                                int time_diff = Convert.ToInt32((time_now - Convert.ToDateTime(temp_list[i + 1])).TotalSeconds);
+                                Console.WriteLine(temp_list[i] +" "+ temp_list[i+1]);
+                                if(time_diff > minimum_idle_time)
                                 {
-                                    int time_diff = Convert.ToInt32((DateTime.Now.Subtract(Convert.ToDateTime(temp_list[i + 1]))).TotalSeconds);
-                                    if(time_diff > minimum_idle_time)
+                                    conn.Open();
+                                    cmd = new NpgsqlCommand("UPDATE item_status SET automated_status = 'Checked Out' WHERE epc = '"+ temp_list[i] +"';", conn);
+                                    cmd.ExecuteNonQuery();
+                                    conn.Close();
+                                    if(Full_list.Contains(temp_list[i]))
                                     {
-                                        error_list.Add(temp_list[i]);
-                                        Console.WriteLine("Debug: B");
+                                        int ioi = Full_list.IndexOf(temp_list[i]);
+                                        Console.WriteLine("Removed: " + Full_list[ioi]);
+                                        Full_list.RemoveRange(ioi, 4);
                                     }
                                 }
                             }
-
-                            //update the automated status if there are any entries that has exceeded minimum idle time
-                            conn.Open();
-                            if (error_list.Any())
-                            {
-                                Console.WriteLine("Debug: C");
-                                for (i = 0; i < error_list.Count(); i++)
-                                {
-                                    cmd = new NpgsqlCommand("UPDATE item_status SET automated_status = 'Checked Out' WHERE epc = '" + error_list[i] + "';", conn);
-                                    cmd.ExecuteNonQuery();
-                                    ioi = Full_list.IndexOf(error_list[i]);
-                                    Full_list.RemoveRange(ioi, 4);
-                                    Console.WriteLine("error_list: " + error_list[i] + " " + error_list[i + 1]);
-                                }
-                            }
-                            Console.WriteLine("Debug: D");
-                            error_list.Clear();
-                            conn.Close();
-
+                            temp_list.Clear();
                             run_epc_checker = true;
                         }
                         else
