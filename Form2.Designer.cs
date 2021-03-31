@@ -91,9 +91,9 @@ namespace Inventory_Monitoring
             this.label3.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label3.Location = new System.Drawing.Point(12, 93);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(469, 19);
+            this.label3.Size = new System.Drawing.Size(454, 19);
             this.label3.TabIndex = 6;
-            this.label3.Text = "However, the antenna has received the signal from the items.";
+            this.label3.Text = "Please check if the item has been check in or out manually.";
             // 
             // label4
             // 
@@ -101,9 +101,9 @@ namespace Inventory_Monitoring
             this.label4.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label4.Location = new System.Drawing.Point(12, 74);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(335, 19);
+            this.label4.Size = new System.Drawing.Size(281, 19);
             this.label4.TabIndex = 7;
-            this.label4.Text = "Items are not checked in manually by user. ";
+            this.label4.Text = "The statuses of the item do not tally.";
             // 
             // Form2
             // 
