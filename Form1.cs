@@ -88,6 +88,7 @@ namespace UHFReader288MPDemo
         public static List<string> ignore_list = new List<string>();
         public static List<string> error_list = new List<string>();
         public static List<string> passive_list = new List<string>();
+        public static List<string> temp_ignore_list = new List<string>();
         //JW - Condition to run epc checker
         public static bool run_epc_checker = true;
         public static bool hw_connected = false;
@@ -2346,21 +2347,28 @@ namespace UHFReader288MPDemo
                             Raw_Entry_List[3] = "1";
                             break;
                     }
-                    if (Full_list.Contains(Raw_Entry_List[0]))
+                    if(temp_ignore_list.Contains(Raw_Entry_List[0]))
                     {
-                        //epc is on the full list
-                        int epc_index = Full_list.IndexOf(Raw_Entry_List[0]);
-                        Full_list[epc_index + 1] = Raw_Entry_List[1];
-                        Full_list[epc_index + 2] = Raw_Entry_List[2];
-                        Full_list[epc_index + 3] = Raw_Entry_List[3];
+                        //temporarily ignore epc that are repeated for the passive mode
                     }
                     else
                     {
-                        //epc is not on the full list
-                        Full_list.Add(Raw_Entry_List[0]);
-                        Full_list.Add(Raw_Entry_List[1]);
-                        Full_list.Add(Raw_Entry_List[2]);
-                        Full_list.Add(Raw_Entry_List[3]);
+                        if (Full_list.Contains(Raw_Entry_List[0]))
+                        {
+                            //epc is on the full list
+                            int epc_index = Full_list.IndexOf(Raw_Entry_List[0]);
+                            Full_list[epc_index + 1] = Raw_Entry_List[1];
+                            Full_list[epc_index + 2] = Raw_Entry_List[2];
+                            Full_list[epc_index + 3] = Raw_Entry_List[3];
+                        }
+                        else
+                        {
+                            //epc is not on the full list
+                            Full_list.Add(Raw_Entry_List[0]);
+                            Full_list.Add(Raw_Entry_List[1]);
+                            Full_list.Add(Raw_Entry_List[2]);
+                            Full_list.Add(Raw_Entry_List[3]);
+                        }
                     }
                 }
                 else
@@ -2613,7 +2621,10 @@ namespace UHFReader288MPDemo
                                             passive_list[i + 1] = temp_list[ioi + 1];
                                             passive_list[i + 2] = "0";
                                             int uou = Full_list.IndexOf(passive_list[i]);
+                                            temp_ignore_list.Add(passive_list[i]);
+                                            temp_ignore_list.Add(DateTime.Now.ToString());
                                             Full_list.RemoveRange(uou, 4);
+                                            Console.WriteLine("Test");
                                         }
                                     }
                                 }
@@ -2989,6 +3000,7 @@ namespace UHFReader288MPDemo
             item_status_list.Clear();
             temp_list.Clear();
             ignore_list.Clear();
+            temp_ignore_list.Clear();
 
             if(rb_active.Checked)
             {
@@ -3073,6 +3085,32 @@ namespace UHFReader288MPDemo
                 Console.WriteLine("Ignore List: " + ignore_list[i]);
             }
             ignore_list.Clear();
+        }
+
+        private void temp_ignore_list_timer_Tick(object sender, EventArgs e)
+        {
+            int i;
+            var temp_remove_list = new List<string>();
+            if(temp_ignore_list.Any())
+            {
+                for (i = 0; i < temp_ignore_list.Count(); i += 2)
+                {
+                    if (Convert.ToInt32((DateTime.Now).Subtract((Convert.ToDateTime(temp_ignore_list[i + 1]))).TotalSeconds) > 60)
+                    {
+                        temp_remove_list.Add(temp_ignore_list[i]);
+                    }
+                }
+            }
+
+            if(temp_remove_list.Any())
+            {
+                for(i = 0; i < temp_remove_list.Count(); i++)
+                {
+                    int ioi = temp_ignore_list.IndexOf(temp_remove_list[i]);
+                    temp_ignore_list.RemoveRange(ioi, 2);
+                }
+            }
+            temp_remove_list.Clear();
         }
     }
 }

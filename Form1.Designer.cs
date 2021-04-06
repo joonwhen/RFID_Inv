@@ -255,6 +255,7 @@
             this.alarm_checker = new System.Windows.Forms.Timer(this.components);
             this.timer_datetime = new System.Windows.Forms.Timer(this.components);
             this.ignore_list_timer = new System.Windows.Forms.Timer(this.components);
+            this.temp_ignore_list_timer = new System.Windows.Forms.Timer(this.components);
             this.Maintab.SuspendLayout();
             this.Main_Page1.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -2807,6 +2808,12 @@
             this.ignore_list_timer.Interval = 30000;
             this.ignore_list_timer.Tick += new System.EventHandler(this.ignore_list_timer_Tick);
             // 
+            // temp_ignore_list_timer
+            // 
+            this.temp_ignore_list_timer.Enabled = true;
+            this.temp_ignore_list_timer.Interval = 1000;
+            this.temp_ignore_list_timer.Tick += new System.EventHandler(this.temp_ignore_list_timer_Tick);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -3128,6 +3135,7 @@
         private System.Windows.Forms.Label efx_warning;
         private System.Windows.Forms.Button efx_authorise;
         private System.Windows.Forms.Timer ignore_list_timer;
+        private System.Windows.Forms.Timer temp_ignore_list_timer;
     }
 }
 
