@@ -2534,7 +2534,6 @@ namespace UHFReader288MPDemo
                                 conn.Close();
                             }
 
-                            Console.WriteLine("Full list count:" + Full_list.Count());
                             //if antenna picks up any signal
                             if(Full_list.Any())
                             {
@@ -2720,14 +2719,12 @@ namespace UHFReader288MPDemo
                 lbl_alarm.Text = "DC";
             }
         }
-        
+
         private void lbl_alarm_Click(object sender, EventArgs e)
         {
             Inventory_Monitoring.Form2 f2 = new Inventory_Monitoring.Form2();
             f2.ShowDialog();
         }
-
-        public string command_line;
 
         private void date_query_ValueChanged(object sender, EventArgs e)
         {
@@ -2779,7 +2776,14 @@ namespace UHFReader288MPDemo
             try
             {
                 conn.Open();
-                string command = "SELECT * FROM item_status;";
+                string command = "SELECT item_inventory.epc, item_inventory.item_serial_number, item_inventory.item_name, item_inventory.item_condition, item_inventory.item_location, item_inventory.item_description, " +
+                "item_status.manual_status, item_status.automated_status, " +
+                "item_movement.personnel_checked_in, item_movement.time_in, item_movement.personnel_checked_out,item_movement.time_out " +
+                "FROM item_inventory " +
+                "JOIN item_status " +
+                "ON item_inventory.epc = item_status.epc " +
+                "JOIN item_movement " +
+                "ON item_status.epc = item_movement.epc ";
                 NpgsqlDataAdapter dataadapter_query = new NpgsqlDataAdapter(command, conn);
                 dataset_query.Reset();
                 dataadapter_query.Fill(dataset_query);
@@ -2789,7 +2793,7 @@ namespace UHFReader288MPDemo
             }
             catch (Exception em)
             {
-                MessageBox.Show("Connection to the database is not established.");
+                MessageBox.Show("Failed to connect to database.");
             }
         }
 
@@ -2819,9 +2823,18 @@ namespace UHFReader288MPDemo
             }
         }
 
+        public string command_line;
+
         private void bn_build_command_Click(object sender, EventArgs e)
         {
-            command_line = "SELECT * FROM item_inventory ";
+            command_line = "SELECT item_inventory.epc, item_inventory.item_serial_number, item_inventory.item_name, item_inventory.item_condition, item_inventory.item_location, item_inventory.item_description, " +
+                "item_status.manual_status, item_status.automated_status, " +
+                "item_movement.personnel_checked_in, item_movement.time_in, item_movement.personnel_checked_out,item_movement.time_out " +
+                "FROM item_inventory " +
+                "JOIN item_status " +
+                "ON item_inventory.epc = item_status.epc " +
+                "JOIN item_movement " +
+                "ON item_status.epc = item_movement.epc ";
             int checker = 0;
 
             if (tb_query_epc.Text.Length > 0)
@@ -2829,13 +2842,13 @@ namespace UHFReader288MPDemo
                 if (checker == 0)
                 {
                     command_line += "WHERE ";
-                    command_line += "EPC = '" + tb_query_epc.Text + "' ";
+                    command_line += "item_inventory.EPC = '" + tb_query_epc.Text + "' ";
                     checker++;
                 }
                 else
                 {
                     command_line += "AND ";
-                    command_line += "EPC = '" + tb_query_epc.Text + "' ";
+                    command_line += "item_inventory.EPC = '" + tb_query_epc.Text + "' ";
                 }
             }
 
@@ -2844,13 +2857,13 @@ namespace UHFReader288MPDemo
                 if (checker == 0)
                 {
                     command_line += "WHERE ";
-                    command_line += "item_sn = '" + tb_query_sn.Text + "' ";
+                    command_line += "item_inventory.item_serial_number = '" + tb_query_sn.Text + "' ";
                     checker++;
                 }
                 else
                 {
                     command_line += "AND ";
-                    command_line += "item_sn = '" + tb_query_sn.Text + "' ";
+                    command_line += "item_inventory.item_serial_number = '" + tb_query_sn.Text + "' ";
                 }
             }
 
@@ -2859,13 +2872,13 @@ namespace UHFReader288MPDemo
                 if (checker == 0)
                 {
                     command_line += "WHERE ";
-                    command_line += "time_check_out LIKE '%" + date_query.Text + "%' ";
+                    command_line += "item_movement.time_out LIKE '%" + date_query.Text + "%' ";
                     checker++;
                 }
                 else
                 {
                     command_line += "AND ";
-                    command_line += "time_check_out LIKE '%" + date_query.Text + "%' ";
+                    command_line += "item_movement.time_out LIKE '%" + date_query.Text + "%' ";
                 }
             }
 
@@ -2874,13 +2887,13 @@ namespace UHFReader288MPDemo
                 if (checker == 0)
                 {
                     command_line += "WHERE ";
-                    command_line += "time_checked_in LIKE '%" + date_checkin_query.Text + "%' ";
+                    command_line += "item_movement.time_in LIKE '%" + date_checkin_query.Text + "%' ";
                     checker++;
                 }
                 else
                 {
                     command_line += "AND ";
-                    command_line += "time_checked_in LIKE '%" + date_checkin_query.Text + "%' ";
+                    command_line += "item_movement.time_in LIKE '%" + date_checkin_query.Text + "%' ";
                 }
             }
 
@@ -2889,13 +2902,13 @@ namespace UHFReader288MPDemo
                 if (checker == 0)
                 {
                     command_line += "WHERE ";
-                    command_line += "personnel_checked_out LIKE '%" + tb_user_checkout.Text + "%' ";
+                    command_line += "item_movement.personnel_checked_out LIKE '%" + tb_user_checkout.Text + "%' ";
                     checker++;
                 }
                 else
                 {
                     command_line += "AND ";
-                    command_line += "personnel_checked_out LIKE '%" + tb_user_checkout.Text + "%' ";
+                    command_line += "item_movement.personnel_checked_out LIKE '%" + tb_user_checkout.Text + "%' ";
                 }
             }
 
@@ -2904,13 +2917,13 @@ namespace UHFReader288MPDemo
                 if (checker == 0)
                 {
                     command_line += "WHERE ";
-                    command_line += "personnel_checked_in LIKE '%" + tb_user_checkin.Text + "%' ";
+                    command_line += "item_movement.personnel_checked_in LIKE '%" + tb_user_checkin.Text + "%' ";
                     checker++;
                 }
                 else
                 {
                     command_line += "AND ";
-                    command_line += "personnel_checked_in LIKE '%" + tb_user_checkin.Text + "%' ";
+                    command_line += "item_movement.personnel_checked_in LIKE '%" + tb_user_checkin.Text + "%' ";
                 }
             }
 
@@ -2919,13 +2932,13 @@ namespace UHFReader288MPDemo
                 if (checker == 0)
                 {
                     command_line += "WHERE ";
-                    command_line += "tagname LIKE '%" + tb_query_model.Text + "%' ";
+                    command_line += "item_inventory.item_name LIKE '%" + tb_query_model.Text + "%' ";
                     checker++;
                 }
                 else
                 {
                     command_line += "AND ";
-                    command_line += "tagname LIKE '%" + tb_query_model.Text + "%' ";
+                    command_line += "item_inventory.item_name LIKE '%" + tb_query_model.Text + "%' ";
                 }
             }
 
@@ -2934,13 +2947,13 @@ namespace UHFReader288MPDemo
                 if (checker == 0)
                 {
                     command_line += "WHERE ";
-                    command_line += "tagloc LIKE '%" + tb_item_location.Text + "%' ";
+                    command_line += "item_inventory.item_location LIKE '%" + tb_item_location.Text + "%' ";
                     checker++;
                 }
                 else
                 {
                     command_line += "AND ";
-                    command_line += "tagloc LIKE '%" + tb_item_location.Text + "%' ";
+                    command_line += "item_inventory.item_location LIKE '%" + tb_item_location.Text + "%' ";
                 }
             }
 
@@ -2949,13 +2962,13 @@ namespace UHFReader288MPDemo
                 if (checker == 0)
                 {
                     command_line += "WHERE ";
-                    command_line += "item_condition = '" + cb_item_condition.Text + "' ";
+                    command_line += "item_inventory.item_condition = '" + cb_item_condition.Text + "' ";
                     checker++;
                 }
                 else
                 {
                     command_line += "AND ";
-                    command_line += "item_condition = '" + cb_item_condition.Text + "' ";
+                    command_line += "item_inventory.item_condition = '" + cb_item_condition.Text + "' ";
                 }
             }
 
@@ -2964,13 +2977,13 @@ namespace UHFReader288MPDemo
                 if (checker == 0)
                 {
                     command_line += "WHERE ";
-                    command_line += "tagdesc LIKE '%" + tb_item_remarks.Text + "%' ";
+                    command_line += "item_inventory.item_description LIKE '%" + tb_item_remarks.Text + "%' ";
                     checker++;
                 }
                 else
                 {
                     command_line += "AND ";
-                    command_line += "tagdesc LIKE '%" + tb_item_remarks.Text + "%' ";
+                    command_line += "item_inventory.item_description LIKE '%" + tb_item_remarks.Text + "%' ";
                 }
             }
 
