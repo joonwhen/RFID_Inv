@@ -160,7 +160,7 @@ namespace UHFReader288MPDemo
             this.Invoke((EventHandler)delegate
             {
                 IntPtr ptrWnd = IntPtr.Zero;
-                ptrWnd = FindWindow(null, "UHFReader288MP Demo V2.2");
+                ptrWnd = FindWindow(null, "RFID Reader V1.0"/***"UHFReader288MP Demo V2.2"***/);
                 if (ptrWnd != IntPtr.Zero)         // 检查当前统计窗口是否打开
                 {
                     int Antnum = ce.ANT;
@@ -913,7 +913,7 @@ namespace UHFReader288MPDemo
                 {
                     int tagrate = (CardNum * 1000) / cmdTime;//速度等于张数/时间
                     IntPtr ptrWnd = IntPtr.Zero;
-                    ptrWnd = FindWindow(null, "UHFReader288MP Demo V2.2");
+                    ptrWnd = FindWindow(null, "RFID Reader V1.0"/***"UHFReader288MP Demo V2.2"***/);
                     if (ptrWnd != IntPtr.Zero)         // 检查当前统计窗口是否打开
                     {
                         string para = tagrate.ToString() + "," + total_tagnum.ToString() + "," + cmdTime.ToString();
@@ -923,7 +923,7 @@ namespace UHFReader288MPDemo
 
             }
             IntPtr ptrWnd1 = IntPtr.Zero;
-            ptrWnd1 = FindWindow(null, "UHFReader288MP Demo V2.2");
+            ptrWnd1 = FindWindow(null, "RFID Reader V1.0"/***"UHFReader288MP Demo V2.2"***/);
             if (ptrWnd1 != IntPtr.Zero)         // 检查当前统计窗口是否打开
             {
                 string para = fCmdRet.ToString();
@@ -986,7 +986,7 @@ namespace UHFReader288MPDemo
                 {
                     int tagrate = (CardNum * 1000) / cmdTime;//速度等于张数/时间
                     IntPtr ptrWnd = IntPtr.Zero;
-                    ptrWnd = FindWindow(null, "UHFReader288MP Demo V2.2");
+                    ptrWnd = FindWindow(null, "RFID Reader V1.0"/***"UHFReader288MP Demo V2.2"***/);
                     if (ptrWnd != IntPtr.Zero)         // 检查当前统计窗口是否打开
                     {
                         string para = tagrate.ToString() + "," + total_tagnum.ToString() + "," + cmdTime.ToString();
@@ -996,7 +996,7 @@ namespace UHFReader288MPDemo
 
             }
             IntPtr ptrWnd1 = IntPtr.Zero;
-            ptrWnd1 = FindWindow(null, "UHFReader288MP Demo V2.2");
+            ptrWnd1 = FindWindow(null, "RFID Reader V1.0"/***"UHFReader288MP Demo V2.2"***/);
             if (ptrWnd1 != IntPtr.Zero)         // 检查当前统计窗口是否打开
             {
                 string para = fCmdRet.ToString();
@@ -1077,7 +1077,7 @@ namespace UHFReader288MPDemo
         private void timer_answer_Tick(object sender, EventArgs e)
         {
             IntPtr ptrWnd = IntPtr.Zero;
-            ptrWnd = FindWindow(null, "UHFReader288MP Demo V2.2");
+            ptrWnd = FindWindow(null, "RFID Reader V1.0"/***"UHFReader288MP Demo V2.2"***/);
             if (ptrWnd != IntPtr.Zero)         // 检查当前统计窗口是否打开
             {
                 string para = fCmdRet.ToString();
@@ -2322,7 +2322,7 @@ namespace UHFReader288MPDemo
         }
 
         //default mode is active mode
-        private bool active_mode = false;
+        private bool active_mode = true;
         //JW - Function to check if EPC is already on the list
 
         public static void EPC_Checker(List<string> Raw_Entry_List)
@@ -3008,12 +3008,12 @@ namespace UHFReader288MPDemo
         private void button_mode_set_Click(object sender, EventArgs e)
         {
             Full_list.Clear();
-            inventory_list.Clear();
             remove_list.Clear();
             item_status_list.Clear();
             temp_list.Clear();
             ignore_list.Clear();
             temp_ignore_list.Clear();
+            passive_list.Clear();
 
             if(rb_active.Checked)
             {
@@ -3057,35 +3057,24 @@ namespace UHFReader288MPDemo
             {
                 string connstring = String.Format("Host=localhost;Port=5432;User Id=Admin;Password=password;Database=Inventory;");
                 NpgsqlConnection conn = new NpgsqlConnection(connstring);
-                if (active_mode)
+                
+                if(inventory_list.Contains(tb_efx_epc.Text))
                 {
-                    if(inventory_list.Contains(tb_efx_epc.Text))
+                    conn.Open();
+                    var cmd = new NpgsqlCommand("UPDATE item_status SET automated_status = '"+ cb_efx_status.Text + "', manual_status = '"+ cb_efx_status.Text + "' WHERE epc = '"+ tb_efx_epc.Text + "';", conn);
+                    cmd.ExecuteNonQuery();
+                    conn.Close();
+                    MessageBox.Show("Edit Success.");
+                    if(!active_mode)
                     {
-                        conn.Open();
-                        var cmd = new NpgsqlCommand("UPDATE item_status SET automated_status = '"+ cb_efx_status.Text + "', manual_status = '"+ cb_efx_status.Text + "' WHERE epc = '"+ tb_efx_epc.Text + "';", conn);
-                        cmd.ExecuteNonQuery();
-                        conn.Close();
-                        MessageBox.Show("Edit Success.");
-                    }
-                    else
-                    {
-                        MessageBox.Show("The EPC does not exist on the database.");
+                        int ioi = passive_list.IndexOf(tb_efx_epc.Text);
+                        passive_list[ioi + 1] = cb_efx_status.Text;
+                        passive_list[ioi + 2] = "0";
                     }
                 }
                 else
                 {
-                    if (item_status_list.Contains(tb_efx_epc.Text))
-                    {
-                        conn.Open();
-                        var cmd = new NpgsqlCommand("UPDATE item_status SET automated_status = '" + cb_efx_status.Text + "', manual_status = '" + cb_efx_status.Text + "' WHERE epc = '" + tb_efx_epc.Text + "';", conn);
-                        cmd.ExecuteNonQuery();
-                        conn.Close();
-                        MessageBox.Show("Edit Success.");
-                    }
-                    else
-                    {
-                        MessageBox.Show("The EPC does not exist on the database.");
-                    }
+                    MessageBox.Show("The EPC does not exist on the database.");
                 }
             }
         }
@@ -3093,10 +3082,6 @@ namespace UHFReader288MPDemo
         private void ignore_list_timer_Tick(object sender, EventArgs e)
         {
             int i = 0;
-            for(i = 0; i < ignore_list.Count; i++)
-            {
-                Console.WriteLine("Ignore List: " + ignore_list[i]);
-            }
             ignore_list.Clear();
         }
 
