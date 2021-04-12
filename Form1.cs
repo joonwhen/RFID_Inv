@@ -87,6 +87,8 @@ namespace UHFReader288MPDemo
         public static List<string> temp_list = new List<string>();
         public static List<string> ignore_list = new List<string>();
         public static List<string> error_list = new List<string>();
+        public static List<string> passive_list = new List<string>();
+        public static List<string> temp_ignore_list = new List<string>();
         //JW - Condition to run epc checker
         public static bool run_epc_checker = true;
         public static bool hw_connected = false;
@@ -158,7 +160,7 @@ namespace UHFReader288MPDemo
             this.Invoke((EventHandler)delegate
             {
                 IntPtr ptrWnd = IntPtr.Zero;
-                ptrWnd = FindWindow(null, "UHFReader288MP Demo V2.2");
+                ptrWnd = FindWindow(null, "RFID Reader V1.0"/***"UHFReader288MP Demo V2.2"***/);
                 if (ptrWnd != IntPtr.Zero)         // 检查当前统计窗口是否打开
                 {
                     int Antnum = ce.ANT;
@@ -911,7 +913,7 @@ namespace UHFReader288MPDemo
                 {
                     int tagrate = (CardNum * 1000) / cmdTime;//速度等于张数/时间
                     IntPtr ptrWnd = IntPtr.Zero;
-                    ptrWnd = FindWindow(null, "UHFReader288MP Demo V2.2");
+                    ptrWnd = FindWindow(null, "RFID Reader V1.0"/***"UHFReader288MP Demo V2.2"***/);
                     if (ptrWnd != IntPtr.Zero)         // 检查当前统计窗口是否打开
                     {
                         string para = tagrate.ToString() + "," + total_tagnum.ToString() + "," + cmdTime.ToString();
@@ -921,7 +923,7 @@ namespace UHFReader288MPDemo
 
             }
             IntPtr ptrWnd1 = IntPtr.Zero;
-            ptrWnd1 = FindWindow(null, "UHFReader288MP Demo V2.2");
+            ptrWnd1 = FindWindow(null, "RFID Reader V1.0"/***"UHFReader288MP Demo V2.2"***/);
             if (ptrWnd1 != IntPtr.Zero)         // 检查当前统计窗口是否打开
             {
                 string para = fCmdRet.ToString();
@@ -984,7 +986,7 @@ namespace UHFReader288MPDemo
                 {
                     int tagrate = (CardNum * 1000) / cmdTime;//速度等于张数/时间
                     IntPtr ptrWnd = IntPtr.Zero;
-                    ptrWnd = FindWindow(null, "UHFReader288MP Demo V2.2");
+                    ptrWnd = FindWindow(null, "RFID Reader V1.0"/***"UHFReader288MP Demo V2.2"***/);
                     if (ptrWnd != IntPtr.Zero)         // 检查当前统计窗口是否打开
                     {
                         string para = tagrate.ToString() + "," + total_tagnum.ToString() + "," + cmdTime.ToString();
@@ -994,7 +996,7 @@ namespace UHFReader288MPDemo
 
             }
             IntPtr ptrWnd1 = IntPtr.Zero;
-            ptrWnd1 = FindWindow(null, "UHFReader288MP Demo V2.2");
+            ptrWnd1 = FindWindow(null, "RFID Reader V1.0"/***"UHFReader288MP Demo V2.2"***/);
             if (ptrWnd1 != IntPtr.Zero)         // 检查当前统计窗口是否打开
             {
                 string para = fCmdRet.ToString();
@@ -1075,7 +1077,7 @@ namespace UHFReader288MPDemo
         private void timer_answer_Tick(object sender, EventArgs e)
         {
             IntPtr ptrWnd = IntPtr.Zero;
-            ptrWnd = FindWindow(null, "UHFReader288MP Demo V2.2");
+            ptrWnd = FindWindow(null, "RFID Reader V1.0"/***"UHFReader288MP Demo V2.2"***/);
             if (ptrWnd != IntPtr.Zero)         // 检查当前统计窗口是否打开
             {
                 string para = fCmdRet.ToString();
@@ -2345,21 +2347,28 @@ namespace UHFReader288MPDemo
                             Raw_Entry_List[3] = "1";
                             break;
                     }
-                    if (Full_list.Contains(Raw_Entry_List[0]))
+                    if(temp_ignore_list.Contains(Raw_Entry_List[0]))
                     {
-                        //epc is on the full list
-                        int epc_index = Full_list.IndexOf(Raw_Entry_List[0]);
-                        Full_list[epc_index + 1] = Raw_Entry_List[1];
-                        Full_list[epc_index + 2] = Raw_Entry_List[2];
-                        Full_list[epc_index + 3] = Raw_Entry_List[3];
+                        //temporarily ignore epc that are repeated for the passive mode
                     }
                     else
                     {
-                        //epc is not on the full list
-                        Full_list.Add(Raw_Entry_List[0]);
-                        Full_list.Add(Raw_Entry_List[1]);
-                        Full_list.Add(Raw_Entry_List[2]);
-                        Full_list.Add(Raw_Entry_List[3]);
+                        if (Full_list.Contains(Raw_Entry_List[0]))
+                        {
+                            //epc is on the full list
+                            int epc_index = Full_list.IndexOf(Raw_Entry_List[0]);
+                            Full_list[epc_index + 1] = Raw_Entry_List[1];
+                            Full_list[epc_index + 2] = Raw_Entry_List[2];
+                            Full_list[epc_index + 3] = Raw_Entry_List[3];
+                        }
+                        else
+                        {
+                            //epc is not on the full list
+                            Full_list.Add(Raw_Entry_List[0]);
+                            Full_list.Add(Raw_Entry_List[1]);
+                            Full_list.Add(Raw_Entry_List[2]);
+                            Full_list.Add(Raw_Entry_List[3]);
+                        }
                     }
                 }
                 else
@@ -2389,7 +2398,6 @@ namespace UHFReader288MPDemo
                         connected = true;
 
                         //get all the items in the inventory
-                        
                         var cmd = new NpgsqlCommand("SELECT epc FROM item_inventory;", conn);
                         reader = cmd.ExecuteReader();
                         while (reader.Read())
@@ -2414,11 +2422,13 @@ namespace UHFReader288MPDemo
                             {
                                 error_list.Add(reader["epc"].ToString());
                                 error_list.Add("e");
+                                error_list.Add(reader["manual_status"].ToString());
                             }
                             else
                             {
                                 error_list.Add(reader["epc"].ToString());
                                 error_list.Add("ne");
+                                error_list.Add(reader["manual_status"].ToString());
                             }
                         }
                         reader.Close();
@@ -2429,7 +2439,7 @@ namespace UHFReader288MPDemo
                         {
                             int i;
                             conn.Open();
-                            for(i = 0; i < error_list.Count; i += 2)
+                            for(i = 0; i < error_list.Count; i += 3)
                             {
                                 if(error_list[i+1] == "e")
                                 {
@@ -2449,6 +2459,7 @@ namespace UHFReader288MPDemo
                         if (active_mode)
                         {
                             //active mode
+                            ignore_list_timer.Enabled = false;
                             int sleep_seconds = 10;
                             int minimum_idle_time = 30;
                             int i;
@@ -2504,139 +2515,120 @@ namespace UHFReader288MPDemo
                             //passive mode
                             ignore_list_timer.Enabled = true;
                             run_epc_checker = false;
-                            int new_total_entry_count = 0;
 
-                            //initialisation of the passive mode
-                            if(passive_init)
+                            //one time initialisation to get the manual status of all the items
+                            if (passive_init)
                             {
-                                conn.Open();
-                                cmd = new NpgsqlCommand("SELECT COUNT(epc) FROM item_inventory", conn);
-                                total_entry_count = Convert.ToInt32(cmd.ExecuteScalar());
-                                conn.Close();
+                                passive_list.Clear();
                                 passive_init = false;
-
-                                //initialised the item_status_list
-                                item_status_list.Clear();
                                 conn.Open();
                                 cmd = new NpgsqlCommand("SELECT * FROM item_status;", conn);
                                 reader = cmd.ExecuteReader();
-                                while (reader.Read())
+                                while(reader.Read())
                                 {
-                                    if (item_status_list.Contains(reader["epc"].ToString()))
-                                    {
-                                        //item_status_list already has a record of this epc
-                                    }
-                                    else
-                                    {
-                                        //add to item_status_list
-                                        item_status_list.Add(reader["epc"].ToString());
-                                        item_status_list.Add(reader["manual_status"].ToString());
-                                        item_status_list.Add(reader["automated_status"].ToString());
-                                    }
+                                    passive_list.Add(reader["epc"].ToString());
+                                    passive_list.Add(reader["manual_status"].ToString());
+                                    passive_list.Add("0");
                                 }
+                                reader.Close();
                                 conn.Close();
                             }
 
-                            //recurring check each time
-
-                            //check total number of entries on database
-                            conn.Open();
-                            cmd = new NpgsqlCommand("SELECT COUNT(epc) FROM item_inventory", conn);
-                            new_total_entry_count = Convert.ToInt32(cmd.ExecuteScalar());
-                            conn.Close();
-
-                            //Check if there any new entries to the database or removal
-                            if(new_total_entry_count != total_entry_count)
-                            {
-                                item_status_list.Clear();
-                                conn.Open();
-                                cmd = new NpgsqlCommand("SELECT * FROM item_status;", conn);
-                                reader = cmd.ExecuteReader();
-                                while (reader.Read())
-                                {
-                                    if (item_status_list.Contains(reader["epc"].ToString()))
-                                    {
-                                        //item_status_list already has a record of this epc
-                                    }
-                                    else
-                                    {
-                                        //add to item_status_list
-                                        item_status_list.Add(reader["epc"].ToString());
-                                        item_status_list.Add(reader["manual_status"].ToString());
-                                        item_status_list.Add(reader["automated_status"].ToString());
-                                    }
-                                }
-                                conn.Close();
-                            }
-
-                            //Check if any item passes by the Antenna
-                            //if full list has any entries
+                            //if antenna picks up any signal
                             if(Full_list.Any())
                             {
                                 int i;
-                                for( i = 0; i < Full_list.Count; i += 4)
+                                for (i = 0; i < Full_list.Count(); i += 4)
                                 {
-                                    if(ignore_list.Contains(Full_list[i]))
+                                    //check if the signal is in the ignore list
+                                    if (ignore_list.Contains(Full_list[i]))
                                     {
+                                        //ignore the signal
                                     }
                                     else
                                     {
-                                        temp_list.Add(Full_list[i]);
                                         ignore_list.Add(Full_list[i]);
-                                        conn.Open();
-                                        cmd = new NpgsqlCommand("SELECT * FROM item_status WHERE epc = '" + Full_list[i] + "';", conn);
-                                        reader = cmd.ExecuteReader();
-                                        while (reader.Read())
+                                        int ioi = passive_list.IndexOf(Full_list[i]);
+                                        //automated status is checked out
+                                        if (passive_list[ioi + 1] == "Checked Out")
                                         {
-                                            temp_list.Add(reader["manual_status"].ToString());
-                                            temp_list.Add(reader["automated_status"].ToString());
+                                            //check if the automated signal has been inverted
+                                            if (passive_list[ioi + 2] == "0")
+                                            {
+                                                //signal has not been inverted
+                                                conn.Open();
+                                                cmd = new NpgsqlCommand("UPDATE item_status SET automated_status = 'Available', last_read_time = '" + Full_list[i + 2] + "' WHERE epc = '" + Full_list[i] + "';", conn);
+                                                cmd.ExecuteNonQuery();
+                                                conn.Close();
+                                                passive_list[ioi + 2] = "1";
+                                                Console.WriteLine(Full_list[i] + " available.");
+                                            }
+                                            else
+                                            {
+                                                //signal has been inverted
+                                            }
+
                                         }
-                                        conn.Close();
+                                        else if (passive_list[ioi + 1] == "Available")
+                                        {
+                                            //check if the automated signal has been inverted
+                                            if (passive_list[ioi + 2] == "0")
+                                            {
+                                                //signal has not been inverted
+                                                conn.Open();
+                                                cmd = new NpgsqlCommand("UPDATE item_status SET automated_status = 'Checked Out', last_read_time = '" + Full_list[i + 2] + "' WHERE epc = '" + Full_list[i] + "';", conn);
+                                                cmd.ExecuteNonQuery();
+                                                conn.Close();
+                                                passive_list[ioi + 2] = "1";
+                                                Console.WriteLine(Full_list[i] + " checked out.");
+                                            }
+                                            else
+                                            {
+                                                //signal has been inverted
+                                            }
+                                        }
                                     }
                                 }
 
-                                int ioi;
-                                for ( i = 0; i < temp_list.Count; i += 3)
+                                //get the latest status updates from the database
+                                temp_list.Clear();
+                                conn.Open();
+                                cmd = new NpgsqlCommand("SELECT * FROM item_status;", conn);
+                                reader = cmd.ExecuteReader();
+                                while (reader.Read())
                                 {
-                                    ioi = item_status_list.IndexOf(temp_list[i]);
-                                    if(temp_list[i + 1] == item_status_list[ioi + 1])
-                                    {
-                                        //item not yet updated manually
-                                        conn.Open();
-                                        cmd = new NpgsqlCommand("UPDATE item_status SET error_status = 'Error' WHERE epc = '" + temp_list[i] + "'", conn);
-                                        cmd.ExecuteNonQuery();
-                                        conn.Close();
-                                    }
-                                    else if(temp_list[i + 1] != item_status_list[ioi + 1])
-                                    {
-                                        //item updated manually already
-                                        if(temp_list[i + 1] == "Available")
-                                        {
-                                            conn.Open();
-                                            cmd = new NpgsqlCommand("UPDATE item_status SET automated_status = 'Available' WHERE epc = '" + temp_list[i] + "'", conn);
-                                            cmd.ExecuteNonQuery();
-                                            conn.Close();
-                                            item_status_list[ioi + 1] = "Available";
-                                        }
-                                        if (temp_list[i + 1] == "Checked Out")
-                                        {
-                                            conn.Open();
-                                            cmd = new NpgsqlCommand("UPDATE item_status SET automated_status = 'Checked Out' WHERE epc = '" + temp_list[i] + "'", conn);
-                                            cmd.ExecuteNonQuery();
-                                            conn.Close();
-                                            item_status_list[ioi + 1] = "Checked Out";
-                                        }
+                                    temp_list.Add(reader["epc"].ToString());
+                                    temp_list.Add(reader["manual_status"].ToString());
+                                }
+                                reader.Close();
+                                conn.Close();
 
-                                        int uou = Full_list.IndexOf(temp_list[i]);
-                                        Full_list.RemoveRange(uou, 4);
-                                        Console.WriteLine("Removed " + temp_list[i]);
+                                //check all the signals on the list, check for states "1"
+                                for (i = 0; i < passive_list.Count(); i += 3)
+                                {
+                                    if(passive_list[i + 2] == "1")
+                                    {
+                                        //signal has been inverted, check if the new manual status correspond to the change
+                                        int ioi = temp_list.IndexOf(passive_list[i]);
+                                        if(passive_list[i+1] == temp_list[ioi+1])
+                                        {
+                                            //item has not been updated manually
+                                        }
+                                        else
+                                        {
+                                            //item has been updated manually
+                                            passive_list[i + 1] = temp_list[ioi + 1];
+                                            passive_list[i + 2] = "0";
+                                            int uou = Full_list.IndexOf(passive_list[i]);
+                                            temp_ignore_list.Add(passive_list[i]);
+                                            temp_ignore_list.Add(DateTime.Now.ToString());
+                                            Full_list.RemoveRange(uou, 4);
+                                            Console.WriteLine("Test");
+                                        }
                                     }
                                 }
+                                temp_list.Clear();
                             }
-                            else
-                            {
-                            }
-                            temp_list.Clear();
                             run_epc_checker = true;
                         }
                     }
@@ -2727,14 +2719,12 @@ namespace UHFReader288MPDemo
                 lbl_alarm.Text = "DC";
             }
         }
-        
+
         private void lbl_alarm_Click(object sender, EventArgs e)
         {
             Inventory_Monitoring.Form2 f2 = new Inventory_Monitoring.Form2();
             f2.ShowDialog();
         }
-
-        public string command_line;
 
         private void date_query_ValueChanged(object sender, EventArgs e)
         {
@@ -2786,7 +2776,14 @@ namespace UHFReader288MPDemo
             try
             {
                 conn.Open();
-                string command = "SELECT * FROM item_status;";
+                string command = "SELECT item_inventory.epc, item_inventory.item_serial_number, item_inventory.item_name, item_inventory.item_condition, item_inventory.item_location, item_inventory.item_description, " +
+                "item_status.manual_status, item_status.automated_status, " +
+                "item_movement.personnel_checked_in, item_movement.time_in, item_movement.personnel_checked_out,item_movement.time_out " +
+                "FROM item_inventory " +
+                "JOIN item_status " +
+                "ON item_inventory.epc = item_status.epc " +
+                "JOIN item_movement " +
+                "ON item_status.epc = item_movement.epc ";
                 NpgsqlDataAdapter dataadapter_query = new NpgsqlDataAdapter(command, conn);
                 dataset_query.Reset();
                 dataadapter_query.Fill(dataset_query);
@@ -2796,7 +2793,7 @@ namespace UHFReader288MPDemo
             }
             catch (Exception em)
             {
-                MessageBox.Show("Connection to the database is not established.");
+                MessageBox.Show("Failed to connect to database.");
             }
         }
 
@@ -2826,9 +2823,18 @@ namespace UHFReader288MPDemo
             }
         }
 
+        public string command_line;
+
         private void bn_build_command_Click(object sender, EventArgs e)
         {
-            command_line = "SELECT * FROM item_inventory ";
+            command_line = "SELECT item_inventory.epc, item_inventory.item_serial_number, item_inventory.item_name, item_inventory.item_condition, item_inventory.item_location, item_inventory.item_description, " +
+                "item_status.manual_status, item_status.automated_status, " +
+                "item_movement.personnel_checked_in, item_movement.time_in, item_movement.personnel_checked_out,item_movement.time_out " +
+                "FROM item_inventory " +
+                "JOIN item_status " +
+                "ON item_inventory.epc = item_status.epc " +
+                "JOIN item_movement " +
+                "ON item_status.epc = item_movement.epc ";
             int checker = 0;
 
             if (tb_query_epc.Text.Length > 0)
@@ -2836,13 +2842,13 @@ namespace UHFReader288MPDemo
                 if (checker == 0)
                 {
                     command_line += "WHERE ";
-                    command_line += "EPC = '" + tb_query_epc.Text + "' ";
+                    command_line += "item_inventory.EPC = '" + tb_query_epc.Text + "' ";
                     checker++;
                 }
                 else
                 {
                     command_line += "AND ";
-                    command_line += "EPC = '" + tb_query_epc.Text + "' ";
+                    command_line += "item_inventory.EPC = '" + tb_query_epc.Text + "' ";
                 }
             }
 
@@ -2851,13 +2857,13 @@ namespace UHFReader288MPDemo
                 if (checker == 0)
                 {
                     command_line += "WHERE ";
-                    command_line += "item_sn = '" + tb_query_sn.Text + "' ";
+                    command_line += "item_inventory.item_serial_number = '" + tb_query_sn.Text + "' ";
                     checker++;
                 }
                 else
                 {
                     command_line += "AND ";
-                    command_line += "item_sn = '" + tb_query_sn.Text + "' ";
+                    command_line += "item_inventory.item_serial_number = '" + tb_query_sn.Text + "' ";
                 }
             }
 
@@ -2866,13 +2872,13 @@ namespace UHFReader288MPDemo
                 if (checker == 0)
                 {
                     command_line += "WHERE ";
-                    command_line += "time_check_out LIKE '%" + date_query.Text + "%' ";
+                    command_line += "item_movement.time_out LIKE '%" + date_query.Text + "%' ";
                     checker++;
                 }
                 else
                 {
                     command_line += "AND ";
-                    command_line += "time_check_out LIKE '%" + date_query.Text + "%' ";
+                    command_line += "item_movement.time_out LIKE '%" + date_query.Text + "%' ";
                 }
             }
 
@@ -2881,13 +2887,13 @@ namespace UHFReader288MPDemo
                 if (checker == 0)
                 {
                     command_line += "WHERE ";
-                    command_line += "time_checked_in LIKE '%" + date_checkin_query.Text + "%' ";
+                    command_line += "item_movement.time_in LIKE '%" + date_checkin_query.Text + "%' ";
                     checker++;
                 }
                 else
                 {
                     command_line += "AND ";
-                    command_line += "time_checked_in LIKE '%" + date_checkin_query.Text + "%' ";
+                    command_line += "item_movement.time_in LIKE '%" + date_checkin_query.Text + "%' ";
                 }
             }
 
@@ -2896,13 +2902,13 @@ namespace UHFReader288MPDemo
                 if (checker == 0)
                 {
                     command_line += "WHERE ";
-                    command_line += "personnel_checked_out LIKE '%" + tb_user_checkout.Text + "%' ";
+                    command_line += "item_movement.personnel_checked_out LIKE '%" + tb_user_checkout.Text + "%' ";
                     checker++;
                 }
                 else
                 {
                     command_line += "AND ";
-                    command_line += "personnel_checked_out LIKE '%" + tb_user_checkout.Text + "%' ";
+                    command_line += "item_movement.personnel_checked_out LIKE '%" + tb_user_checkout.Text + "%' ";
                 }
             }
 
@@ -2911,13 +2917,13 @@ namespace UHFReader288MPDemo
                 if (checker == 0)
                 {
                     command_line += "WHERE ";
-                    command_line += "personnel_checked_in LIKE '%" + tb_user_checkin.Text + "%' ";
+                    command_line += "item_movement.personnel_checked_in LIKE '%" + tb_user_checkin.Text + "%' ";
                     checker++;
                 }
                 else
                 {
                     command_line += "AND ";
-                    command_line += "personnel_checked_in LIKE '%" + tb_user_checkin.Text + "%' ";
+                    command_line += "item_movement.personnel_checked_in LIKE '%" + tb_user_checkin.Text + "%' ";
                 }
             }
 
@@ -2926,13 +2932,13 @@ namespace UHFReader288MPDemo
                 if (checker == 0)
                 {
                     command_line += "WHERE ";
-                    command_line += "tagname LIKE '%" + tb_query_model.Text + "%' ";
+                    command_line += "item_inventory.item_name LIKE '%" + tb_query_model.Text + "%' ";
                     checker++;
                 }
                 else
                 {
                     command_line += "AND ";
-                    command_line += "tagname LIKE '%" + tb_query_model.Text + "%' ";
+                    command_line += "item_inventory.item_name LIKE '%" + tb_query_model.Text + "%' ";
                 }
             }
 
@@ -2941,13 +2947,13 @@ namespace UHFReader288MPDemo
                 if (checker == 0)
                 {
                     command_line += "WHERE ";
-                    command_line += "tagloc LIKE '%" + tb_item_location.Text + "%' ";
+                    command_line += "item_inventory.item_location LIKE '%" + tb_item_location.Text + "%' ";
                     checker++;
                 }
                 else
                 {
                     command_line += "AND ";
-                    command_line += "tagloc LIKE '%" + tb_item_location.Text + "%' ";
+                    command_line += "item_inventory.item_location LIKE '%" + tb_item_location.Text + "%' ";
                 }
             }
 
@@ -2956,13 +2962,13 @@ namespace UHFReader288MPDemo
                 if (checker == 0)
                 {
                     command_line += "WHERE ";
-                    command_line += "item_condition = '" + cb_item_condition.Text + "' ";
+                    command_line += "item_inventory.item_condition = '" + cb_item_condition.Text + "' ";
                     checker++;
                 }
                 else
                 {
                     command_line += "AND ";
-                    command_line += "item_condition = '" + cb_item_condition.Text + "' ";
+                    command_line += "item_inventory.item_condition = '" + cb_item_condition.Text + "' ";
                 }
             }
 
@@ -2971,13 +2977,13 @@ namespace UHFReader288MPDemo
                 if (checker == 0)
                 {
                     command_line += "WHERE ";
-                    command_line += "tagdesc LIKE '%" + tb_item_remarks.Text + "%' ";
+                    command_line += "item_inventory.item_description LIKE '%" + tb_item_remarks.Text + "%' ";
                     checker++;
                 }
                 else
                 {
                     command_line += "AND ";
-                    command_line += "tagdesc LIKE '%" + tb_item_remarks.Text + "%' ";
+                    command_line += "item_inventory.item_description LIKE '%" + tb_item_remarks.Text + "%' ";
                 }
             }
 
@@ -3002,11 +3008,12 @@ namespace UHFReader288MPDemo
         private void button_mode_set_Click(object sender, EventArgs e)
         {
             Full_list.Clear();
-            inventory_list.Clear();
             remove_list.Clear();
             item_status_list.Clear();
             temp_list.Clear();
             ignore_list.Clear();
+            temp_ignore_list.Clear();
+            passive_list.Clear();
 
             if(rb_active.Checked)
             {
@@ -3050,35 +3057,24 @@ namespace UHFReader288MPDemo
             {
                 string connstring = String.Format("Host=localhost;Port=5432;User Id=Admin;Password=password;Database=Inventory;");
                 NpgsqlConnection conn = new NpgsqlConnection(connstring);
-                if (active_mode)
+                
+                if(inventory_list.Contains(tb_efx_epc.Text))
                 {
-                    if(inventory_list.Contains(tb_efx_epc.Text))
+                    conn.Open();
+                    var cmd = new NpgsqlCommand("UPDATE item_status SET automated_status = '"+ cb_efx_status.Text + "', manual_status = '"+ cb_efx_status.Text + "' WHERE epc = '"+ tb_efx_epc.Text + "';", conn);
+                    cmd.ExecuteNonQuery();
+                    conn.Close();
+                    MessageBox.Show("Edit Success.");
+                    if(!active_mode)
                     {
-                        conn.Open();
-                        var cmd = new NpgsqlCommand("UPDATE item_status SET automated_status = '"+ cb_efx_status.Text + "', manual_status = '"+ cb_efx_status.Text + "' WHERE epc = '"+ tb_efx_epc.Text + "';", conn);
-                        cmd.ExecuteNonQuery();
-                        conn.Close();
-                        MessageBox.Show("Edit Success.");
-                    }
-                    else
-                    {
-                        MessageBox.Show("The EPC does not exist on the database.");
+                        int ioi = passive_list.IndexOf(tb_efx_epc.Text);
+                        passive_list[ioi + 1] = cb_efx_status.Text;
+                        passive_list[ioi + 2] = "0";
                     }
                 }
                 else
                 {
-                    if (item_status_list.Contains(tb_efx_epc.Text))
-                    {
-                        conn.Open();
-                        var cmd = new NpgsqlCommand("UPDATE item_status SET automated_status = '" + cb_efx_status.Text + "', manual_status = '" + cb_efx_status.Text + "' WHERE epc = '" + tb_efx_epc.Text + "';", conn);
-                        cmd.ExecuteNonQuery();
-                        conn.Close();
-                        MessageBox.Show("Edit Success.");
-                    }
-                    else
-                    {
-                        MessageBox.Show("The EPC does not exist on the database.");
-                    }
+                    MessageBox.Show("The EPC does not exist on the database.");
                 }
             }
         }
@@ -3086,11 +3082,33 @@ namespace UHFReader288MPDemo
         private void ignore_list_timer_Tick(object sender, EventArgs e)
         {
             int i = 0;
-            for(i = 0; i < ignore_list.Count; i++)
-            {
-                Console.WriteLine("Ignore List: " + ignore_list[i]);
-            }
             ignore_list.Clear();
+        }
+
+        private void temp_ignore_list_timer_Tick(object sender, EventArgs e)
+        {
+            int i;
+            var temp_remove_list = new List<string>();
+            if(temp_ignore_list.Any())
+            {
+                for (i = 0; i < temp_ignore_list.Count(); i += 2)
+                {
+                    if (Convert.ToInt32((DateTime.Now).Subtract((Convert.ToDateTime(temp_ignore_list[i + 1]))).TotalSeconds) > 60)
+                    {
+                        temp_remove_list.Add(temp_ignore_list[i]);
+                    }
+                }
+            }
+
+            if(temp_remove_list.Any())
+            {
+                for(i = 0; i < temp_remove_list.Count(); i++)
+                {
+                    int ioi = temp_ignore_list.IndexOf(temp_remove_list[i]);
+                    temp_ignore_list.RemoveRange(ioi, 2);
+                }
+            }
+            temp_remove_list.Clear();
         }
     }
 }

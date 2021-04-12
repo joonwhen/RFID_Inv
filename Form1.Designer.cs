@@ -255,6 +255,7 @@
             this.alarm_checker = new System.Windows.Forms.Timer(this.components);
             this.timer_datetime = new System.Windows.Forms.Timer(this.components);
             this.ignore_list_timer = new System.Windows.Forms.Timer(this.components);
+            this.temp_ignore_list_timer = new System.Windows.Forms.Timer(this.components);
             this.Maintab.SuspendLayout();
             this.Main_Page1.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -2168,13 +2169,13 @@
             this.rb_passive.Name = "rb_passive";
             this.rb_passive.Size = new System.Drawing.Size(92, 17);
             this.rb_passive.TabIndex = 4;
-            this.rb_passive.TabStop = true;
             this.rb_passive.Text = "Passive Mode";
             this.rb_passive.UseVisualStyleBackColor = true;
             // 
             // rb_active
             // 
             this.rb_active.AutoSize = true;
+            this.rb_active.Checked = true;
             this.rb_active.Location = new System.Drawing.Point(9, 20);
             this.rb_active.Name = "rb_active";
             this.rb_active.Size = new System.Drawing.Size(85, 17);
@@ -2807,6 +2808,12 @@
             this.ignore_list_timer.Interval = 30000;
             this.ignore_list_timer.Tick += new System.EventHandler(this.ignore_list_timer_Tick);
             // 
+            // temp_ignore_list_timer
+            // 
+            this.temp_ignore_list_timer.Enabled = true;
+            this.temp_ignore_list_timer.Interval = 1000;
+            this.temp_ignore_list_timer.Tick += new System.EventHandler(this.temp_ignore_list_timer_Tick);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -2817,7 +2824,7 @@
             this.MaximizeBox = false;
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "UHFReader288MP Demo V2.2";
+            this.Text = "RFID Reader V1.0";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.Maintab.ResumeLayout(false);
@@ -3128,6 +3135,7 @@
         private System.Windows.Forms.Label efx_warning;
         private System.Windows.Forms.Button efx_authorise;
         private System.Windows.Forms.Timer ignore_list_timer;
+        private System.Windows.Forms.Timer temp_ignore_list_timer;
     }
 }
 
